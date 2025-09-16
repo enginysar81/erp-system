@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%- title || 'ERP Sistemi' %></title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="/css/style.css?v=<%= cssVersion %>" rel="stylesheet">
+    <style>
+        /* Modern Dynamic Menu System with Glassmorphism */
+        .sidebar {
+            position: fixed;
+            left: -280px; /* Hidden by default - increased width */
+            top: 0;
+            width: 280px;
+            height: 100vh;
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.15) 0%,
+                rgba(168, 85, 247, 0.15) 25%,
+                rgba(236, 72, 153, 0.15) 50%,
+                rgba(59, 130, 246, 0.15) 75%,
+                rgba(16, 185, 129, 0.15) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+            overflow: hidden;
+            padding: 24px;
+        }
+        
+        .sidebar.open {
+            left: 0;
+            transform: translateX(0);
+        }
+        
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.1) 0%,
+                rgba(168, 85, 247, 0.1) 25%,
+                rgba(236, 72, 153, 0.1) 50%,
+                rgba(59, 130, 246, 0.1) 75%,
+                rgba(16, 185, 129, 0.1) 100%);
+            z-index: -1;
+            animation: gradientShift 10s ease infinite;
+        }
+        
+        @keyframes gradientShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* Stylish Hamburger Button */
+        .hamburger-menu {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            width: 56px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            font-size: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .hamburger-menu:hover {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        .hamburger-menu.menu-open {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            transform: rotate(90deg);
+            box-shadow: 0 15px 35px rgba(245, 87, 108, 0.5);
+        }
+        
+        /* Enhanced Overlay */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.4) 0%,
+                rgba(79, 70, 229, 0.2) 50%,
+                rgba(0, 0, 0, 0.4) 100%);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        .menu-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Main content with smooth transitions */
+        .main-content {
+            margin-left: 0;
+            min-height: 100vh;
+            padding-top: 90px;
+            transition: all 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+        
+        /* Modern Navigation Groups */
+        .nav-group {
+            margin-bottom: 8px;
+            position: relative;
+        }
+        
+        .nav-group-header {
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .nav-submenu {
+            margin-left: 0;
+            margin-top: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.1) 0%,
+                rgba(255, 255, 255, 0.05) 100%);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .nav-group.open .nav-submenu {
+            max-height: 300px;
+            padding: 12px 0;
+            margin-bottom: 8px;
+        }
+        
+        .submenu-link {
+            font-size: 14px;
+            padding: 12px 20px !important;
+            margin: 4px 12px;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .submenu-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .submenu-link:hover::before {
+            left: 100%;
+        }
+        
+        .submenu-link:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(8px);
+            color: #fff;
+        }
+        
+        .submenu-link i {
+            width: 20px;
+            font-size: 14px;
+            margin-right: 12px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Dynamic Arrow Animation */
+        .nav-arrow {
+            float: right;
+            font-size: 12px;
+            margin-top: 6px;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .nav-group.open .nav-arrow {
+            transform: rotate(180deg);
+            color: #60a5fa;
+        }
+        
+        /* Modern Navigation Links */
+        .nav-link {
+            position: relative;
+            border-radius: 14px;
+            margin: 6px 0;
+            padding: 14px 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            font-size: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 1px solid transparent;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.1), 
+                transparent);
+            transition: left 0.6s;
+        }
+        
+        .nav-link:hover::before {
+            left: 100%;
+        }
+        
+        .nav-link:hover {
+            background: linear-gradient(135deg, 
+                rgba(255, 255, 255, 0.15) 0%,
+                rgba(255, 255, 255, 0.1) 100%);
+            transform: translateX(10px) scale(1.02);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            color: #fff;
+        }
+        
+        .nav-link.active {
+            background: linear-gradient(135deg, 
+                rgba(99, 102, 241, 0.8) 0%,
+                rgba(168, 85, 247, 0.8) 50%,
+                rgba(236, 72, 153, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            color: #fff;
+            transform: translateX(5px);
+        }
+        
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+        
+        .nav-link i {
+            font-size: 18px;
+            margin-right: 14px;
+            width: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link:hover i {
+            transform: scale(1.2) rotate(5deg);
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+        }
+        
+        /* Modern Brand Section */
+        .sidebar h4 {
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 50%, #f472b6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .sidebar h4::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+            border-radius: 2px;
+        }
+        
+        /* Enhanced Language Switcher */
+        .language-switcher {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .language-switcher .btn {
+            flex: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .language-switcher .btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        
+        .language-switcher .btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* Enhanced Scrollbar */
+        .sidebar nav {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            max-height: calc(100vh - 180px);
+            padding-right: 8px;
+        }
+        
+        .sidebar nav::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .sidebar nav::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+        
+        .sidebar nav::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .sidebar nav::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hamburger-menu {
+                top: 15px;
+                left: 15px;
+                width: 48px;
+                height: 48px;
+                font-size: 18px;
+            }
+            
+            .main-content {
+                padding-top: 80px;
+            }
+            
+            .sidebar {
+                width: 260px;
+                left: -260px;
+            }
+            
+            .nav-link {
+                padding: 12px 18px;
+                font-size: 14px;
+            }
+            
+            .submenu-link {
+                padding: 10px 18px !important;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+            }
+            
+            .hamburger-menu {
+                width: 44px;
+                height: 44px;
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-height: 700px) {
+            .sidebar nav {
+                max-height: calc(100vh - 150px);
+            }
+            
+            .nav-link {
+                padding: 10px 18px;
+                font-size: 14px;
+            }
+            
+            .submenu-link {
+                padding: 8px 18px !important;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .sidebar nav {
+                max-height: calc(100vh - 120px);
+            }
+            
+            .language-switcher {
+                margin-bottom: 16px;
+            }
+            
+            .sidebar h4 {
+                font-size: 20px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Global Menu Hamburger Button -->
+    <button class="hamburger-menu" id="hamburger-btn" onclick="toggleGlobalMenu()" data-testid="button-hamburger-menu">
+        <i class="fas fa-bars"></i>
+    </button>
+    
+    <!-- Global Menu Overlay -->
+    <div class="menu-overlay" id="menu-overlay" onclick="closeGlobalMenu()"></div>
+    
+    <!-- Fixed Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="d-flex items-center mb-lg">
+            <i class="fas fa-building text-white" style="font-size: 1.5rem; margin-right: 12px;"></i>
+            <h4 style="color: white; margin: 0; font-weight: 600;">ERP</h4>
+        </div>
+        
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <a href="?lang=tr" class="btn <%= locale === 'tr' ? 'active' : '' %>">TR</a>
+            <a href="?lang=pl" class="btn <%= locale === 'pl' ? 'active' : '' %>">PL</a>
+            <a href="?lang=ua" class="btn <%= locale === 'ua' ? 'active' : '' %>">UA</a>
+        </div>
+        
+        <!-- Navigation -->
+        <nav>
+            <a class="nav-link <%= currentPage === 'dashboard' ? 'active' : '' %>" href="/">
+                <i class="fas fa-tachometer-alt"></i>
+                <%= __('menu.dashboard') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'products' ? 'active' : '' %>" href="/products">
+                <i class="fas fa-box"></i>
+                <%= __('menu.products') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'warehouses' ? 'active' : '' %>" href="/warehouses">
+                <i class="fas fa-warehouse"></i>
+                <%= __('menu.warehouses') %>
+            </a>
+            <!-- Stock Management Group -->
+            <div class="nav-group" data-group="stock">
+                <a class="nav-link nav-group-header <%= currentPage === 'stock' ? 'active' : '' %>" href="#" onclick="toggleNavGroup('stock', event)">
+                    <i class="fas fa-cubes"></i>
+                    <%= __('menu.stock') %>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
+                </a>
+                <div class="nav-submenu">
+                    <a class="nav-link submenu-link <%= currentPage === 'stock_by_warehouse' ? 'active' : '' %>" href="/stock/by-warehouse">
+                        <i class="fas fa-warehouse"></i>
+                        <%= __('stockByWarehouse.title') %>
+                    </a>
+                    <a class="nav-link submenu-link <%= currentPage === 'stock_movements' ? 'active' : '' %>" href="/stock/movements">
+                        <i class="fas fa-exchange-alt"></i>
+                        <%= __('stockMovements.title') %>
+                    </a>
+                    <a class="nav-link submenu-link" href="/stock/levels">
+                        <i class="fas fa-chart-bar"></i>
+                        <%= __('menu.stockLevels') %>
+                    </a>
+                    <a class="nav-link submenu-link" href="/stock/alerts">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <%= __('menu.stockAlerts') %>
+                    </a>
+                </div>
+            </div>
+            <a class="nav-link <%= currentPage === 'sales' ? 'active' : '' %>" href="/sales">
+                <i class="fas fa-chart-line"></i>
+                <%= __('menu.sales') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'customers' ? 'active' : '' %>" href="/customers">
+                <i class="fas fa-users"></i>
+                <%= __('menu.customers') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'accounting' ? 'active' : '' %>" href="/accounting">
+                <i class="fas fa-calculator"></i>
+                <%= __('menu.accounting') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'reports' ? 'active' : '' %>" href="/reports">
+                <i class="fas fa-file-alt"></i>
+                <%= __('menu.reports') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'messages' ? 'active' : '' %>" href="/messages">
+                <i class="fas fa-envelope"></i>
+                <%= __('menu.messages') %>
+            </a>
+            <a class="nav-link <%= currentPage === 'users' ? 'active' : '' %>" href="/users">
+                <i class="fas fa-user-cog"></i>
+                <%= __('menu.users') %>
+            </a>
+            <!-- Settings Submenu -->
+            <div class="nav-group" data-group="settings">
+                <a class="nav-link nav-group-header <%= currentPage === 'settings' ? 'active' : '' %>" href="#" onclick="toggleNavGroup('settings', event)">
+                    <i class="fas fa-cog"></i>
+                    <%= __('menu.settings') %>
+                    <i class="fas fa-chevron-down nav-arrow"></i>
+                </a>
+                <div class="nav-submenu">
+                    <a class="nav-link submenu-link" href="/settings/attributes?lang=<%= locale %>">
+                        <i class="fas fa-tags"></i>
+                        <%= __('menu.attributes') %>
+                    </a>
+                    <a class="nav-link submenu-link <%= currentPage === 'labelDesigner' ? 'active' : '' %>" href="/settings/labels?lang=<%= locale %>">
+                        <i class="fas fa-tag"></i>
+                        <%= __('menu.labelDesigner') %>
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <%- body %>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Client-side translations for JavaScript -->
+    <script>
+        window.i18nUnits = {
+            quantity: '<%= __("stockIn.quantity.label") %>',
+            unit: '<%= __("stockIn.quantity.unit") %>',
+            pieces: '<%= __("common.unit.pieces") %>',
+            meters: '<%= __("common.unit.meters") %>',
+            unitMetre: '<%= __("unit.metre") %>',
+            unitAdet: '<%= __("unit.adet") %>',
+            currencyPLN: '<%= __("currency.pln") %>',
+            currencyUSD: '<%= __("currency.usd") %>',
+            currencyUAH: '<%= __("currency.uah") %>'
+        };
+    </script>
+    
+    <script src="/js/main.js?v=<%= new Date().getTime() %>"></script>
+    
+    <!-- Modern Dynamic Menu JavaScript -->
+    <script>
+        // Global Menu State Management
+        let isMenuOpen = false;
+        let activeNavGroups = new Set();
+        
+        // Load menu state from localStorage
+        function loadMenuState() {
+            const savedState = localStorage.getItem('erp-menu-state');
+            const savedGroups = localStorage.getItem('erp-nav-groups');
+            if (savedGroups) {
+                activeNavGroups = new Set(JSON.parse(savedGroups));
+            }
+            return savedState === 'open';
+        }
+        
+        // Save menu state to localStorage
+        function saveMenuState(isOpen) {
+            localStorage.setItem('erp-menu-state', isOpen ? 'open' : 'closed');
+            localStorage.setItem('erp-nav-groups', JSON.stringify([...activeNavGroups]));
+        }
+        
+        // Toggle navigation group (submenu)
+        function toggleNavGroup(groupName, event) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const navGroup = document.querySelector(`[data-group="${groupName}"]`);
+            if (!navGroup) return;
+            
+            const isCurrentlyOpen = navGroup.classList.contains('open');
+            
+            if (isCurrentlyOpen) {
+                // Close the group
+                navGroup.classList.remove('open');
+                activeNavGroups.delete(groupName);
+                
+                // Add closing animation
+                const submenu = navGroup.querySelector('.nav-submenu');
+                submenu.style.animation = 'slideUp 0.3s ease-out';
+                setTimeout(() => {
+                    submenu.style.animation = '';
+                }, 300);
+            } else {
+                // Open the group
+                navGroup.classList.add('open');
+                activeNavGroups.add(groupName);
+                
+                // Add opening animation
+                const submenu = navGroup.querySelector('.nav-submenu');
+                submenu.style.animation = 'slideDown 0.3s ease-out';
+                setTimeout(() => {
+                    submenu.style.animation = '';
+                }, 300);
+            }
+            
+            saveMenuState(isMenuOpen);
+        }
+        
+        // Toggle global menu with enhanced animations
+        function toggleGlobalMenu() {
+            if (isMenuOpen) {
+                closeGlobalMenu();
+            } else {
+                openGlobalMenu();
+            }
+        }
+        
+        // Open global menu with smooth animations
+        function openGlobalMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('menu-overlay');
+            const mainContent = document.querySelector('.main-content');
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            
+            isMenuOpen = true;
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+            mainContent.classList.add('menu-open');
+            hamburgerBtn.classList.add('menu-open');
+            document.body.style.overflow = 'hidden';
+            
+            // Add staggered animation to menu items
+            const navLinks = sidebar.querySelectorAll('.nav-link');
+            navLinks.forEach((link, index) => {
+                link.style.animation = `slideInLeft 0.3s ease-out ${index * 0.05}s both`;
+            });
+            
+            saveMenuState(true);
+        }
+        
+        // Close global menu with smooth animations
+        function closeGlobalMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('menu-overlay');
+            const mainContent = document.querySelector('.main-content');
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            
+            isMenuOpen = false;
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            mainContent.classList.remove('menu-open');
+            hamburgerBtn.classList.remove('menu-open');
+            document.body.style.overflow = '';
+            
+            // Clear animations
+            const navLinks = sidebar.querySelectorAll('.nav-link');
+            navLinks.forEach((link) => {
+                link.style.animation = '';
+            });
+            
+            saveMenuState(false);
+        }
+        
+        // Initialize menu system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add CSS animations
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInLeft {
+                    from {
+                        opacity: 0;
+                        transform: translateX(-20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateX(0);
+                    }
+                }
+                
+                @keyframes slideDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                @keyframes slideUp {
+                    from {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                    to {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Load saved menu and nav group states
+            const savedMenuOpen = loadMenuState();
+            if (savedMenuOpen) {
+                openGlobalMenu();
+            }
+            
+            // Restore nav group states
+            activeNavGroups.forEach(groupName => {
+                const navGroup = document.querySelector(`[data-group="${groupName}"]`);
+                if (navGroup) {
+                    navGroup.classList.add('open');
+                }
+            });
+            
+            // Handle nav link clicks (close menu on mobile)
+            const navLinks = document.querySelectorAll('.sidebar .nav-link:not(.nav-group-header)');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Close menu on mobile after navigation
+                    if (window.innerWidth <= 768) {
+                        setTimeout(closeGlobalMenu, 200);
+                    }
+                });
+            });
+            
+            // Handle keyboard shortcuts
+            document.addEventListener('keydown', function(event) {
+                // Close menu on Escape key
+                if (event.key === 'Escape' && isMenuOpen) {
+                    closeGlobalMenu();
+                }
+                // Toggle menu with Ctrl/Cmd + M
+                if ((event.ctrlKey || event.metaKey) && event.key === 'm') {
+                    event.preventDefault();
+                    toggleGlobalMenu();
+                }
+                // Close all nav groups with Ctrl/Cmd + Shift + C
+                if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'C') {
+                    event.preventDefault();
+                    document.querySelectorAll('.nav-group.open').forEach(group => {
+                        group.classList.remove('open');
+                    });
+                    activeNavGroups.clear();
+                    saveMenuState(isMenuOpen);
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                // Auto-close menu on very small screens
+                if (window.innerWidth < 480 && isMenuOpen) {
+                    closeGlobalMenu();
+                }
+                
+                // Adjust animations for smaller screens
+                if (window.innerWidth <= 768) {
+                    document.documentElement.style.setProperty('--menu-animation-duration', '0.3s');
+                } else {
+                    document.documentElement.style.setProperty('--menu-animation-duration', '0.5s');
+                }
+            });
+            
+            // Add hover effects for desktop
+            if (window.innerWidth > 768) {
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(link => {
+                    link.addEventListener('mouseenter', function() {
+                        this.style.transform = 'translateX(10px) scale(1.02)';
+                    });
+                    
+                    link.addEventListener('mouseleave', function() {
+                        if (!this.classList.contains('active')) {
+                            this.style.transform = '';
+                        }
+                    });
+                });
+            }
+            
+            // Enhanced touch gesture support for mobile
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isTouchSwiping = false;
+            
+            document.addEventListener('touchstart', function(event) {
+                touchStartX = event.touches[0].clientX;
+                touchStartY = event.touches[0].clientY;
+                isTouchSwiping = false;
+            }, { passive: true });
+            
+            document.addEventListener('touchmove', function(event) {
+                if (!touchStartX || !touchStartY) return;
+                
+                const touchEndX = event.touches[0].clientX;
+                const touchEndY = event.touches[0].clientY;
+                
+                const diffX = touchStartX - touchEndX;
+                const diffY = touchStartY - touchEndY;
+                
+                // Check if it's a horizontal swipe (more horizontal than vertical)
+                if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 30) {
+                    isTouchSwiping = true;
+                    
+                    // Swipe left to close menu (when menu is open)
+                    if (diffX > 80 && isMenuOpen) {
+                        closeGlobalMenu();
+                        event.preventDefault();
+                    } 
+                    // Swipe right from left edge to open menu (when menu is closed)
+                    else if (diffX < -80 && !isMenuOpen && touchStartX < 50) {
+                        openGlobalMenu();
+                        event.preventDefault();
+                    }
+                }
+            }, { passive: false });
+            
+            document.addEventListener('touchend', function(event) {
+                touchStartX = 0;
+                touchStartY = 0;
+                isTouchSwiping = false;
+            }, { passive: true });
+            
+            // Enhanced accessibility features
+            const sidebar = document.getElementById('sidebar');
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            
+            // Focus management for better accessibility
+            hamburgerBtn.addEventListener('focus', function() {
+                this.style.outline = '2px solid #60a5fa';
+                this.style.outlineOffset = '2px';
+            });
+            
+            hamburgerBtn.addEventListener('blur', function() {
+                this.style.outline = '';
+                this.style.outlineOffset = '';
+            });
+            
+            // Trap focus within sidebar when open
+            sidebar.addEventListener('keydown', function(event) {
+                if (!isMenuOpen) return;
+                
+                const focusableElements = sidebar.querySelectorAll(
+                    'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                );
+                const firstElement = focusableElements[0];
+                const lastElement = focusableElements[focusableElements.length - 1];
+                
+                if (event.key === 'Tab') {
+                    if (event.shiftKey) {
+                        if (document.activeElement === firstElement) {
+                            event.preventDefault();
+                            lastElement.focus();
+                        }
+                    } else {
+                        if (document.activeElement === lastElement) {
+                            event.preventDefault();
+                            firstElement.focus();
+                        }
+                    }
+                }
+            });
+            
+            // Performance optimization: debounce resize events
+            let resizeTimeout;
+            const originalResizeHandler = window.addEventListener('resize', function() {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(function() {
+                    // Close menu on desktop if window becomes wide enough
+                    if (window.innerWidth > 768 && isMenuOpen) {
+                        closeGlobalMenu();
+                    }
+                    
+                    // Adjust animations for different screen sizes
+                    if (window.innerWidth <= 768) {
+                        document.documentElement.style.setProperty('--menu-animation-duration', '0.3s');
+                    } else {
+                        document.documentElement.style.setProperty('--menu-animation-duration', '0.5s');
+                    }
+                }, 250);
+            });
+            
+            // Initialize menu system successfully
+            console.log('ERP Menu System: Initialized successfully with touch gestures and accessibility features');
+            
+        }); // Close DOMContentLoaded handler
+    </script>
+    
+    <!-- Additional scripts injection point (outside main menu script) -->
+    <%- typeof scripts !== 'undefined' ? scripts : '' %>
+</body>
+</html>
