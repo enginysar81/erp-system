@@ -1,0 +1,78 @@
+HEDEF
+Ürün kartlarını profesyonel bir görünüme taşı:
+• Kapak görseli üstte, 16:9 oran, köşeleri yumuşak.
+• Özellikler (attributes) renkli baloncuklar (chip) içinde.
+• Görsele tıklayınca tam ekran/lightbox büyütme.
+• Kart altı aksiyonlar: [İstatistikler] [Düzenle] [Aktif/Pasif Et].
+• TR/PL/UA i18n korunur.
+
+1) KART YAPISI (views/products.ejs)
+- Her ürün kartı için düzen:
+  A) ÜST GÖRSEL ALANI
+     • Sabit alan: aspect-ratio 16/9; <img> object-fit: cover; loading="lazy".
+     • Sağ üstte durum rozeti: “Aktif” yeşil, “Pasif” gri.
+     • Tüm görsel alanı tıklanabilir olsun → lightbox açar.
+     • Görsel hata/fallback: /img/placeholder-product.svg kullan.
+  B) İÇERİK
+     • Ürün adı (semibold) + kısa açıklama (muted).
+     • Fiyat kutusu: Alış fiyatı (buyPrice + buyCurrency) ve Satış fiyatı (sellPrice + sellCurrency) yan yana, yumuşak arka planlı mini kart.
+     • Stok badge’i: 0–4 sarı, 5+ mavi.
+  C) ÖZELLİK BALONCUKLARI
+     • attributes dizisini key:value olarak chip’lere dönüştür:
+       – Her chip: “Ad: Değer” (örn. “Renk: Beyaz”)
+       – Renk paleti:
+         · Nötr: #EEF2FF (metin #1E40AF)
+         · Başka çipler için varyantlar: #E0F2FE, #ECFDF5, #FEF3C7, #FCE7F3 (metinleri kontrastlı)
+       – Çipler satır taşarsa alt satıra sarılsın (wrap).
+       – Sadece value dolu olan özellikler chip olarak gelsin.
+  D) ALT AKSİYONLAR
+     • Aynı hizada 3 eşit genişlikte buton: [📈 İstatistikler] [✏️ Düzenle] [Aktif Et/Pasif Et]
+     • Aktif/Pasif butonunun rengi durumuna göre yeşil/kırmızı.
+- Grid: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px.
+
+2) LIGHTBOX / RESİM BÜYÜTME
+- Amaç: Kapak görsele tıklanınca tam ekran lightbox açılsın; ürünün images[] dizisini ileri/geri gezdirebilsin.
+- Davranış:
+  • Açılışta kapak görselinden başla; sol/sağ oklar ile gez; ESC ve arka plana tıkla → kapan.
+  • Mobilde oklar yeterli; varsa swipe ekleyebilirsin.
+  • Tek modal DOM’u kullan; açırken src ve index set et, kapanınca temizle.
+- UX:
+  • Üstte sayacı göster (“1 / N”).
+  • Alt köşede “Kapat” butonu.
+  • Görüntü sığsın: max-width: 90vw; max-height: 90vh; object-fit: contain.
+
+3) STİL (public/css/style.css) — sadece yönerge
+- Kart:
+  • Arkaplan #FFF; radius 14px; shadow: 0 6px 20px rgba(0,0,0,.06); border: 1px solid #E5E7EB.
+  • Hover: transform: translateY(-2px); shadow hafif artsın.
+- Üst görsel alanı: radius üst köşelerde; alt kenarda ince border.
+- Fiyat mini kartı: arka plan #F9FAFB; border-radius 12px; iç boşluk 12px; rakamlar semibold; currency mavi/yeşil vurgu.
+- Badge’ler:
+  • Durum: .badge-success (yeşil) / .badge-muted (gri) köşede absolute.
+  • Stok: .badge-info (mavi) / .badge-warning (sarı) — sayı içerir (“10 adet”).
+- Özellik chip’leri:
+  • .chip { display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; font-size:12px; line-height:1; margin:4px; white-space:nowrap; }
+  • Renk varyantlarını yukarıdaki palete göre uygula; metinler yeterli kontrastta olsun.
+- Lightbox:
+  • Arkaplan rgba(0,0,0,.65); içerik ortalanmış; çıkış için X ikonu ve ESC desteği.
+  • Görsel container sabit; img object-fit: contain.
+
+4) ERİŞİLEBİLİRLİK
+- Görsel butonu role="button" ve aria-label kullanmalı (“Görseli büyüt”).
+- Klavye ile aç/kapa; ok tuşlarıyla ileri/geri (isteğe bağlı).
+- Chip’ler sadece bilgi; buton değiller → tab sırasına alınmasın.
+
+5) i18n (TR/PL/UA) — yeni/ekstra metin anahtarları
+- chips.label (kullanılmıyorsa boş; chip’ler sadece “Ad: Değer” metni üretir)
+- image.open: “Görseli büyüt”
+- lightbox.next: “İleri”
+- lightbox.prev: “Geri”
+- lightbox.close: “Kapat”
+- stock.units: “adet”
+
+6) KABUL KRİTERLERİ
+- Sol menü sabit kalır; sayfa kayarken sadece içerik kayar.
+- Kapak görseline tıklayınca lightbox açılır; ileri/geri çalışır; ESC/arka plan kapanır.
+- Tüm attributes değerleri chip olarak görünür; boş olanlar görünmez.
+- Kartlar 320px’den itibaren otomatik yerleşir; 1280/1024/768/360 genişliklerinde düzgün kırılır.
+- Görsel yoksa placeholder görünür; bozuk yol onerror ile placeholder’a döner.
