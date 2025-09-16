@@ -1,0 +1,1040 @@
+<!-- Professional Dashboard Header -->
+<div class="content-header">
+    <div class="header-top">
+        <div class="header-left">
+            <h1 data-testid="text-dashboard-title" class="dashboard-title">
+                <i class="fas fa-chart-line dashboard-icon"></i>
+                <%= __('dashboard.title') %>
+            </h1>
+            <div class="dashboard-subtitle">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="current-date" data-testid="text-current-date"></span>
+                <div class="live-indicator">
+                    <span class="pulse-dot"></span>
+                    <span class="live-text">Canlı Veriler</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="quick-actions">
+                <a href="/products" class="quick-action-btn" data-tooltip="<%= __('menu.products') %>">
+                    <i class="fas fa-box"></i>
+                </a>
+                <a href="/stock/entry" class="quick-action-btn" data-tooltip="<%= __('stockIn.title') %>">
+                    <i class="fas fa-plus"></i>
+                </a>
+                <a href="/warehouses" class="quick-action-btn" data-tooltip="<%= __('menu.warehouses') %>">
+                    <i class="fas fa-warehouse"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="content-body">
+    <!-- Enhanced Statistics Grid -->
+    <div class="dashboard-stats">
+        <!-- Primary Statistics -->
+        <div class="stats-row primary-stats">
+            <div class="stats-card featured" data-testid="card-total-products">
+                <div class="stats-icon primary">
+                    <i class="fas fa-box-open"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-number">
+                        <h3 data-testid="text-total-products-value"><%= stats.totalProducts %></h3>
+                        <span class="stats-trend positive">
+                            <i class="fas fa-arrow-up"></i>
+                            +<%= stats.activeProducts %>
+                        </span>
+                    </div>
+                    <p data-testid="text-total-products-label"><%= __('dashboard.totalProducts') %></p>
+                    <div class="stats-detail">
+                        <small><%= stats.activeProducts %> aktif · <%= stats.totalProducts - stats.activeProducts %> pasif</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card" data-testid="card-low-stock">
+                <div class="stats-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-number">
+                        <h3 data-testid="text-low-stock-value"><%= stats.lowStock %></h3>
+                        <% if (stats.outOfStock > 0) { %>
+                        <span class="stats-trend negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <%= stats.outOfStock %> tükendi
+                        </span>
+                        <% } %>
+                    </div>
+                    <p data-testid="text-low-stock-label"><%= __('dashboard.lowStock') %></p>
+                    <div class="stats-detail">
+                        <small>Kritik seviye altında</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card" data-testid="card-total-value">
+                <div class="stats-icon success">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-number">
+                        <h3 data-testid="text-total-value-amount">$<%= stats.totalValue %></h3>
+                    </div>
+                    <p data-testid="text-total-value-label"><%= __('dashboard.totalValue') %></p>
+                    <div class="stats-detail">
+                        <small class="warning-note">
+                            <i class="fas fa-info-circle"></i>
+                            Değer, para birimleri karışık olabilir
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-card" data-testid="card-today-movements">
+                <div class="stats-icon info">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <div class="stats-content">
+                    <div class="stats-number">
+                        <h3 data-testid="text-today-movements-value"><%= todayStats.total %></h3>
+                        <span class="stats-trend">
+                            <i class="fas fa-clock"></i>
+                            Bugün
+                        </span>
+                    </div>
+                    <p>Günlük Hareket</p>
+                    <div class="stats-detail">
+                        <small><%= todayStats.entries %> giriş · <%= todayStats.exits %> çıkış</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secondary Statistics -->
+        <div class="stats-row secondary-stats">
+            <div class="stats-card compact">
+                <div class="stats-icon-small warehouse">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="stats-content">
+                    <h4><%= warehouseStats.activeWarehouses %>/<%= warehouseStats.totalWarehouses %></h4>
+                    <p>Aktif Depo</p>
+                </div>
+            </div>
+
+            <div class="stats-card compact">
+                <div class="stats-icon-small pieces">
+                    <i class="fas fa-cubes"></i>
+                </div>
+                <div class="stats-content">
+                    <h4><%= stats.totalPieces %></h4>
+                    <p>Toplam Adet</p>
+                </div>
+            </div>
+
+            <div class="stats-card compact">
+                <div class="stats-icon-small meters">
+                    <i class="fas fa-ruler"></i>
+                </div>
+                <div class="stats-content">
+                    <h4><%= stats.totalMeters %></h4>
+                    <p>Toplam Metre</p>
+                </div>
+            </div>
+
+            <div class="stats-card compact">
+                <div class="stats-icon-small shelves">
+                    <i class="fas fa-th"></i>
+                </div>
+                <div class="stats-content">
+                    <h4><%= warehouseStats.totalShelves %></h4>
+                    <p>Toplam Raf</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enhanced Charts Section -->
+    <div class="dashboard-charts">
+        <div class="chart-container large-chart">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-line"></i>
+                        Son 6 Ay Stok Hareketleri
+                    </h5>
+                    <div class="chart-actions">
+                        <button class="chart-action-btn" onclick="toggleChartType('movementsChart')">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <canvas id="movementsChart" height="120"></canvas>
+                </div>
+                <div class="chart-legend">
+                    <div class="legend-item">
+                        <span class="legend-color entries"></span>
+                        <span>Girişler</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color exits"></span>
+                        <span>Çıkışlar</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color total"></span>
+                        <span>Toplam</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container medium-chart">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-chart-pie"></i>
+                        Ürün Dağılımı
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart-container small-chart">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h5>
+                        <i class="fas fa-battery-quarter"></i>
+                        Stok Durumu
+                    </h5>
+                </div>
+                <div class="chart-body">
+                    <canvas id="stockStatusChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities Section -->
+    <div class="recent-activities">
+        <div class="activity-card">
+            <div class="activity-header">
+                <h5>
+                    <i class="fas fa-clock"></i>
+                    Son Aktiviteler
+                </h5>
+                <a href="/stock/movements" class="view-all-btn">
+                    Tümünü Gör
+                    <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon success">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">Yeni stok girişi yapıldı</p>
+                        <small class="activity-time">2 dakika önce</small>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">Düşük stok uyarısı</p>
+                        <small class="activity-time">15 dakika önce</small>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon info">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <div class="activity-content">
+                        <p class="activity-text">Ürün bilgileri güncellendi</p>
+                        <small class="activity-time">1 saat önce</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced JavaScript with Real Data -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Set current date with better formatting
+    const currentDate = new Date().toLocaleDateString('<%= locale %>', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    document.getElementById('current-date').textContent = currentDate;
+
+    // Real monthly movements data
+    const monthlyData = <%- JSON.stringify(monthlyMovements) %>;
+    
+    // Enhanced Stock Movements Chart
+    const movementsCtx = document.getElementById('movementsChart').getContext('2d');
+    const movementsChart = new Chart(movementsCtx, {
+        type: 'line',
+        data: {
+            labels: monthlyData.map(m => m.month),
+            datasets: [
+                {
+                    label: 'Girişler',
+                    data: monthlyData.map(m => m.entries),
+                    borderColor: '#16a34a',
+                    backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#16a34a',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Çıkışlar',
+                    data: monthlyData.map(m => m.exits),
+                    borderColor: '#dc2626',
+                    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+                    tension: 0.4,
+                    fill: false,
+                    pointBackgroundColor: '#dc2626',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                },
+                {
+                    label: 'Toplam',
+                    data: monthlyData.map(m => m.total),
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: '#2563eb',
+                    pointBorderColor: '#ffffff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    titleColor: '#ffffff',
+                    bodyColor: '#ffffff',
+                    cornerRadius: 8,
+                    displayColors: true
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#6b7280'
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    },
+                    ticks: {
+                        color: '#6b7280'
+                    }
+                }
+            }
+        }
+    });
+
+    // Enhanced Category Distribution Chart
+    const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+    const categoryChart = new Chart(categoryCtx, {
+        type: 'doughnut',
+        data: {
+            labels: <%- JSON.stringify(categoryStats.map(c => c.category)) %>,
+            datasets: [{
+                data: <%- JSON.stringify(categoryStats.map(c => c.count)) %>,
+                backgroundColor: [
+                    '#3b82f6',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6',
+                    '#06b6d4',
+                    '#84cc16'
+                ],
+                borderWidth: 0,
+                hoverBorderWidth: 2,
+                hoverBorderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '60%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: 'rgba(255, 255, 255, 0.2)',
+                    borderWidth: 1,
+                    cornerRadius: 8
+                }
+            }
+        }
+    });
+
+    // Stock Status Chart
+    const stockStatusCtx = document.getElementById('stockStatusChart').getContext('2d');
+    const stockStatusChart = new Chart(stockStatusCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Normal', 'Düşük', 'Kritik', 'Tükendi'],
+            datasets: [{
+                label: 'Ürün Sayısı',
+                data: [
+                    <%= stats.totalProducts - stats.lowStock - stats.outOfStock %>,
+                    <%= stats.lowStock %>,
+                    <%= Math.floor(stats.lowStock / 2) %>,
+                    <%= stats.outOfStock %>
+                ],
+                backgroundColor: [
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#6b7280'
+                ],
+                borderRadius: 4,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            }
+        }
+    });
+
+    // Add animations to stats cards
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate-in');
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.stats-card, .chart-card').forEach(card => {
+        observer.observe(card);
+    });
+
+    // Tooltip functionality
+    document.querySelectorAll('[data-tooltip]').forEach(element => {
+        element.addEventListener('mouseenter', function(e) {
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.textContent = this.getAttribute('data-tooltip');
+            document.body.appendChild(tooltip);
+            
+            const rect = this.getBoundingClientRect();
+            tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
+            tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
+            
+            setTimeout(() => tooltip.classList.add('show'), 10);
+        });
+        
+        element.addEventListener('mouseleave', function() {
+            const tooltips = document.querySelectorAll('.tooltip');
+            tooltips.forEach(tooltip => {
+                tooltip.classList.remove('show');
+                setTimeout(() => tooltip.remove(), 200);
+            });
+        });
+    });
+
+    // Chart type toggle function
+    window.toggleChartType = function(chartId) {
+        // This could toggle between line/bar chart types
+        console.log('Toggle chart type for:', chartId);
+    };
+});
+</script>
+
+<!-- Professional Dashboard Styles -->
+<style>
+/* Dashboard-specific styles */
+.dashboard-title {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard-icon {
+    color: #3b82f6;
+    font-size: 2rem;
+}
+
+.dashboard-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+.live-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #10b981;
+}
+
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.quick-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #64748b;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    background: #3b82f6;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Enhanced Stats Cards */
+.dashboard-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.stats-row {
+    display: grid;
+    gap: 20px;
+}
+
+.primary-stats {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.secondary-stats {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.stats-card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.stats-card:hover::before {
+    opacity: 1;
+}
+
+.stats-card.featured {
+    background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+    color: white;
+}
+
+.stats-card.featured .stats-icon {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: white !important;
+}
+
+.stats-card.compact {
+    padding: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.stats-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.stats-icon-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.stats-icon.primary, .stats-icon-small.warehouse { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+.stats-icon.success, .stats-icon-small.pieces { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.stats-icon.warning, .stats-icon-small.meters { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.stats-icon.info, .stats-icon-small.shelves { background: rgba(6, 182, 212, 0.1); color: #06b6d4; }
+
+.stats-content {
+    flex: 1;
+}
+
+.stats-number {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
+.stats-number h3, .stats-number h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+}
+
+.stats-card.compact .stats-number h4 {
+    font-size: 1.5rem;
+}
+
+.stats-trend {
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stats-trend.positive { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.stats-trend.negative { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+.stats-trend:not(.positive):not(.negative) { background: rgba(107, 114, 128, 0.1); color: #6b7280; }
+
+.stats-detail {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.stats-card.featured .stats-detail {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.warning-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #f59e0b;
+}
+
+/* Enhanced Charts */
+.dashboard-charts {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.large-chart {
+    grid-column: 1;
+    grid-row: 1 / 3;
+}
+
+.medium-chart {
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.small-chart {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.chart-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.chart-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.chart-header {
+    padding: 20px 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chart-header h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+}
+
+.chart-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.chart-action-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chart-action-btn:hover {
+    background: #3b82f6;
+    color: white;
+}
+
+.chart-body {
+    padding: 20px;
+    position: relative;
+}
+
+.chart-legend {
+    padding: 0 20px 20px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}
+
+.legend-color.entries { background: #16a34a; }
+.legend-color.exits { background: #dc2626; }
+.legend-color.total { background: #2563eb; }
+
+/* Recent Activities */
+.recent-activities {
+    margin-bottom: 32px;
+}
+
+.activity-card {
+    background: white;
+    border-radius: 16px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.activity-header {
+    padding: 20px;
+    border-bottom: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.activity-header h5 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #1f2937;
+}
+
+.view-all-btn {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s ease;
+}
+
+.view-all-btn:hover {
+    color: #2563eb;
+}
+
+.activity-list {
+    padding: 20px;
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.activity-icon.success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+.activity-icon.warning { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+.activity-icon.info { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
+
+.activity-content {
+    flex: 1;
+}
+
+.activity-text {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.activity-time {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Animations */
+.stats-card, .chart-card {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+}
+
+.stats-card.animate-in, .chart-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Tooltip */
+.tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.tooltip.show {
+    opacity: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .dashboard-charts {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+    }
+    
+    .large-chart, .medium-chart, .small-chart {
+        grid-column: 1;
+        grid-row: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .content-header .header-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+    
+    .primary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .secondary-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats-card {
+        padding: 16px;
+    }
+    
+    .chart-legend {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .quick-actions {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .secondary-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .stats-card.compact {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+</style>
