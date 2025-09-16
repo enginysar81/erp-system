@@ -1,0 +1,1709 @@
+<!-- Import/Export Page Header -->
+<div class="content-header import-export-header">
+    <div class="container-fluid">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <div class="header-content">
+                    <h1 class="page-title">
+                        <i class="fas fa-exchange-alt text-primary"></i>
+                        <%= __('importExport.title') %>
+                    </h1>
+                    <p class="page-subtitle">Ürünlerinizi Excel/CSV formatında kolayca yönetin</p>
+                    <div class="feature-badges">
+                        <span class="badge badge-success"><i class="fas fa-check"></i> Toplu İşlem</span>
+                        <span class="badge badge-info"><i class="fas fa-shield-alt"></i> Güvenli</span>
+                        <span class="badge badge-warning"><i class="fas fa-eye"></i> Önizleme</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-right">
+                <a href="/products" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-arrow-left"></i>
+                    Ürünlere Dön
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container-fluid import-export-content">
+    <!-- Quick Actions Bar -->
+    <div class="quick-actions-bar mb-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="quick-action-card text-center">
+                    <div class="quick-icon bg-success">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h6>Hızlı Export</h6>
+                    <p class="text-muted">Tek tıkla ürünleri indir</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="quick-action-card text-center">
+                    <div class="quick-icon bg-primary">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <h6>Güvenli Import</h6>
+                    <p class="text-muted">Önizlemeli yükleme</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="quick-action-card text-center">
+                    <div class="quick-icon bg-info">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h6>Şablon İndir</h6>
+                    <p class="text-muted">Hazır format dosyası</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Export Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="feature-card export-card">
+                <div class="feature-header">
+                    <div class="feature-icon bg-success">
+                        <i class="fas fa-file-export"></i>
+                    </div>
+                    <div class="feature-title">
+                        <h4>Dışarı Aktarma</h4>
+                        <p>Mevcut ürünlerinizi kolayca indirin</p>
+                    </div>
+                </div>
+                
+                <div class="feature-body">
+                    <div class="export-options">
+                        <h6><i class="fas fa-cog"></i> Export Ayarları</h6>
+                        
+                        <div class="option-group">
+                            <label class="option-label">Format Seçimi</label>
+                            <div class="format-selector">
+                                <div class="format-option" data-format="xlsx">
+                                    <input type="radio" name="exportFormat" value="xlsx" id="formatXlsx" checked>
+                                    <label for="formatXlsx">
+                                        <i class="fas fa-file-excel text-success"></i>
+                                        <span>Excel (.xlsx)</span>
+                                        <small>Önerilen format</small>
+                                    </label>
+                                </div>
+                                <div class="format-option" data-format="csv">
+                                    <input type="radio" name="exportFormat" value="csv" id="formatCsv">
+                                    <label for="formatCsv">
+                                        <i class="fas fa-file-csv text-info"></i>
+                                        <span>CSV (.csv)</span>
+                                        <small>Basit format</small>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="export-info">
+                            <div class="info-item">
+                                <i class="fas fa-info-circle text-info"></i>
+                                <span>Tüm ürün bilgileri dahil edilir</span>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-filter text-success"></i>
+                                <span>Mevcut filtreler uygulanır</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn btn-success btn-lg btn-block export-btn" onclick="exportProducts()">
+                        <i class="fas fa-download"></i>
+                        Ürünleri İndir
+                    </button>
+                    
+                    <div id="exportStatus" class="status-area"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Import Section -->
+        <div class="col-lg-6 mb-4">
+            <div class="feature-card import-card">
+                <div class="feature-header">
+                    <div class="feature-icon bg-primary">
+                        <i class="fas fa-file-import"></i>
+                    </div>
+                    <div class="feature-title">
+                        <h4>İçeri Aktarma</h4>
+                        <p>Excel/CSV dosyasından toplu ürün yükleme</p>
+                    </div>
+                </div>
+                
+                <div class="feature-body">
+                    <!-- Import Steps -->
+                    <div class="import-steps">
+                        <!-- Step 1: Template -->
+                        <div class="import-step" id="step1">
+                            <div class="step-header">
+                                <div class="step-number">1</div>
+                                <div class="step-info">
+                                    <h6>Şablon İndirin</h6>
+                                    <p>Doğru formatı kullanın</p>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <div class="template-options">
+                                    <button type="button" class="template-btn" onclick="downloadTemplate('xlsx')">
+                                        <i class="fas fa-file-excel text-success"></i>
+                                        <span>Excel Şablonu</span>
+                                        <small>Önerilen</small>
+                                    </button>
+                                    <button type="button" class="template-btn" onclick="downloadTemplate('csv')">
+                                        <i class="fas fa-file-csv text-info"></i>
+                                        <span>CSV Şablonu</span>
+                                        <small>Basit</small>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Upload -->
+                        <div class="import-step" id="step2">
+                            <div class="step-header">
+                                <div class="step-number">2</div>
+                                <div class="step-info">
+                                    <h6>Dosyayı Yükleyin</h6>
+                                    <p>Doldurduğunuz dosyayı seçin</p>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <div class="upload-area">
+                                    <input type="file" id="importFile" class="file-input" accept=".xlsx,.csv">
+                                    <label for="importFile" class="file-label">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <span>Dosya Seçin veya Sürükleyin</span>
+                                        <small>Excel (.xlsx) veya CSV (.csv)</small>
+                                    </label>
+                                </div>
+                                
+                                <div class="import-options">
+                                    <div class="option-item">
+                                        <input class="form-check-input" type="checkbox" id="updateExisting">
+                                        <label class="form-check-label" for="updateExisting">
+                                            <i class="fas fa-sync-alt"></i>
+                                            Mevcut ürünleri güncelle
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Preview -->
+                        <div class="import-step" id="step3">
+                            <div class="step-header">
+                                <div class="step-number">3</div>
+                                <div class="step-info">
+                                    <h6>Önizleme & Onayla</h6>
+                                    <p>Kontrol edin ve kaydedin</p>
+                                </div>
+                            </div>
+                            <div class="step-content">
+                                <button type="button" class="btn btn-primary btn-lg btn-block preview-btn" onclick="previewImport()" id="previewBtn" disabled>
+                                    <i class="fas fa-eye"></i>
+                                    Önizlemeyi Başlat
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Section -->
+    <div class="row preview-section" id="previewSection" style="display: none;">
+        <div class="col-12">
+            <div class="preview-card">
+                <div class="preview-header">
+                    <h4 class="mb-0">
+                        <i class="fas fa-analytics"></i>
+                        Dosya Analizi ve Önizleme
+                    </h4>
+                    <p class="mb-0 opacity-75">Yüklenen dosyanın detaylı analizi</p>
+                </div>
+                
+                <div class="preview-stats">
+                    <!-- Summary Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number text-primary" id="totalRows">0</div>
+                                <div class="stat-label">Toplam Satır</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number text-success" id="validRows">0</div>
+                                <div class="stat-label">Geçerli Satır</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="stat-card">
+                                <div class="stat-number text-danger" id="invalidRows">0</div>
+                                <div class="stat-label">Hatalı Satır</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-success btn-lg" onclick="confirmImport()" id="confirmBtn" disabled>
+                                    <i class="fas fa-check-circle"></i>
+                                    Onayla & Kaydet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Error Details -->
+                    <div id="errorDetails"></div>
+                    
+                    <!-- Import Status -->
+                    <div id="importStatus" class="status-area"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Import/Export Professional Styling */
+.import-export-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 10px;
+}
+
+.page-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    margin-bottom: 20px;
+}
+
+.feature-badges .badge {
+    margin-right: 10px;
+    padding: 8px 12px;
+    font-size: 0.85rem;
+}
+
+/* Quick Actions Bar */
+.quick-actions-bar {
+    padding: 20px 0;
+}
+
+.quick-action-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-5px);
+}
+
+.quick-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    color: white;
+    font-size: 1.5rem;
+}
+
+/* Feature Cards */
+.feature-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    height: 100%;
+}
+
+.feature-header {
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    color: white;
+    font-size: 1.5rem;
+}
+
+.feature-title h4 {
+    margin: 0 0 5px;
+    font-weight: 600;
+}
+
+.feature-title p {
+    margin: 0;
+    color: #666;
+}
+
+.feature-body {
+    padding: 25px;
+}
+
+/* Export Styles */
+.export-options h6 {
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+.format-selector {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.format-option {
+    flex: 1;
+}
+
+.format-option input[type="radio"] {
+    display: none;
+}
+
+.format-option label {
+    display: block;
+    padding: 15px;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.format-option input:checked + label {
+    border-color: #28a745;
+    background: #f8fff8;
+}
+
+.format-option label i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+.format-option label span {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.format-option label small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+.export-info {
+    margin-bottom: 25px;
+}
+
+.info-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    color: #666;
+}
+
+.info-item i {
+    margin-right: 10px;
+    width: 16px;
+}
+
+/* Import Steps */
+.import-steps {
+    space-y: 20px;
+}
+
+.import-step {
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.step-header {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+}
+
+.step-number {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 15px;
+}
+
+.step-info h6 {
+    margin: 0 0 5px;
+    font-weight: 600;
+}
+
+.step-info p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.step-content {
+    padding: 20px;
+}
+
+/* Template Options */
+.template-options {
+    display: flex;
+    gap: 15px;
+}
+
+.template-btn {
+    flex: 1;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 20px 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.template-btn:hover {
+    border-color: #007bff;
+    background: #f8f9fa;
+}
+
+.template-btn i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.template-btn span {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.template-btn small {
+    color: #666;
+    font-size: 0.8rem;
+}
+
+/* Upload Area */
+.upload-area {
+    margin-bottom: 20px;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    display: block;
+    padding: 40px 20px;
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #fafafa;
+}
+
+.file-label:hover {
+    border-color: #007bff;
+    background: #f0f8ff;
+}
+
+.file-label i {
+    font-size: 3rem;
+    color: #007bff;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.file-label span {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.file-label small {
+    color: #666;
+}
+
+.import-options {
+    margin-bottom: 20px;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.option-item input {
+    margin-right: 10px;
+}
+
+.option-item label {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+}
+
+.option-item label i {
+    margin-right: 8px;
+    color: #007bff;
+}
+
+/* Buttons */
+.export-btn, .preview-btn {
+    font-weight: 600;
+    padding: 15px 30px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Preview Section */
+.preview-section {
+    margin-top: 30px;
+}
+
+.preview-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.preview-header {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+    padding: 20px 25px;
+}
+
+.preview-stats {
+    padding: 25px;
+}
+
+.stat-card {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+/* Status Areas */
+.status-area {
+    margin-top: 20px;
+}
+
+.status-area .alert {
+    border-radius: 10px;
+    border: none;
+    padding: 15px 20px;
+}
+
+.error-row {
+    background: #fff5f5;
+    border-left: 4px solid #dc3545;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.success-message {
+    background: #f0f9ff;
+    border-left: 4px solid #28a745;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+/* File Upload Success Styles */
+.file-success {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    background: #f8fff8;
+    border: 2px solid #28a745;
+    border-radius: 10px;
+    gap: 15px;
+}
+
+.file-success i {
+    font-size: 2rem;
+    color: #28a745;
+}
+
+.file-info h6 {
+    margin: 0 0 5px;
+    color: #28a745;
+}
+
+.file-info p {
+    margin: 0 0 5px;
+    font-weight: 600;
+}
+
+.file-info small {
+    color: #666;
+}
+
+/* Excel-like Preview Table */
+.excel-preview {
+    margin: 20px 0;
+}
+
+.excel-table {
+    font-size: 0.85rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.excel-table th {
+    background: #343a40;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    padding: 8px 6px;
+    border: 1px solid #dee2e6;
+}
+
+.excel-table td {
+    padding: 6px 8px;
+    border: 1px solid #dee2e6;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.excel-table .table-danger {
+    background-color: #f8d7da;
+}
+
+.excel-table .table-success {
+    background-color: #d4edda;
+}
+
+/* Düzenlenebilir Hücre Stilleri */
+.clickable-cell {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.clickable-cell:hover {
+    background: #e8f4f8 !important;
+    border-color: #007bff;
+}
+
+.editable-cell .edit-icon {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.editable-cell:hover .edit-icon {
+    opacity: 0.6 !important;
+}
+
+.cell-content {
+    display: inline-block;
+    max-width: calc(100% - 20px);
+}
+
+/* Empty Cell Styling */
+.empty-cell {
+    background: #fff3cd !important;
+    border: 2px dashed #ffc107 !important;
+    text-align: center;
+    cursor: pointer;
+}
+
+.empty-cell:hover {
+    background: #fff8e1 !important;
+    border-color: #ff9800 !important;
+}
+
+.empty-placeholder {
+    color: #ff9800;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.empty-placeholder:hover {
+    background: #ff9800;
+    color: white;
+}
+
+/* Options Modal */
+.options-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    z-index: 10000;
+}
+
+.modal-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.option-btn {
+    padding: 10px 15px;
+    border: 2px solid #007bff;
+    background: white;
+    color: #007bff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.option-btn:hover {
+    background: #007bff;
+    color: white;
+}
+
+/* Error Summary */
+.error-summary {
+    background: #fff5f5;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.error-item {
+    padding: 8px 0;
+    border-bottom: 1px solid #fee;
+}
+
+.error-item:last-child {
+    border-bottom: none;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .format-selector,
+    .template-options {
+        flex-direction: column;
+    }
+    
+    .quick-actions-bar .col-md-4 {
+        margin-bottom: 15px;
+    }
+    
+    .excel-table {
+        font-size: 0.75rem;
+    }
+    
+    .excel-table td {
+        max-width: 100px;
+        padding: 4px 6px;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .options-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+}
+</style>
+
+<script>
+// Cache busting version: <%= new Date().toISOString() %>
+console.log('🔥 SCRIPT TAG LOADED! Version:', '<%= new Date().toISOString() %>');
+let previewData = null;
+let selectedFile = null; // Store selected file globally
+
+// Test immediate execution
+console.log('🚀 JavaScript is running!');
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ Import/Export page DOMContentLoaded fired!');
+    
+    // Initialize file input
+    initFileInput();
+    
+    // Set initial states
+    const previewBtn = document.getElementById('previewBtn');
+    if (previewBtn) previewBtn.disabled = true;
+    
+    const previewSection = document.getElementById('previewSection');
+    if (previewSection) previewSection.style.display = 'none';
+});
+
+// Initialize file input functionality
+function initFileInput() {
+    const fileInput = document.getElementById('importFile');
+    if (!fileInput) {
+        console.error('File input not found!');
+        return;
+    }
+    
+    fileInput.addEventListener('change', handleFileSelect);
+}
+
+// Handle file selection
+function handleFileSelect(e) {
+    const previewBtn = document.getElementById('previewBtn');
+    const file = e.target.files[0];
+    
+    if (file) {
+        console.log('File selected:', file.name);
+        selectedFile = file; // Store file globally
+        if (previewBtn) previewBtn.disabled = false;
+        
+        // Show upload success feedback
+        const uploadArea = e.target.closest('.upload-area');
+        if (uploadArea) {
+            uploadArea.innerHTML = `
+                <div class="file-success">
+                    <i class="fas fa-check-circle text-success"></i>
+                    <div class="file-info">
+                        <h6>✅ Dosya Yüklendi</h6>
+                        <p><strong>${file.name}</strong></p>
+                        <small>Boyut: ${(file.size / 1024).toFixed(1)} KB | Tip: ${file.type || 'Excel/CSV'}</small>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="resetFileUpload()">
+                        <i class="fas fa-times"></i> Değiştir
+                    </button>
+                </div>
+            `;
+        }
+        
+        // Auto-scroll to preview button
+        const step3 = document.getElementById('step3');
+        if (step3) step3.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        if (previewBtn) previewBtn.disabled = true;
+    }
+}
+
+// Reset file upload
+function resetFileUpload() {
+    const uploadArea = document.querySelector('.upload-area');
+    if (!uploadArea) return;
+    
+    uploadArea.innerHTML = `
+        <input type="file" id="importFile" class="file-input" accept=".xlsx,.csv">
+        <label for="importFile" class="file-label">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <span>Dosya Seçin veya Sürükleyin</span>
+            <small>Excel (.xlsx) veya CSV (.csv)</small>
+        </label>
+    `;
+    
+    // Re-initialize file input
+    initFileInput();
+    
+    const previewBtn = document.getElementById('previewBtn');
+    if (previewBtn) previewBtn.disabled = true;
+    
+    const previewSection = document.getElementById('previewSection');
+    if (previewSection) previewSection.style.display = 'none';
+    
+    // Clear selected file
+    selectedFile = null;
+}
+
+// Export products
+async function exportProducts() {
+    const format = document.querySelector('input[name="exportFormat"]:checked').value;
+    const statusDiv = document.getElementById('exportStatus');
+    
+    try {
+        statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Dışarı aktarılıyor...</div>';
+        
+        const response = await fetch('/api/import-export/export', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ format })
+        });
+        
+        if (!response.ok) throw new Error('Export failed');
+        
+        // Create download
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `urunler_${new Date().toISOString().split('T')[0]}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+        statusDiv.innerHTML = '<div class="alert alert-success"><i class="fas fa-check"></i> Ürünler başarıyla indirildi!</div>';
+        setTimeout(() => statusDiv.innerHTML = '', 3000);
+        
+    } catch (error) {
+        statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Dışarı aktarma hatası!</div>';
+    }
+}
+
+// Download template
+async function downloadTemplate(format) {
+    try {
+        const response = await fetch(`/api/import-export/template?format=${format}`);
+        if (!response.ok) throw new Error('Template download failed');
+        
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `urun_sablonu_${new Date().toISOString().split('T')[0]}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        
+    } catch (error) {
+        alert('Şablon indirme hatası!');
+    }
+}
+
+// Preview import
+async function previewImport() {
+    console.log('Preview import started...');
+    
+    if (!selectedFile) {
+        console.error('Seçilen dosya bulunamadı!');
+        alert('Lütfen önce bir dosya seçin');
+        return;
+    }
+    
+    console.log('Dosya bulundu:', selectedFile.name);
+    
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    
+    // Show loading
+    const statusDiv = document.getElementById('errorDetails');
+    if (statusDiv) {
+        statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> Dosya analiz ediliyor...</div>';
+    }
+    
+    try {
+        console.log('API çağrısı yapılıyor...');
+        const response = await fetch('/api/import-export/preview', {
+            method: 'POST',
+            body: formData
+        });
+        
+        console.log('API yanıtı:', response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API Hatası:', errorText);
+            throw new Error(`Preview failed: ${response.status}`);
+        }
+        
+        previewData = await response.json();
+        console.log('Preview data alındı:', previewData);
+        displayPreview(previewData);
+        
+    } catch (error) {
+        console.error('Preview hatası:', error);
+        alert('Dosya önizleme hatası: ' + error.message);
+        if (statusDiv) {
+            statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fas fa-exclamation-triangle"></i> Dosya işleme hatası!</div>';
+        }
+    }
+}
+
+// Display Excel-like preview results with smart highlighting
+function displayPreview(data) {
+    console.log('🔥 displayPreview called with data:', data);
+    
+    document.getElementById('totalRows').textContent = data.totalRows;
+    document.getElementById('validRows').textContent = data.validRows;
+    document.getElementById('invalidRows').textContent = data.invalidRows;
+    
+    const confirmBtn = document.getElementById('confirmBtn');
+    confirmBtn.disabled = data.validRows === 0;
+    
+    // Excel-like data table preview
+    const errorDetails = document.getElementById('errorDetails');
+    console.log('🔍 errorDetails div found:', !!errorDetails);
+    
+    console.log('🔍 Preview data check:', !!data.previewData, data.previewData?.length);
+    
+    if (data.previewData && data.previewData.length > 0) {
+        let tableHtml = `
+            <div class="excel-preview">
+                <h6><i class="fas fa-table"></i> Excel Benzeri Önizleme</h6>
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-bordered table-sm excel-table">
+                        <thead class="thead-dark sticky-top">
+        `;
+        
+        // Headers
+        const headers = Object.keys(data.previewData[0] || {});
+        tableHtml += '<tr><th style="width: 60px;">#</th>';
+        headers.forEach(header => {
+            tableHtml += `<th>${header}</th>`;
+        });
+        tableHtml += '<th style="width: 100px;">Durum</th></tr></thead><tbody>';
+        
+        // Data rows (show max 20 rows)
+        data.previewData.slice(0, 20).forEach((row, index) => {
+            const isErrorRow = data.errors?.some(error => error.rowNumber === index + 2);
+            const rowClass = isErrorRow ? 'table-danger' : 'table-success';
+            
+            tableHtml += `<tr class="${rowClass}" data-row="${index}">`;
+            tableHtml += `<td class="text-center"><strong>${index + 1}</strong></td>`;
+            
+            headers.forEach(header => {
+                const cellValue = row[header] || '';
+                const isEmpty = !cellValue || cellValue.toString().trim() === '';
+                
+                // Tüm hücreler artık düzenlenebilir!
+                const cellClass = 'clickable-cell editable-cell';
+                
+                tableHtml += `<td class="${cellClass}" data-header="${header}" data-row="${index}" onclick="editCell('${header}', ${index}, this)">`;
+                if (isEmpty) {
+                    if (['Renk', 'Zemin', 'İPLİK'].includes(header)) {
+                        tableHtml += `<span class="empty-placeholder">
+                            <i class="fas fa-plus-circle"></i> Seç
+                        </span>`;
+                    } else {
+                        tableHtml += `<span class="empty-placeholder">
+                            <i class="fas fa-edit"></i> Düzenle  
+                        </span>`;
+                    }
+                } else {
+                    tableHtml += `<span class="cell-content">${cellValue}</span>
+                        <i class="fas fa-edit edit-icon" style="opacity: 0.6; margin-left: 5px; font-size: 0.8em;"></i>`;
+                }
+                tableHtml += '</td>';
+            });
+            
+            // Status column
+            if (isErrorRow) {
+                const error = data.errors.find(error => error.rowNumber === index + 2);
+                tableHtml += `<td><span class="badge badge-danger" title="${error.errors.join(', ')}">❌ Hatalı</span></td>`;
+            } else {
+                tableHtml += `<td><span class="badge badge-success">✅ Geçerli</span></td>`;
+            }
+            
+            tableHtml += '</tr>';
+        });
+        
+        if (data.previewData.length > 20) {
+            tableHtml += `<tr><td colspan="${headers.length + 2}" class="text-center text-muted">
+                <i class="fas fa-ellipsis-h"></i> ${data.previewData.length - 20} satır daha...
+            </td></tr>`;
+        }
+        
+        tableHtml += '</tbody></table></div></div>';
+        
+        // Error summary
+        if (data.errors && data.errors.length > 0) {
+            tableHtml += `
+                <div class="error-summary mt-3">
+                    <h6 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Hata Özeti:</h6>
+                    <div class="error-list" style="max-height: 200px; overflow-y: auto;">
+            `;
+            
+            data.errors.forEach(error => {
+                tableHtml += `
+                    <div class="error-item">
+                        <strong>Satır ${error.rowNumber}:</strong> 
+                        <span class="text-danger">${error.errors.join(', ')}</span><br>
+                        <small class="text-muted">Ürün: ${error.data['Ürün Adı'] || 'N/A'}</small>
+                    </div>
+                `;
+            });
+            
+            tableHtml += '</div></div>';
+        }
+        
+        console.log('🔥 Setting innerHTML to tableHtml, length:', tableHtml.length);
+        errorDetails.innerHTML = tableHtml;
+        console.log('✅ Table HTML set successfully');
+        
+        // Verify table was created
+        setTimeout(() => {
+            const createdTable = document.querySelector('.excel-table');
+            console.log('🔍 Table verification:', !!createdTable);
+            if (createdTable) {
+                console.log('✅ Table exists with rows:', createdTable.querySelectorAll('tbody tr').length);
+            }
+        }, 100);
+        
+    } else if (data.errors && data.errors.length > 0) {
+        let errorHtml = '<h6 class="text-danger"><i class="fas fa-exclamation-triangle"></i> Hatalı Satırlar:</h6>';
+        data.errors.slice(0, 10).forEach(error => {
+            errorHtml += `
+                <div class="error-row">
+                    <strong>Satır ${error.rowNumber}:</strong> ${error.errors.join(', ')}<br>
+                    <small>Ürün: ${error.data['Ürün Adı'] || 'N/A'}</small>
+                </div>
+            `;
+        });
+        
+        if (data.errors.length > 10) {
+            errorHtml += `<p class="text-muted">...ve ${data.errors.length - 10} hatalı satır daha</p>`;
+        }
+        
+        errorDetails.innerHTML = errorHtml;
+    } else {
+        errorDetails.innerHTML = '<div class="alert alert-success"><i class="fas fa-check"></i> Tüm satırlar geçerli!</div>';
+    }
+    
+    document.getElementById('previewSection').style.display = 'block';
+    document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Show system options for empty cells
+async function showSystemOptions(attributeType, rowIndex) {
+    try {
+        // Get system options from API
+        const response = await fetch('/api/import-export/system-options');
+        const options = await response.json();
+        
+        let availableOptions = [];
+        switch(attributeType) {
+            case 'Renk':
+                availableOptions = options.colors || [];
+                break;
+            case 'Zemin':
+                availableOptions = options.grounds || [];
+                break;
+            case 'İPLİK':
+                availableOptions = options.yarns || [];
+                break;
+        }
+        
+        // Create modal with options
+        showOptionsModal(attributeType, availableOptions, rowIndex);
+        
+    } catch (error) {
+        console.error('Failed to fetch system options:', error);
+        // Fallback to input
+        const newValue = prompt(`${attributeType} değeri girin:`);
+        if (newValue) {
+            updateCellValue(attributeType, rowIndex, newValue);
+        }
+    }
+}
+
+// Show options modal
+function showOptionsModal(attributeType, options, rowIndex) {
+    const modal = document.createElement('div');
+    modal.className = 'options-modal';
+    modal.innerHTML = `
+        <div class="modal-backdrop" onclick="closeOptionsModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6>${attributeType} Seçin</h6>
+                <button onclick="closeOptionsModal()" class="btn btn-sm btn-secondary">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Sistemdeki mevcut seçenekler:</p>
+                <div class="options-grid">
+                    ${options.map(option => `
+                        <button class="option-btn" onclick="selectOption('${attributeType}', ${rowIndex}, '${option}')">
+                            ${option}
+                        </button>
+                    `).join('')}
+                </div>
+                <hr>
+                <p>Veya yeni değer girin:</p>
+                <div class="input-group">
+                    <input type="text" id="customValue" class="form-control" placeholder="Yeni ${attributeType.toLowerCase()} değeri">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary" onclick="selectCustomValue('${attributeType}', ${rowIndex})">Ekle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Select option from modal
+function selectOption(attributeType, rowIndex, value) {
+    updateCellValue(attributeType, rowIndex, value);
+    closeOptionsModal();
+}
+
+// Select custom value
+function selectCustomValue(attributeType, rowIndex) {
+    const customValue = document.getElementById('customValue').value.trim();
+    if (customValue) {
+        updateCellValue(attributeType, rowIndex, customValue);
+        closeOptionsModal();
+    }
+}
+
+// Update cell value in preview
+function updateCellValue(attributeType, rowIndex, value) {
+    const cell = document.querySelector(`td[data-header="${attributeType}"][data-row="${rowIndex}"]`);
+    if (cell) {
+        // Hücre içeriğini güncelle
+        if (!value || value.toString().trim() === '') {
+            if (['Renk', 'Zemin', 'İPLİK'].includes(attributeType)) {
+                cell.innerHTML = `<span class="empty-placeholder">
+                    <i class="fas fa-plus-circle"></i> Seç
+                </span>`;
+            } else {
+                cell.innerHTML = `<span class="empty-placeholder">
+                    <i class="fas fa-edit"></i> Düzenle  
+                </span>`;
+            }
+        } else {
+            cell.innerHTML = `<span class="cell-content">${value}</span>
+                <i class="fas fa-edit edit-icon" style="opacity: 0.6; margin-left: 5px; font-size: 0.8em;"></i>`;
+        }
+        
+        cell.classList.remove('empty-cell');
+        
+        // Preview data'yı güncelle
+        if (previewData && previewData.previewData && previewData.previewData[rowIndex]) {
+            previewData.previewData[rowIndex][attributeType] = value;
+        }
+    }
+}
+
+// Close options modal
+function closeOptionsModal() {
+    const modal = document.querySelector('.options-modal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Ana hücre düzenleme fonksiyonu
+function editCell(header, rowIndex, cellElement) {
+    // Özel durum: Renk, Zemin, İPLİK için sistem seçeneklerini göster
+    if (['Renk', 'Zemin', 'İPLİK'].includes(header)) {
+        showSystemOptions(header, rowIndex);
+        return;
+    }
+    
+    // Diğer tüm hücreler için doğrudan düzenleme
+    const currentValue = previewData && previewData.previewData && previewData.previewData[rowIndex] 
+        ? previewData.previewData[rowIndex][header] || '' 
+        : '';
+    
+    // Input alanı oluştur
+    let input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentValue;
+    input.className = 'form-control form-control-sm';
+    input.style.width = '100%';
+    input.style.minWidth = '120px';
+    
+    // Özel inputlar için tiplerini ayarla
+    if (header.toLowerCase().includes('fiyat')) {
+        input.type = 'number';
+        input.step = '0.01';
+        input.min = '0';
+    } else if (header === 'Durum') {
+        // Durum için select oluştur
+        const select = document.createElement('select');
+        select.className = 'form-control form-control-sm';
+        select.innerHTML = `
+            <option value="Aktif" ${currentValue === 'Aktif' ? 'selected' : ''}>Aktif</option>
+            <option value="Pasif" ${currentValue === 'Pasif' ? 'selected' : ''}>Pasif</option>
+        `;
+        input = select; // Referansı güncelle
+    }
+    
+    // Hücre içeriğini input ile değiştir
+    const originalContent = cellElement.innerHTML;
+    cellElement.innerHTML = '';
+    cellElement.appendChild(input);
+    input.focus();
+    if (input.type !== 'number' && input.tagName !== 'SELECT') {
+        input.select();
+    }
+    
+    // Enter/blur ile kaydetme
+    function saveValue() {
+        try {
+            const newValue = input.value.trim();
+            
+            // Hücreyi güvenli şekilde güncelle
+            if (cellElement && cellElement.parentNode) {
+                cellElement.textContent = newValue || '';
+                
+                // Preview data'yı güncelle
+                if (previewData && previewData.previewData && previewData.previewData[rowIndex]) {
+                    previewData.previewData[rowIndex][header] = newValue;
+                    
+                    // Real-time validation - özellikle Ürün Adı için
+                    if (header === 'Ürün Adı') {
+                        validateProductNameRealTime(rowIndex, newValue);
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('Save value error:', error);
+        } finally {
+            cleanup();
+        }
+    }
+    
+    // Escape ile iptal
+    function cancelEdit() {
+        try {
+            if (cellElement && cellElement.parentNode) {
+                cellElement.textContent = originalContent;
+            }
+        } catch (error) {
+            console.error('Cancel edit error:', error);
+        } finally {
+            cleanup();
+        }
+    }
+    
+    // Event listener temizleme
+    function cleanup() {
+        try {
+            input.removeEventListener('blur', saveValue);
+            input.removeEventListener('keydown', handleKeyDown);
+        } catch (e) {
+            // Ignore cleanup errors
+        }
+    }
+    
+    function handleKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveValue();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cancelEdit();
+        }
+    }
+    
+    input.addEventListener('blur', saveValue);
+    input.addEventListener('keydown', handleKeyDown);
+}
+
+// Collect updated products from preview table
+function collectUpdatedProductsFromPreview() {
+    const products = [];
+    
+    // Debug: Check all possible table selectors
+    console.log('🔍 Debug - All tables on page:', document.querySelectorAll('table').length);
+    console.log('🔍 Debug - Tables with excel-table class:', document.querySelectorAll('.excel-table').length);
+    console.log('🔍 Debug - Tables with tbody:', document.querySelectorAll('table tbody').length);
+    
+    // Try multiple selector strategies
+    let table = null;
+    
+    // Strategy 1: Table inside errorDetails div (where it's actually placed!)
+    table = document.querySelector('#errorDetails .excel-table tbody');
+    if (table) {
+        console.log('✅ Strategy 1: Found #errorDetails .excel-table tbody');
+        return collectFromTable(table);
+    }
+    
+    // Strategy 2: Any .excel-table tbody
+    table = document.querySelector('.excel-table tbody');
+    if (table) {
+        console.log('✅ Strategy 2: Found .excel-table tbody');
+        return collectFromTable(table);
+    }
+    
+    // Strategy 3: Any table with tbody in preview section
+    table = document.querySelector('#previewSection table tbody');
+    if (table) {
+        console.log('✅ Strategy 3: Found #previewSection table tbody');
+        return collectFromTable(table);
+    }
+    
+    // Strategy 4: Any table tbody
+    const tables = document.querySelectorAll('table tbody');
+    if (tables.length > 0) {
+        console.log('✅ Strategy 4: Found table tbody (using last one):', tables.length);
+        table = tables[tables.length - 1]; // Use last table (likely the preview)
+        return collectFromTable(table);
+    }
+    
+    console.log('❌ No table found with any strategy!');
+    return products;
+}
+
+// Helper function to collect data from table
+function collectFromTable(table) {
+    const products = [];
+    const rows = table.querySelectorAll('tr');
+    console.log('🔍 Debug - Rows found:', rows.length);
+    
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        console.log(`🔍 Debug - Row ${index}: ${cells.length} cells found`);
+        
+        // Excel-like table structure: #, Ürün Adı, Açıklama, Birim, Alış Fiyatı, Satış Fiyatı, Alış Para, Satış Para, Durum (+ status)
+        if (cells.length < 9) {
+            console.log(`❌ Row ${index} skipped - only ${cells.length} cells`);
+            return; // Skip incomplete rows
+        }
+        
+        // Skip # column (index 0), start from index 1
+        const product = {
+            name: cells[1].textContent.trim(),          // Ürün Adı
+            description: cells[2].textContent.trim() || null, // Açıklama
+            unit: cells[3].textContent.trim() || 'adet',       // Birim
+            buyPrice: cells[4].textContent.trim() || '0',      // Alış Fiyatı
+            sellPrice: cells[5].textContent.trim() || '0',     // Satış Fiyatı
+            buyCurrency: cells[6].textContent.trim() || 'USD', // Alış Para Birimi
+            sellCurrency: cells[7].textContent.trim() || 'USD', // Satış Para Birimi
+            status: cells[8].textContent.trim() || 'Aktif'     // Durum
+        };
+        
+        console.log(`✅ Row ${index} product collected:`, product);
+        products.push(product);
+    });
+    
+    return products;
+}
+
+// Real-time product name validation
+async function validateProductNameRealTime(rowIndex, newProductName) {
+    try {
+        // Get current products from API
+        const response = await fetch('/api/products');
+        const existingProducts = await response.json();
+        
+        // Check if new name conflicts with existing products
+        const nameExists = existingProducts.some(p => 
+            p.name.toLowerCase() === newProductName.toLowerCase().trim()
+        );
+        
+        // Update preview validation status
+        if (previewData && previewData.preview && previewData.preview[0]) {
+            const previewItem = previewData.preview[0];
+            
+            if (nameExists) {
+                previewItem.isValid = false;
+                previewItem.errors = ["Bu ürün adı zaten mevcut"];
+            } else {
+                previewItem.isValid = true;
+                previewItem.errors = [];
+            }
+            
+            // Update UI counters and button state
+            updateValidationCounters();
+        }
+        
+    } catch (error) {
+        console.error('Real-time validation error:', error);
+    }
+}
+
+// Update validation counters and button state
+function updateValidationCounters() {
+    if (!previewData || !previewData.preview) return;
+    
+    const validRows = previewData.preview.filter(item => item.isValid).length;
+    const invalidRows = previewData.preview.filter(item => !item.isValid).length;
+    
+    // Update UI counters
+    const validRowsElement = document.getElementById('validRows');
+    const invalidRowsElement = document.getElementById('invalidRows');
+    const confirmBtn = document.getElementById('confirmBtn');
+    
+    if (validRowsElement) validRowsElement.textContent = validRows;
+    if (invalidRowsElement) invalidRowsElement.textContent = invalidRows;
+    
+    // Enable/disable confirm button
+    if (confirmBtn) {
+        confirmBtn.disabled = invalidRows > 0;
+    }
+    
+    // Update error display
+    updateErrorDisplay();
+}
+
+// Update error display section  
+function updateErrorDisplay() {
+    const errorDetailsDiv = document.getElementById('errorDetails');
+    if (!errorDetailsDiv || !previewData) return;
+    
+    const invalidItems = previewData.preview.filter(item => !item.isValid);
+    
+    if (invalidItems.length === 0) {
+        errorDetailsDiv.innerHTML = '';
+        return;
+    }
+    
+    const errorHtml = invalidItems.map(item => {
+        const productName = previewData.previewData[item.rowIndex - 2]?.['Ürün Adı'] || 'Bilinmeyen';
+        return `
+            <div class="alert alert-warning">
+                <small><strong>Satır ${item.rowIndex}:</strong> ${item.errors.join(', ')}<br>
+                <strong>Ürün:</strong> ${productName}</small>
+            </div>
+        `;
+    }).join('');
+    
+    errorDetailsDiv.innerHTML = errorHtml;
+}
+
+// Confirm import
+async function confirmImport() {
+    if (!previewData) return;
+    
+    const updateExisting = document.getElementById('updateExisting').checked;
+    
+    // Preview tablosundaki güncel verileri topla
+    const updatedProducts = collectUpdatedProductsFromPreview();
+    console.log('🔥 Collected products for import:', updatedProducts);
+    
+    const statusDiv = document.getElementById('importStatus');
+    statusDiv.innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin"></i> İçeri aktarılıyor...</div>';
+    
+    try {
+        const response = await fetch('/api/import-export/import-from-grid', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                products: updatedProducts,
+                updateExisting: updateExisting
+            })
+        });
+        
+        if (!response.ok) throw new Error('Import failed');
+        
+        const result = await response.json();
+        
+        statusDiv.innerHTML = `
+            <div class="success-message">
+                <h6><i class="fas fa-check"></i> İçeri Aktarma Tamamlandı!</h6>
+                <p><strong>${result.successCount}</strong> ürün başarıyla eklendi/güncellendi.</p>
+                ${result.failedCount > 0 ? `<p class="text-warning">${result.failedCount} satır hatalıydı ve kaydedilmedi.</p>` : ''}
+                <a href="/products" class="btn btn-primary">Ürünleri Görüntüle</a>
+            </div>
+        `;
+        
+        // Reset form
+        document.getElementById('importFile').value = '';
+        document.getElementById('previewSection').style.display = 'none';
+        document.getElementById('previewBtn').disabled = true;
+        
+    } catch (error) {
+        console.error('🚨 Import error details:', error);
+        statusDiv.innerHTML = `<div class="alert alert-danger">
+            <i class="fas fa-exclamation-triangle"></i> İçeri aktarma hatası!<br>
+            <small>Detay: ${error.message || 'Bilinmeyen hata'}</small>
+        </div>`;
+    }
+}
+</script>
