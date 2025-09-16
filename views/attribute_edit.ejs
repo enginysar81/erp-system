@@ -1,0 +1,238 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('attributes.edit') %> - <%= attribute.name %></h1>
+            <p class="text-muted mb-0">Özelliği düzenleyebilirsiniz</p>
+        </div>
+        <div>
+            <a href="/settings/attributes?lang=<%= locale %>" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Geri
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body -->
+<div class="content-body">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.error === 'nameRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('validation.nameRequired') %>
+            </div>
+        <% } else if (query.error === 'optionsRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('validation.optionsRequired') %>
+            </div>
+        <% } else if (query.error === 'typeRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                Tür seçimi gereklidir!
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Edit Attribute Form -->
+    <div class="stats-card">
+        <div style="padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-edit" style="color: var(--primary); margin-right: 8px;"></i>
+                Özellik Bilgileri
+            </h3>
+            
+            <form action="/settings/attributes/<%= attribute.id %>/update?lang=<%= locale %>" method="POST">
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                            <%= __('attributes.name') %>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="name" 
+                            value="<%= attribute.name %>"
+                            placeholder="<%= __('attributes.name') %>"
+                            style="
+                                width: 100%;
+                                padding: 12px 16px;
+                                border: 2px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                transition: border-color 0.2s;
+                                background: var(--card-bg);
+                                color: var(--text-primary);
+                            "
+                            required
+                            data-testid="input-edit-attribute-name">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                            <%= __('attributes.type') %>
+                        </label>
+                        <select 
+                            name="type" 
+                            id="editAttributeType"
+                            style="
+                                width: 100%;
+                                padding: 12px 16px;
+                                border: 2px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                transition: border-color 0.2s;
+                                background: var(--card-bg);
+                                color: var(--text-primary);
+                            "
+                            required
+                            onchange="toggleEditOptionsField()"
+                            data-testid="select-edit-attribute-type">
+                            <option value="TEXT" <%= attribute.type === 'TEXT' ? 'selected' : '' %>><%= __('attributes.type.text') %></option>
+                            <option value="OPTIONS" <%= attribute.type === 'OPTIONS' ? 'selected' : '' %>><%= __('attributes.type.options') %></option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="editOptionsField" style="margin-bottom: 20px; <%= attribute.type === 'OPTIONS' ? '' : 'display: none;' %>">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                        <%= __('attributes.options') %>
+                    </label>
+                    <input 
+                        type="text" 
+                        name="options" 
+                        value="<%= attribute.options && attribute.options.length > 0 ? attribute.options.join(', ') : '' %>"
+                        placeholder="<%= __('attributes.options.help') %>"
+                        style="
+                            width: 100%;
+                            padding: 12px 16px;
+                            border: 2px solid var(--border-color);
+                            border-radius: 8px;
+                            font-size: 14px;
+                            transition: border-color 0.2s;
+                            background: var(--card-bg);
+                            color: var(--text-primary);
+                        "
+                        data-testid="input-edit-attribute-options">
+                </div>
+                
+                <div style="display: flex; gap: 12px;">
+                    <button 
+                        type="submit" 
+                        class="btn btn-primary"
+                        data-testid="button-update-attribute">
+                        <i class="fas fa-save"></i>
+                        Kaydet
+                    </button>
+                    <a 
+                        href="/settings/attributes?lang=<%= locale %>" 
+                        class="btn btn-secondary"
+                        data-testid="button-cancel-edit">
+                        <i class="fas fa-times"></i>
+                        İptal
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Current Options Display (for OPTIONS type) -->
+    <% if (attribute.type === 'OPTIONS' && attribute.options && attribute.options.length > 0) { %>
+        <div class="stats-card" style="margin-top: 24px;">
+            <div style="padding: 24px;">
+                <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                    <i class="fas fa-list" style="color: var(--primary); margin-right: 8px;"></i>
+                    Mevcut Seçenekler
+                </h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                    <% attribute.options.forEach((option, index) => { %>
+                        <span style="
+                            background: var(--success-bg, #e8f5e8);
+                            color: var(--success, #2e7d32);
+                            padding: 6px 12px;
+                            border-radius: 6px;
+                            font-size: 13px;
+                            font-weight: 500;
+                        " data-testid="option-display-<%= index %>">
+                            <%= option %>
+                        </span>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+<style>
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: var(--success-bg, #d4edda);
+    color: var(--success-text, #155724);
+    border: 1px solid var(--success-border, #c3e6cb);
+}
+
+.alert-error {
+    background: var(--danger-bg, #f8d7da);
+    color: var(--danger-text, #721c24);
+    border: 1px solid var(--danger-border, #f1b0b7);
+}
+
+.btn-secondary {
+    background: var(--muted, #6c757d);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+}
+
+.btn-secondary:hover {
+    background: var(--muted-dark, #5a6268);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+
+<script>
+function toggleEditOptionsField() {
+    const typeSelect = document.getElementById('editAttributeType');
+    const optionsField = document.getElementById('editOptionsField');
+    const optionsInput = optionsField.querySelector('input[name="options"]');
+    
+    if (typeSelect.value === 'OPTIONS') {
+        optionsField.style.display = 'block';
+        optionsInput.required = true;
+    } else {
+        optionsField.style.display = 'none';
+        optionsInput.required = false;
+        optionsInput.value = '';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleEditOptionsField();
+});
+</script>
