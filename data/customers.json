@@ -1,0 +1,36 @@
+[
+  {
+    "id": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "code": "100000",
+    "name": "Test Müşteri",
+    "phone": "+90 555 123 4567",
+    "address": "Test Adres",
+    "currency": "USD",
+    "openingBalance": 1000,
+    "status": "gold",
+    "totalTransactions": 15,
+    "totalPurchases": 8500,
+    "lastActivity": "2025-09-14T14:30:00.000Z",
+    "registrationDate": "2025-01-15T09:39:36.495Z",
+    "activityLevel": "high",
+    "createdAt": "2025-09-15T09:39:36.495Z",
+    "updatedAt": "2025-09-15T09:39:36.495Z"
+  },
+  {
+    "id": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "code": "100001",
+    "name": "Engin Yasar",
+    "phone": "+48790831567",
+    "address": "Szkolną 1",
+    "currency": "PLN",
+    "openingBalance": 0,
+    "status": "silver",
+    "totalTransactions": 8,
+    "totalPurchases": 3200,
+    "lastActivity": "2025-09-13T16:45:00.000Z",
+    "registrationDate": "2025-03-20T13:06:04.110Z",
+    "activityLevel": "medium",
+    "createdAt": "2025-09-15T13:06:04.110Z",
+    "updatedAt": "2025-09-15T13:06:04.110Z"
+  }
+]
