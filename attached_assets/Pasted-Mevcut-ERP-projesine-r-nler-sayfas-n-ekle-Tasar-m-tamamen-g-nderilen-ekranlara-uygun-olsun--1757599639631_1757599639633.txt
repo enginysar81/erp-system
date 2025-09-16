@@ -1,0 +1,77 @@
+Mevcut ERP projesine "Ürünler" sayfasını ekle. Tasarım tamamen gönderilen ekranlara uygun olsun.
+
+1) Route:
+   GET "/products" → ürünler sayfasını göster
+
+2) views/products.ejs:
+   - Üst bölümde başlık: "Ürün Katalog"
+   - Hemen altında açıklama: "Tüm ürünlerinizi görüntüleyin ve yönetin"
+   - Üstte 4 adet özet kutu (Bootstrap card):
+     * Toplam Ürün
+     * Aktif Ürün
+     * Düşük Stok
+     * Toplam Değer
+   - Sağ üstte 2 buton:
+     * "Filtrele" (şimdilik boş)
+     * "+ Ürün Ekle" → "/products/new"
+
+   - Altında ürünler grid halinde listelensin (3 sütun, responsive).
+   - Her kartta:
+     * Ürün kapak resmi (coverImage, yoksa placeholder)
+     * Sağ üst köşede durum etiketi (yeşil = Aktif, gri = Pasif)
+     * Ürün adı
+     * Açıklama
+     * Alış fiyatı (buyPrice) ve satış fiyatı (sellPrice) birlikte
+     * Stok adedi (badge içinde, örn: "10 adet")
+     * Ürün özellikleri (attributes içindeki tüm key:value çiftleri liste halinde)
+     * Alt kısımda butonlar:
+       - "İstatistikler" (mavi, icon: grafik)
+       - "Düzenle" (siyah, icon: kalem)
+       - "Aktif Et" / "Pasif Et" (ürünün durumuna göre değişir, yeşil veya kırmızı)
+
+3) data/products.json:
+   - Örnek ürün yapısı:
+   {
+     "id": "1",
+     "name": "Perde Modeli 1",
+     "description": "Beyaz tül perde",
+     "buyPrice": 4,
+     "sellPrice": 5,
+     "stock": 10,
+     "status": "Aktif",
+     "coverImage": "uploads/perde1.jpg",
+     "images": ["uploads/perde1.jpg","uploads/perde1_2.jpg"],
+     "attributes": {
+       "En": "300 cm",
+       "Boy": "250 cm",
+       "Renk": "Beyaz",
+       "Zemin": "Dantel"
+     }
+   }
+
+4) server.js:
+   - Ürünleri products.json’dan oku ve products.ejs’e gönder.
+   - Özet kutular için:
+     * Toplam Ürün = ürün sayısı
+     * Aktif Ürün = status = "Aktif" olan sayısı
+     * Düşük Stok = stock < 5 olan sayısı
+     * Toplam Değer = tüm ürünlerin sellPrice * stock toplamı
+   - POST "/products/toggle/:id" route’u ekle:
+     * status "Aktif" ise "Pasif" yap, "Pasif" ise "Aktif" yap
+     * JSON güncelle ve redirect "/products"
+
+5) Çok dillilik (TR/PL/UA):
+   - Sayfa başlığı, açıklama, kutu başlıkları ve buton etiketleri çeviri dosyalarından (__ fonksiyonu ile) gelsin.
+   - Ek çeviri anahtarları:
+     "products.title": "Ürün Katalog",
+     "products.subtitle": "Tüm ürünlerinizi görüntüleyin ve yönetin",
+     "dashboard.totalProducts": "Toplam Ürün",
+     "dashboard.activeProducts": "Aktif Ürün",
+     "dashboard.lowStock": "Düşük Stok",
+     "dashboard.totalValue": "Toplam Değer",
+     "button.filter": "Filtrele",
+     "button.addProduct": "Ürün Ekle",
+     "button.stats": "İstatistikler",
+     "button.edit": "Düzenle",
+     "button.activate": "Aktif Et",
+     "button.deactivate": "Pasif Et"
