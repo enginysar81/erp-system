@@ -1,0 +1,38 @@
+[
+  {
+    "id": "3",
+    "name": "Renk",
+    "type": "OPTIONS",
+    "options": [
+      "Beyaz",
+      "Krem",
+      "Lacivert",
+      "Pembe",
+      "Gri",
+      "yeşil",
+      "Kırmızı"
+    ]
+  },
+  {
+    "id": "4",
+    "name": "Zemin",
+    "type": "OPTIONS",
+    "options": [
+      "Dantel",
+      "Çiçekli",
+      "Kadife",
+      "Karesanal",
+      "Pamuk"
+    ]
+  },
+  {
+    "id": "5",
+    "name": "İPLİK",
+    "type": "OPTIONS",
+    "options": [
+      "MATSEDEF",
+      "450 DNY MATSEDEF",
+      "600 POLYESTER"
+    ]
+  }
+]
