@@ -1,0 +1,63 @@
+HEDEF
+Ürünler sayfasındaki ürün kartlarının tasarımını daha profesyonel, dengeli ve kullanıcı dostu hale getir. 
+Ürün görseli kutuya TAM otursun (object-fit: cover, aspect-ratio sabit), görüntü yakın değil biraz uzaktan görünsün. 
+Kartlar arası boşluklar artırılsın, tipografi ve ikonlar modernleştirilsin.
+
+1) KART YAPISI (views/products.ejs)
+- Kart 3 ana bölümden oluşsun:
+  A) ÜST GÖRSEL
+     • aspect-ratio: 16:9
+     • <img> object-fit: cover, width:100%, height:100%
+     • Köşeler yuvarlatılmış (radius 12px), altına hafif gölge
+     • Sağ üst köşede durum rozeti: “Aktif” yeşil, “Pasif” gri
+     • Görsel yoksa placeholder (/img/placeholder-product.svg)
+     • Görsele tıklayınca lightbox ile büyüsün (mevcut lightbox kodunu bağla)
+  B) ORTA BİLGİ BLOĞU
+     • Ürün adı (bold, 16px), altında açıklama (muted, 14px, max 2 satır, overflow ellipsis)
+     • Alış / Satış fiyatları yan yana mini kutular (rounded, gri arka plan)
+        – Alış fiyatı yeşil, Satış fiyatı mavi renkle vurgulansın
+     • Stok bilgisi ayrı renkli badge (adet/metre) → mavi, kritik stoksa sarı/kırmızı
+     • Özellikler chip tarzında: “Renk: Beyaz” “Zemin: Dantel” vb.
+        – Chip’ler pastel renk arka planlı, satır taşarsa wrap
+  C) ALT AKSİYON BLOĞU
+     • Yatay 3 buton: [İstatistikler] [Düzenle] [Aktif/Pasif Et]
+     • İstatistikler → mavi outline
+     • Düzenle → gri outline
+     • Aktif/Pasif Et → duruma göre kırmızı/yeşil filled
+     • Tüm butonlar aynı yükseklikte, eşit genişlikte
+
+2) GRID & LAYOUT
+- Kartlar responsive grid ile gelsin:
+  • repeat(auto-fit, minmax(320px, 1fr))
+  • gap: 20–24px
+- Kart yüksekliği görsele göre sabit değil; içerik esnek büyüsün
+- Max genişlik ~380px; daha büyük ekranda ortalanır
+
+3) GÖRSEL STİL
+- Görseller kutunun içinde "uzaktan görünür": 
+  • object-fit: cover, 
+  • object-position: center top (daha fazla ürünü göstermek için)
+- Hover’da hafif zoom-in efekti (scale 1.03, smooth transition)
+
+4) RENK & TİPOGRAFİ
+- Arka plan: #FFF, border-radius: 14px, shadow: 0 4px 12px rgba(0,0,0,.06)
+- Başlık: #111827, semibold
+- Açıklama: #6B7280
+- Badge renkleri:
+  • Aktif: yeşil (#10B981)
+  • Pasif: gri (#9CA3AF)
+  • Stok: mavi (#3B82F6), kritik stok: sarı (#F59E0B), sıfır stok: kırmızı (#EF4444)
+- Chipler: arka plan #F3F4F6, metin #374151
+
+5) i18n (TR/PL/UA)
+- Tüm sabit metinler (Aktif, Pasif, Stok, Özellikler, İstatistikler, Düzenle, Pasif Et/Aktif Et) i18n’den gelsin
+- fields.stockUnit: “adet” | “metre”
+
+6) KABUL KRİTERLERİ
+- Ürün görseli kutuya tam oturur, yakınlaşma sorunu yoktur
+- Görsel yoksa placeholder çıkar
+- Ürün adı ve açıklama tipografisi net ve okunaklıdır
+- Fiyatlar yan yana mini kutularda görünür, renk vurgusu vardır
+- Özellikler chip formatında, pastel renkli
+- Kart altı butonlar eşit genişlikte ve renk kurallarına uygundur
+- Kart hover’da hafif gölge ve görsel zoom efekti vardır
