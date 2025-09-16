@@ -1,0 +1,491 @@
+<!-- Content Header -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= isEdit ? __('warehouseForm.title.edit') : __('warehouseForm.title.create') %></h1>
+            <p class="text-muted mb-0"><%= __('warehouseForm.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <a href="/warehouses?lang=<%= locale %>" class="btn btn-outline-secondary" data-testid="button-back">
+                <i class="fas fa-arrow-left me-2"></i>
+                <%= __('warehouseForm.backToList') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Error Messages -->
+<% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <%= __('warehouseValidation.' + error) || __('warehouseMessages.' + error) %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<!-- Warehouse Form -->
+<div class="form-container">
+    <form method="POST" 
+          action="<%= isEdit ? `/warehouses/${warehouse.id}/update` : '/warehouses/new' %>?lang=<%= locale %>" 
+          class="warehouse-form"
+          data-testid="form-warehouse">
+        
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    <%= __('warehouseForm.section.basic') %>
+                </h3>
+            </div>
+            
+            <div class="section-content">
+                <div class="row">
+                    <!-- Warehouse Name -->
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label for="name" class="form-label required">
+                                <%= __('warehouseForm.nameLabel') %>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="name" 
+                                   name="name" 
+                                   value="<%= warehouse ? warehouse.name : '' %>" 
+                                   placeholder="<%= __('warehouseForm.namePlaceholder') %>"
+                                   required
+                                   maxlength="50"
+                                   data-testid="input-name">
+                            <div class="form-help">
+                                <%= __('warehouseForm.nameHelp') %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Status -->
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="status" class="form-label">
+                                <%= __('warehouseForm.statusLabel') %>
+                            </label>
+                            <select class="form-control" 
+                                    id="status" 
+                                    name="status"
+                                    data-testid="select-status">
+                                <option value="Aktif" <%= (!warehouse || warehouse.status === 'Aktif') ? 'selected' : '' %>>
+                                    <%= __('warehouseForm.statusActive') %>
+                                </option>
+                                <option value="Pasif" <%= (warehouse && warehouse.status === 'Pasif') ? 'selected' : '' %>>
+                                    <%= __('warehouseForm.statusInactive') %>
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shelf System Section -->
+        <div class="form-section">
+            <div class="section-header">
+                <h3 class="section-title">
+                    <i class="fas fa-layer-group text-info me-2"></i>
+                    <%= __('warehouseForm.section.shelves') %>
+                </h3>
+            </div>
+            
+            <div class="section-content">
+                <div class="form-group">
+                    <label class="form-label">
+                        <%= __('warehouseForm.shelfSystemLabel') %>
+                    </label>
+                    
+                    <div class="radio-group-custom">
+                        <div class="radio-option">
+                            <input type="radio" 
+                                   id="shelfSystemYes" 
+                                   name="hasShelfSystem" 
+                                   value="true" 
+                                   <%= (!warehouse || warehouse.hasShelfSystem) ? 'checked' : '' %>
+                                   data-testid="radio-shelf-system-yes">
+                            <label for="shelfSystemYes" class="radio-label">
+                                <div class="radio-card">
+                                    <div class="radio-header">
+                                        <i class="fas fa-check-circle radio-icon"></i>
+                                        <span class="radio-title"><%= __('warehouseForm.shelfSystemYes') %></span>
+                                    </div>
+                                    <div class="radio-description">
+                                        Bu depoda raf sistemi kullanılacak ve raflar oluşturulabilecek
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="radio-option">
+                            <input type="radio" 
+                                   id="shelfSystemNo" 
+                                   name="hasShelfSystem" 
+                                   value="false" 
+                                   <%= (warehouse && !warehouse.hasShelfSystem) ? 'checked' : '' %>
+                                   data-testid="radio-shelf-system-no">
+                            <label for="shelfSystemNo" class="radio-label">
+                                <div class="radio-card">
+                                    <div class="radio-header">
+                                        <i class="fas fa-times-circle radio-icon"></i>
+                                        <span class="radio-title"><%= __('warehouseForm.shelfSystemNo') %></span>
+                                    </div>
+                                    <div class="radio-description">
+                                        Bu depo basit depolama için kullanılacak, raf sistemi olmayacak
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-help">
+                        <%= __('warehouseForm.shelfSystemHelp') %>
+                    </div>
+                </div>
+                
+                <!-- Warning about existing shelves -->
+                <% if (isEdit && warehouse && warehouse.hasShelfSystem && warehouse.shelves && warehouse.shelves.length > 0) { %>
+                    <div class="alert alert-warning" id="shelfWarning" style="display: none;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Uyarı:</strong> Raf sistemini kapatırsanız, mevcut tüm raflar (<%= warehouse.shelves.length %> adet) silinecektir.
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+            <div class="action-buttons">
+                <a href="/warehouses?lang=<%= locale %>" 
+                   class="btn btn-secondary" 
+                   data-testid="button-cancel">
+                    <i class="fas fa-times me-2"></i>
+                    <%= __('buttons.cancel') %>
+                </a>
+                
+                <button type="submit" 
+                        class="btn btn-primary" 
+                        data-testid="button-save">
+                    <i class="fas fa-save me-2"></i>
+                    <%= __('buttons.save') %>
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+.form-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem 0;
+}
+
+.warehouse-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.form-section {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    padding: 1.5rem 2rem 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+}
+
+.section-content {
+    padding: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.form-label.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-help {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.radio-group-custom {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .radio-group-custom {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.radio-option {
+    position: relative;
+}
+
+.radio-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.radio-label {
+    display: block;
+    cursor: pointer;
+    margin: 0;
+}
+
+.radio-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1.25rem;
+    transition: all 0.2s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label .radio-card {
+    border-color: #3b82f6;
+    background-color: #eff6ff;
+}
+
+.radio-card:hover {
+    border-color: #9ca3af;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label .radio-card:hover {
+    border-color: #3b82f6;
+}
+
+.radio-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.radio-icon {
+    font-size: 1.125rem;
+    color: #6b7280;
+}
+
+.radio-option input[type="radio"]:checked + .radio-label .radio-icon {
+    color: #3b82f6;
+}
+
+.radio-title {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.radio-description {
+    font-size: 0.8rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+.form-actions {
+    padding: 2rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.action-buttons .btn {
+    min-width: 120px;
+}
+
+@media (max-width: 768px) {
+    .form-container {
+        padding: 0.5rem 0;
+    }
+    
+    .section-content {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        padding: 1.5rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column-reverse;
+    }
+    
+    .action-buttons .btn {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .radio-group-custom {
+        grid-template-columns: 1fr;
+    }
+}
+
+.alert {
+    margin-top: 1rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeaa7;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const shelfSystemRadios = document.querySelectorAll('input[name="hasShelfSystem"]');
+    const shelfWarning = document.getElementById('shelfWarning');
+    
+    function toggleShelfWarning() {
+        const isShelfSystemEnabled = document.querySelector('input[name="hasShelfSystem"]:checked').value === 'true';
+        
+        if (shelfWarning) {
+            if (isShelfSystemEnabled) {
+                shelfWarning.style.display = 'none';
+            } else {
+                <% if (isEdit && warehouse && warehouse.hasShelfSystem && warehouse.shelves && warehouse.shelves.length > 0) { %>
+                shelfWarning.style.display = 'block';
+                <% } %>
+            }
+        }
+    }
+    
+    // Initialize warning state
+    toggleShelfWarning();
+    
+    // Add event listeners
+    shelfSystemRadios.forEach(radio => {
+        radio.addEventListener('change', toggleShelfWarning);
+    });
+    
+    // Form validation
+    const form = document.querySelector('.warehouse-form');
+    const nameInput = document.getElementById('name');
+    
+    form.addEventListener('submit', function(e) {
+        const name = nameInput.value.trim();
+        
+        if (!name) {
+            e.preventDefault();
+            alert('<%= __("warehouseValidation.nameRequired") %>');
+            nameInput.focus();
+            return;
+        }
+        
+        if (name.length < 2) {
+            e.preventDefault();
+            alert('<%= __("warehouseValidation.nameMinLength") %>');
+            nameInput.focus();
+            return;
+        }
+        
+        if (name.length > 50) {
+            e.preventDefault();
+            alert('<%= __("warehouseValidation.nameMaxLength") %>');
+            nameInput.focus();
+            return;
+        }
+    });
+    
+    // Real-time validation feedback
+    nameInput.addEventListener('input', function() {
+        const name = this.value.trim();
+        const parent = this.closest('.form-group');
+        
+        // Remove existing validation classes
+        this.classList.remove('is-valid', 'is-invalid');
+        parent.querySelector('.invalid-feedback')?.remove();
+        parent.querySelector('.valid-feedback')?.remove();
+        
+        if (name.length === 0) {
+            return; // Don't show validation for empty field
+        }
+        
+        if (name.length < 2) {
+            this.classList.add('is-invalid');
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.textContent = '<%= __("warehouseValidation.nameMinLength") %>';
+            this.parentNode.appendChild(feedback);
+        } else if (name.length > 50) {
+            this.classList.add('is-invalid');
+            const feedback = document.createElement('div');
+            feedback.className = 'invalid-feedback';
+            feedback.textContent = '<%= __("warehouseValidation.nameMaxLength") %>';
+            this.parentNode.appendChild(feedback);
+        } else {
+            this.classList.add('is-valid');
+            const feedback = document.createElement('div');
+            feedback.className = 'valid-feedback';
+            feedback.textContent = 'Depo adı uygun görünüyor';
+            this.parentNode.appendChild(feedback);
+        }
+    });
+});
+</script>
