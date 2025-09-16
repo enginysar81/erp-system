@@ -1558,16 +1558,11 @@ export function registerRoutes(app: Express): void {
       const { data: user } = await octokit.rest.users.getAuthenticated();
       console.log(`🔗 Connected to GitHub: ${user.login}`);
       
-      // Files to sync
+      // Files to sync - TÜM PROJE DOSYALARI
       const filesToSync = [
+        // Root level dosyaları
         'package.json',
         'package-lock.json',
-        'server/index.ts',
-        'server/routes.ts',
-        'server/storage.ts',
-        'server/github-client.js',
-        'server/barcodeUtils.ts',
-        'shared/schema.ts',
         'vite.config.ts',
         'tsconfig.json',
         'tailwind.config.ts',
@@ -1575,6 +1570,21 @@ export function registerRoutes(app: Express): void {
         'drizzle.config.ts',
         'components.json',
         'replit.md',
+        'migrate-json-to-db.ts',
+        'update_products.js',
+        'generated-icon.png',
+        
+        // Server klasörü - TÜM DOSYALAR
+        'server/index.ts',
+        'server/routes.ts',
+        'server/storage.ts',
+        'server/github-client.js',
+        'server/barcodeUtils.ts',
+        
+        // Shared klasörü
+        'shared/schema.ts',
+        
+        // Views klasörü - TÜM EJS DOSYALARI
         'views/dashboard.ejs',
         'views/layout.ejs',
         'views/products.ejs',
@@ -1582,8 +1592,101 @@ export function registerRoutes(app: Express): void {
         'views/warehouses.ejs',
         'views/stock_movements.ejs',
         'views/import_export.ejs',
+        'views/product_form.ejs',
+        'views/customer-form.ejs',
+        'views/warehouse_form.ejs',
+        'views/warehouse_detail.ejs',
+        'views/stock_in.ejs',
+        'views/stock_by_warehouse.ejs',
+        'views/attributes.ejs',
+        'views/attribute_edit.ejs',
+        'views/labelDesigner.ejs',
+        
+        // Client klasörü - TÜM FRONTEND DOSYALARI
+        'client/index.html',
+        'client/src/App.tsx',
+        'client/src/main.tsx',
+        'client/src/index.css',
+        'client/src/pages/home.tsx',
+        'client/src/pages/not-found.tsx',
+        'client/src/pages/import-export.tsx',
+        'client/src/pages/products-grid.tsx',
+        'client/src/lib/queryClient.ts',
+        'client/src/lib/utils.ts',
+        'client/src/hooks/use-toast.ts',
+        'client/src/hooks/use-mobile.tsx',
+        'client/src/components/GridEditor.tsx',
+        
+        // Client UI Components - TÜM ShadCN COMPONENTS
+        'client/src/components/ui/accordion.tsx',
+        'client/src/components/ui/alert-dialog.tsx',
+        'client/src/components/ui/alert.tsx',
+        'client/src/components/ui/aspect-ratio.tsx',
+        'client/src/components/ui/avatar.tsx',
+        'client/src/components/ui/badge.tsx',
+        'client/src/components/ui/breadcrumb.tsx',
+        'client/src/components/ui/button.tsx',
+        'client/src/components/ui/calendar.tsx',
+        'client/src/components/ui/card.tsx',
+        'client/src/components/ui/carousel.tsx',
+        'client/src/components/ui/chart.tsx',
+        'client/src/components/ui/checkbox.tsx',
+        'client/src/components/ui/collapsible.tsx',
+        'client/src/components/ui/command.tsx',
+        'client/src/components/ui/context-menu.tsx',
+        'client/src/components/ui/dialog.tsx',
+        'client/src/components/ui/drawer.tsx',
+        'client/src/components/ui/dropdown-menu.tsx',
+        'client/src/components/ui/form.tsx',
+        'client/src/components/ui/hover-card.tsx',
+        'client/src/components/ui/input-otp.tsx',
+        'client/src/components/ui/input.tsx',
+        'client/src/components/ui/label.tsx',
+        'client/src/components/ui/menubar.tsx',
+        'client/src/components/ui/navigation-menu.tsx',
+        'client/src/components/ui/pagination.tsx',
+        'client/src/components/ui/popover.tsx',
+        'client/src/components/ui/progress.tsx',
+        'client/src/components/ui/radio-group.tsx',
+        'client/src/components/ui/resizable.tsx',
+        'client/src/components/ui/scroll-area.tsx',
+        'client/src/components/ui/select.tsx',
+        'client/src/components/ui/separator.tsx',
+        'client/src/components/ui/sheet.tsx',
+        'client/src/components/ui/sidebar.tsx',
+        'client/src/components/ui/skeleton.tsx',
+        'client/src/components/ui/slider.tsx',
+        'client/src/components/ui/switch.tsx',
+        'client/src/components/ui/table.tsx',
+        'client/src/components/ui/tabs.tsx',
+        'client/src/components/ui/textarea.tsx',
+        'client/src/components/ui/toast.tsx',
+        'client/src/components/ui/toaster.tsx',
+        'client/src/components/ui/toggle-group.tsx',
+        'client/src/components/ui/toggle.tsx',
+        'client/src/components/ui/tooltip.tsx',
+        
+        // Data klasörü - TÜM JSON DOSYALARI
+        'data/attributes.json',
+        'data/barcodes.json',
+        'data/customer-transactions.json',
+        'data/customers.json',
+        'data/labels.json',
+        'data/products.json',
+        'data/stockMovements.json',
+        'data/warehouses.json',
+        
+        // Locales klasörü - TÜM DİL DOSYALARI
         'locales/tr.json',
-        'public/css/style.css'
+        'locales/pl.json',
+        'locales/ua.json',
+        
+        // Public klasörü - TÜM STATIC DOSYALAR
+        'public/css/style.css',
+        'public/js/main.js',
+        'public/js/labelDesigner.js',
+        'public/js/stockByWarehouse.js',
+        'public/img/placeholder-product.svg'
       ];
       
       let syncCount = 0;
