@@ -1,0 +1,51 @@
+entry:1170 🚀 StockIn JS loading...
+entry:1172 ✅ DOM Content Loaded - StockIn JS initializing
+entry:1184 🛡️ Form action cleared and novalidate set
+entry:1209 🔍 DOM Elements check: {stockInForm: true, productSearch: true, submitBtn: true, barcodesList: true}
+main.js:1647 Initializing filter system
+uploads/img_1757672616075_bb0718e9348d99be.jpg:1  GET https://uploads/img_1757672616075_bb0718e9348d99be.jpg net::ERR_NAME_NOT_RESOLVED
+entry:1263 🚀 Form submit event triggered
+entry:1266 ✅ preventDefault and stopPropagation called
+entry:1511 🔍 Starting form validation...
+entry:1515 📦 Checking product selection: 241083
+entry:1521 🏢 Checking warehouse selection: 1
+entry:1528 🏠 Warehouse shelf system check: {warehouseIndex: 1, warehouseValue: '1', hasShelves: 'true', shelfValue: 'A-1', warehouseName: 'Ana Depo', …}
+entry:1539 🏠 Shelf is required, checking selection...
+entry:1541 📦 Available shelves: (6) ['A-1', 'A-2', 'A-3', 'B-1', 'B-2', 'C-1']
+entry:1547 ✅ Shelf selected: A-1
+entry:1557 📏 Validating quantities for unit: metre
+entry:1567 📏 Meter inputs found: 1
+entry:1580 📏 Meter values: [10]
+entry:1589 🔍 Validation errors: []
+entry:1597 ✅ Validation passed!
+entry:1274 ✅ Form validation passed
+entry:1602 🔧 DEBUG: submitStockEntry başladı
+entry:1603 🔒 Disabling submit button
+entry:1608 📝 Building request data...
+entry:1632 📏 Meter data: [10]
+entry:1640 📤 Sending AJAX request: {productId: '2', warehouseId: '1', unit: 'metre', shelfId: 'A-1', meters: '[10]'}
+entry:1650 📥 Response received: {status: 201, ok: true, statusText: 'Created'}
+entry:1663 ✅ API Success Response: {success: true, barcodesCount: 1, stockMovement: 'movement_1757690011149_z9a59dvgy'}
+entry:1671 💾 Saved product info for barcodes: 241083
+entry:1674 🎉 Showing success toast...
+entry:1678 🏷️ Calling showGeneratedBarcodes...
+entry:1712 🏷️ showGeneratedBarcodes called with: {barcodesCount: 1, productName: '241083'}
+entry:1720 🔍 DOM elements check: {template: true, barcodesList: true, emptyEl: true}
+entry:1727 👻 Hiding empty element
+entry:1733 📦 Using product info: 241083
+entry:1740 🔄 Processing 1 barcodes...
+entry:1742 🏷️ Processing barcode 1: 478496
+entry:1750 📋 Template cloned successfully
+entry:1756 ✅ Product name set: 241083
+entry:1766 ✅ Attributes set: Renk: Beyaz | Zemin: Karesanal | İPLİK: 450 DNY MATSEDEF
+entry:1774 ✅ Barcode image URL set: /api/barcode/478496/image
+entry:1783 ✅ Barcode code set: 478496
+entry:1795 ✅ Print handler added
+entry:1803 ✅ Barcode 1 appended to DOM
+entry:1812 🎯 All barcodes processed. Generated barcodes count: 1
+entry:1818 🖨️ Print all button visibility: true
+entry:1823 ✅ showGeneratedBarcodes completed successfully
+entry:1680 🏷️ showGeneratedBarcodes completed
+entry:1683 🔄 Resetting form...
+entry:1685 ✅ submitStockEntry completed successfully
+entry:1705 🔓 Re-enabling submit button
