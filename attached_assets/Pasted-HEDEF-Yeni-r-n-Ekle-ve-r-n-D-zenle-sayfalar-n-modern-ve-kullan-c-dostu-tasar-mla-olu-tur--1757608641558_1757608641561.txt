@@ -1,0 +1,130 @@
+HEDEF
+“Yeni Ürün Ekle” ve “Ürün Düzenle” sayfalarını modern ve kullanıcı dostu tasarımla oluştur.
+• Ürün resmi yönetimi: çoklu yükleme, kapak yap, sil, önizleme.
+• Attribute tipleri: TEXT → serbest metin, OPTIONS → dropdown (attributes.json’dan).
+• Alış/Satış için ayrı para birimi seçimi: PLN, UAH, USD.
+• TR/PL/UA i18n etiketleri.
+• Masaüstü ve mobil uyumlu; erişilebilirlik odaklı.
+
+1) VERİ ŞEMASI
+products.json kaydına şu alanları ekle (mevcutlarda yoksa varsayılan ata):
+- id (uuid)
+- name (string, zorunlu)
+- description (string)
+- status ("Aktif" | "Pasif", zorunlu)
+- buyPrice (number, ≥0)
+- sellPrice (number, ≥0)
+- buyCurrency  (string: "PLN"|"UAH"|"USD"; varsayılan "USD")
+- sellCurrency (string: "PLN"|"UAH"|"USD"; varsayılan "USD")
+- stock (number, ≥0; varsayılan 0)
+- attributes: [{ attributeId, name, value }]
+- images: ["/uploads/..."]
+- coverImage: "/uploads/..." | null
+
+Not:
+- Mevcut ürünleri okurken buyCurrency/sellCurrency alanı yoksa "USD" kabul et.
+- Kaydet/güncelle akışında her iki currency zorunlu olsun.
+
+2) SAYFA YAPISI (views/product_form.ejs)
+Üst başlık şeridi:
+- Sol: Dinamik başlık (“Yeni Ürün Ekle” / “Ürünü Düzenle”) ve kısa açıklama.
+- Sağ: [Ürünlere Dön] (secondary/outline) ve [Ürün Özelliklerini Yönet] → /settings/attributes (primary/outline).
+
+İki ana sütunlu düzen (responsive):
+A) Sol “Temel Bilgiler” + “Ürün Özellikleri”
+   • Temel Bilgiler kartı (2 sütun grid):
+     - Ürün Adı * (text, placeholder örnek ver)
+     - Durum (select: Aktif/Pasif)
+     - Açıklama (textarea)
+     - Fiyat ve Para Birimi alanları (aynı satırda ikili gruplar):
+        · Alış Fiyatı (number, ≥0)  +  Alış Para Birimi (select: PLN, UAH, USD)
+        · Satış Fiyatı (number, ≥0) +  Satış Para Birimi (select: PLN, UAH, USD)
+     - Stok Miktarı (number, ≥0)
+     - Fiyat uyarısı: sellPrice < buyPrice ise non-blocking uyarı göster.
+   • Ürün Özellikleri kartı:
+     - attributes.json’dan sırayla getir.
+     - TYPE=TEXT → text input (placeholder: ör. “300 cm”)
+     - TYPE=OPTIONS → select dropdown (options listesinden).
+     - Sadece girilmiş/değer atanmış attribute’ları gönder.
+
+B) Sağ “Ürün Resimleri” paneli (sticky):
+   • [Resim Yükle] (çoklu: max 10, her biri ≤5MB; izin verilen uzantılar: jpg/jpeg/png/webp).
+   • Kapak önizleme alanı (seçilmişse “Kapak” rozeti).
+   • Thumbnail galerisi (2 sütun grid, 1:1 kare; object-fit: cover):
+      - Her görsel kartında 3 eylem: [Kapak Yap] [Önizle] [Sil]
+      - Kapak olan görselde yeşil rozet “Kapak”.
+   • Görsel yoksa placeholder (/img/placeholder-product.svg).
+   • Yükleme sonrası listeyi anında güncelle; kapak yoksa ilk yüklenen kapak olsun.
+
+Alt sabit eylem çubuğu (sticky footer):
+- Sol: [İptal] (listeye geri)
+- Sağ: [Kaydet] (primary)
+
+3) İŞLEVSEL AKIŞ (kod yazmadan talimat)
+- CREATE (POST):
+  • Formdan {name, description, status, buyPrice, sellPrice, buyCurrency, sellCurrency, stock, attributes[], images[], coverImage} topla.
+  • attributes[]: [{attributeId, name, value}] — TEXT → serbest metin; OPTIONS → seçilen option.
+  • images[]: "/uploads/..." yolları; coverImage seçili değilse images[0].
+  • Doğrula: name, status, sellPrice, buyCurrency, sellCurrency zorunlu; sayısal alanlar ≥0.
+  • Kaydet; başarı sonrası “ürünler” listesine yönlendir ve toast göster.
+- EDIT (GET/POST id):
+  • Formu mevcut değerlerle doldur; attribute alanlarını tiplerine göre render et.
+  • Görsel listesi yüklü gelsin; “Kapak Yap” anında işaretlesin.
+  • Görsel silinirse images[] ve dosya temizliği; kapak silinirse sıradaki görsel kapak.
+- IMAGE PREVIEW:
+  • Thumbnail tıklanınca lightbox/modal aç; ESC ve arka plan tıkı kapanış.
+- ERİŞİLEBİLİRLİK:
+  • Tüm buton/inputlar klavye ile erişilebilir; focus belirgin; img alt metni ürün adından türetilsin.
+
+4) LİSTE/KART GÖRÜNTÜLEME GÜNCELLEMESİ
+- Ürün kartlarında fiyatları para birimiyle göster:
+  • “Alış Fiyatı: {buyPrice} {buyCurrency}”
+  • “Satış Fiyatı: {sellPrice} {sellCurrency}”
+- Toplam Değer kutusu hesaplarken yalnız USD bazlı toplama yapmıyorsan “karışık para birimi” etiketi ekle (ileride kur modülü bağlanacak). Şimdilik sadece bilgi metni: “Değer, para birimleri karışık olabilir”.
+
+5) TASARIM KILAVUZU (public/css/style.css)
+- Arka plan: #F5F7FB; kart: #FFF; border-radius: 14px; shadow: 0 6px 20px rgba(0,0,0,.06).
+- Grid aralıkları 16–24px; form kontrol yüksekliği 42–44px; label’lar semibold.
+- Input/select focus: görünür outline + soft glow.
+- Sağ panel sticky: top: 88px; max-height: calc(100vh - 120px); iç scroll.
+- Thumbnail hover: hafif yükselme; eylem butonları görünürleşsin.
+- Mobil:
+  • <1024px: Sağ panel alta iner.
+  • <640px: Tek sütun form; butonlar tam genişlik.
+
+6) i18n (TR/PL/UA) — şu anahtarları ekle ve kullan
+- productForm.title.create / productForm.title.edit
+- productForm.subtitle
+- productForm.backToList
+- productForm.manageAttributes
+- productForm.section.basic
+- productForm.section.attributes
+- productForm.section.images
+- fields.name
+- fields.status
+- fields.description
+- fields.buyPrice
+- fields.sellPrice
+- fields.stock
+- fields.buyCurrency
+- fields.sellCurrency
+- currency.pln  ("PLN")
+- currency.uah  ("UAH")
+- currency.usd  ("USD")
+- images.upload
+- images.setCover
+- images.preview
+- images.delete
+- images.coverBadge
+- buttons.save
+- buttons.cancel
+- validation.required
+- validation.number
+- validation.priceWarning  (örn: "Satış fiyatı alış fiyatından düşük görünüyor.")
+
+7) KABUL KRİTERLERİ
+- Alış/Satış için ayrı para birimi seçilebilir (PLN/UAH/USD) ve formda/detayda doğru görünür.
+- TEXT/OPTIONS attribute alanları doğru render edilir ve kaydedilir.
+- Çoklu görsel yükleme, kapak yap, önizle, sil akışları sorunsuzdur.
+- Tasarım modern, okunaklı; sticky sağ resim paneli ve sticky alt eylem çubuğu çalışır.
+- Tüm sabit metinler TR/PL/UA i18n’den gelir.
