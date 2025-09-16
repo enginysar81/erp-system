@@ -1,0 +1,79 @@
+HEDEF
+ERP sistemine “Etiket Tasarım Modülü” ekle. Kullanıcı barkod etiketlerini kendine göre ayarlayabilsin (ürün adı, barkod, özellikler, fiyat, logo gibi alanları istediği yere koyabilsin). 
+Bu şablon daha sonra barkod yazdırma ekranında kullanılacak.
+
+1) ŞABLON YAPISI
+- Etiket şablonu JSON olarak saklansın:
+{
+  "templateId": "tpl_001",
+  "name": "Standart Etiket",
+  "width": 60,
+  "height": 40,
+  "elements": [
+    { "type": "text", "field": "productName", "x": 5, "y": 5, "fontSize": 12, "bold": true },
+    { "type": "text", "field": "features", "x": 5, "y": 20, "fontSize": 10 },
+    { "type": "barcode", "field": "barcode", "x": 5, "y": 30, "width": 50, "height": 15 },
+    { "type": "image", "field": "logo", "x": 45, "y": 5, "width": 10, "height": 10 }
+  ]
+}
+- “field” dinamik veri alanıdır: productName, barcode, features, price, logo, date.
+- “x,y,width,height” mm cinsinden ölçülendirme.
+
+2) ETİKET TASARIM EKRANI (views/labelDesigner.ejs)
+- Kullanıcıya boş bir etiket alanı göster (örn. 60×40 mm).
+- Yan panelde “Alanlar” listesi: Ürün Adı, Barkod, Özellikler, Fiyat, Logo, Tarih.
+- Kullanıcı alanları sürükle-bırak ile etiket üzerine koyabilsin.
+- Alan seçildiğinde özellikleri düzenlenebilsin: yazı boyutu, bold/italic, hizalama, genişlik/yükseklik.
+- Logo ekleme için dosya yükleme (PNG/JPG).
+- Önizleme butonu → seçili ürünle örnek etiket göster.
+- Kaydet butonu → şablon JSON olarak kaydedilsin.
+
+3) YAZDIRMA ENTEGRASYONU
+- Barkod yazdırma ekranında sistem seçilen şablonu uygulasın.
+- Kullanıcı “Varsayılan Şablon” seçebilir.
+- Etiket yazdırma çıktısı şablondaki elementlere göre düzenlensin.
+- Örn: ürün adı üstte, barkod ortada, özellikler altta, logo sağ üstte.
+
+4) ROUTES
+- GET  /labels                → şablon listesi
+- GET  /labels/new            → şablon tasarım ekranı
+- POST /labels/new            → yeni şablon kaydı
+- GET  /labels/:id/edit       → şablon düzenleme
+- POST /labels/:id/update     → güncelle
+- POST /labels/:id/delete     → sil
+- POST /labels/:id/default    → varsayılan yap
+
+5) VERİTABANI
+- data/labels.json dosyası:
+[
+  {
+    "templateId": "tpl_001",
+    "name": "Standart",
+    "width": 60,
+    "height": 40,
+    "elements": [...],
+    "isDefault": true
+  }
+]
+
+6) i18n (TR/PL/UA)
+- labelDesigner.title: "Etiket Tasarımı"
+- labelDesigner.fields: "Alanlar"
+- labelDesigner.productName: "Ürün Adı"
+- labelDesigner.features: "Özellikler"
+- labelDesigner.price: "Fiyat"
+- labelDesigner.barcode: "Barkod"
+- labelDesigner.logo: "Logo"
+- labelDesigner.date: "Tarih"
+- labelDesigner.save: "Kaydet"
+- labelDesigner.preview: "Önizleme"
+- labelDesigner.default: "Varsayılan Yap"
+- labelDesigner.delete: "Sil"
+
+7) KABUL KRİTERLERİ
+- Kullanıcı alanları sürükle-bırak ile etiket üzerine koyabilir.
+- Alanların yazı tipi, boyutu ve hizalaması ayarlanabilir.
+- Logo yüklenip yerleştirilebilir.
+- Kaydedilen şablon JSON formatında saklanır.
+- Barkod yazdırma sırasında seçilen şablon otomatik uygulanır.
+- Kullanıcı birden fazla şablon oluşturabilir ve varsayılan seçebilir.
