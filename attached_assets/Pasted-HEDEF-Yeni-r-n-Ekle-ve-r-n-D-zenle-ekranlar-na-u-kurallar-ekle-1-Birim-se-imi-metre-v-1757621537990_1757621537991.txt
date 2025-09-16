@@ -1,0 +1,67 @@
+HEDEF
+“Yeni Ürün Ekle” ve “Ürün Düzenle” ekranlarına şu kuralları ekle:
+1) Birim seçimi: "metre" veya "adet"
+2) Ürün özelliği (attributes) girilmeden KAYIT YASAK
+3) Aynı özellik kombinasyonuyla aynı ürün ikinci kez kaydedilemesin (çoğaltmayı engelle)
+4) Ürün adı yazılırken, sistemdeki mevcut ürün adları otomatik öneri (autocomplete) olarak listelensin; varsa uyar
+
+A) VERİ ŞEMASI
+- products.json her kayda "unit" alanını ekle: "metre" | "adet" (varsayılan: "adet")
+- Duplicate kontrolü için backend’de karşılaştırma yaparken:
+  • name → trim + case-insensitive
+  • attributes → attributeId’lere göre SIRALANMIŞ bir dizi gibi karşılaştır (aynı id-value eşleşmeleri birebir aynıysa “aynı özellik seti” say)
+  • (Not: Görsel/currency farklı olsa bile isim + attribute set aynıysa “aynı ürün” kabul edilecek)
+
+B) FORM (views/product_form.ejs)
+- Temel Bilgiler bölümüne "Birim" alanı ekle (select: "metre", "adet") → unit
+- Attributes bölümünde en az bir attribute değeri girilmeden “Kaydet” butonu devre dışı olsun; deneme yapılırsa kullanıcıya hata göster
+- Ürün adı inputunda autocomplete aç:
+  • Kullanıcı yazdıkça 300ms debounce ile /api/products/names?q=... uçundan öneri getir
+  • Listeyi dropdown olarak göster; tıklanınca adı inputa koy
+  • Girilen ad mevcutlarla birebir eşleşirse input altında “Bu adla bir ürün zaten var” uyarısı ve (varsa) “Düzenlemeye git” linki göster (GET /products/edit/:id)
+
+C) API UÇLARI
+- GET /api/products/names?q=abc
+  • Dönüş: [{ id, name }] (case-insensitive contains)
+  • Boş q için ilk 10 adı döndürme
+- (Zaten mevcut) POST /products/new ve POST /products/edit/:id içinde VALIDASYONLARI güncelle (bkz. D)
+
+D) SUNUCU TARAFI DOĞRULAMALAR (zorunlu – sadece talimat)
+- name: zorunlu, min 2 karakter
+- unit: zorunlu, sadece "metre" | "adet"
+- attributes: en az 1 adet value dolu olmalı
+- Duplicate kontrolü (CREATE ve UPDATE):
+  • Aynı name (normalize) + aynı attribute set (normalize & sort) içeren aktif/pasif fark etmeksizin başka bir ürün varsa 409 hatası ver ve kaydı reddet
+  • Hata mesajında eşleşen ürünün id’sini dön ki UI “Düzenle” linki verebilsin
+- Sayısal alanlar: buyPrice, sellPrice, stock ≥ 0 (hata mesajları i18n)
+
+E) ÜRÜN KARTI/GÖRÜNÜM GÜNCELLEMELERİ
+- Stok rozetinin yanında birimi göster: “10 adet” / “25 metre”
+- Ürün detay/kartında birim alanı mevcutsa kullanıcıya görünür olmalı
+
+F) UX DAVRANIŞLARI
+- “Kaydet” tıklandığında:
+  • Zorunlu alanlardan biri eksikse form üstünde genel uyarı bandı + alan altında hata metni
+  • Duplicate algılanırsa:
+    – Toast: “Bu ürün özellikleriyle zaten kayıt var”
+    – Inline uyarı: “Mevcut ürünü düzenlemek ister misiniz?” [Düzenle]
+- Ürün adı alanında blur olduğunda da duplicate kontrolü tetikle (kullanıcı öneriyi seçmeden kendi yazdıysa)
+
+G) i18n (TR/PL/UA) ANAHTARLARI – ekle ve kullan
+- fields.unit: "Birim"
+- unit.metre: "metre"
+- unit.adet: "adet"
+- validation.unitRequired: "Birim seçilmelidir."
+- validation.attributesRequired: "En az bir ürün özelliği girilmelidir."
+- validation.duplicateProduct: "Bu ad ve özelliklerle bir ürün zaten kayıtlı."
+- validation.required: "Bu alan zorunludur."
+- validation.numberNonNegative: "0 veya daha büyük olmalıdır."
+- suggest.existingNames: "Kayıtlı ürün adları"
+- action.goToEdit: "Düzenlemeye git"
+
+H) KABUL KRİTERLERİ
+- Formda “Birim” seçilmeden kaydetmeye izin verilmez; uyarı görünür
+- En az bir attribute değeri girilmeden kaydetmeye izin verilmez; uyarı görünür
+- Ürün adı yazarken mevcut adlar dropdown’da listelenir; seçilebiliyor
+- Aynı name + aynı attribute set ile ikinci kez kayıt denendiğinde işlem reddedilir (409) ve “Düzenlemeye git” önerisi gösterilir
+- Ürün kartlarında stok “adet/metre” ile birlikte görünür
