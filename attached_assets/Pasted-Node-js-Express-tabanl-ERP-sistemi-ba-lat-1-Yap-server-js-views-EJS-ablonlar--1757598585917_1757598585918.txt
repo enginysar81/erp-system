@@ -1,0 +1,98 @@
+Node.js + Express tabanlı ERP sistemi başlat. 
+
+1) Yapı:
+   /server.js
+   /views (EJS şablonları)
+   /public (css, js, uploads)
+   /data (örnek json veriler)
+   /locales (tr.json, pl.json, ua.json)
+
+2) Paketler:
+   express, ejs, body-parser, i18n, uuid, chart.js (cdn ile frontend), nodemon
+
+3) server.js:
+   - Express başlat (port 5000)
+   - view engine: ejs
+   - public klasörünü static sun
+   - i18n yapılandır (locales: ["tr","pl","ua"], defaultLocale:"tr", queryParameter:"lang")
+   - Routes:
+     GET "/" → dashboard sayfası
+     GET "/products" → ürün kartları (ileride)
+     Diğer menü başlıkları için boş placeholder sayfalar (örn: /stock, /sales)
+
+4) locales/tr.json:
+{
+  "menu.dashboard": "Panel",
+  "menu.products": "Ürünler",
+  "menu.stock": "Stok",
+  "menu.sales": "Satış",
+  "menu.customers": "Müşteriler",
+  "menu.accounting": "Muhasebe",
+  "menu.reports": "Raporlar",
+  "menu.messages": "Mesajlar",
+  "menu.users": "Kullanıcılar",
+  "menu.settings": "Ayarlar",
+  "dashboard.title": "ERP Kontrol Paneli",
+  "dashboard.totalProducts": "Toplam Ürün",
+  "dashboard.activeProducts": "Aktif Ürün",
+  "dashboard.lowStock": "Düşük Stok",
+  "dashboard.totalValue": "Toplam Değer"
+}
+
+5) locales/pl.json:
+{
+  "menu.dashboard": "Panel",
+  "menu.products": "Produkty",
+  "menu.stock": "Magazyn",
+  "menu.sales": "Sprzedaż",
+  "menu.customers": "Klienci",
+  "menu.accounting": "Księgowość",
+  "menu.reports": "Raporty",
+  "menu.messages": "Wiadomości",
+  "menu.users": "Użytkownicy",
+  "menu.settings": "Ustawienia",
+  "dashboard.title": "Panel ERP",
+  "dashboard.totalProducts": "Łączna liczba produktów",
+  "dashboard.activeProducts": "Aktywne produkty",
+  "dashboard.lowStock": "Niski stan",
+  "dashboard.totalValue": "Łączna wartość"
+}
+
+6) locales/ua.json:
+{
+  "menu.dashboard": "Панель",
+  "menu.products": "Товари",
+  "menu.stock": "Склад",
+  "menu.sales": "Продажі",
+  "menu.customers": "Клієнти",
+  "menu.accounting": "Бухгалтерія",
+  "menu.reports": "Звіти",
+  "menu.messages": "Повідомлення",
+  "menu.users": "Користувачі",
+  "menu.settings": "Налаштування",
+  "dashboard.title": "ERP Панель",
+  "dashboard.totalProducts": "Загальна кількість товарів",
+  "dashboard.activeProducts": "Активні товари",
+  "dashboard.lowStock": "Низький залишок",
+  "dashboard.totalValue": "Загальна вартість"
+}
+
+7) views/layout.ejs:
+   - Ortak layout (bootstrap navbar + sidebar menü)
+   - Menü TR/PL/UA butonları (query param ile lang değiştirme)
+
+8) views/dashboard.ejs:
+   - Başlık: <%= __("dashboard.title") %>
+   - Üstte 4 kutucuk: Toplam Ürün, Aktif Ürün, Düşük Stok, Toplam Değer
+   - Altında 2 grafik (Chart.js):
+     a) Son 6 ay satış grafiği (dummy data)
+     b) Kategoriye göre ürün dağılımı (dummy data pie chart)
+
+9) /data/products.json:
+   - 5 örnek ürün (id, name, buyPrice, sellPrice, stock, status, category)
+
+10) Sonuç:
+   - "/" sayfası Dashboard olarak açılacak.
+   - Menü çalışacak (çok dilli).
+   - Dashboard’ta özet kutular + 2 grafik olacak.
+   - Diğer menüler şimdilik “coming soon” yazsın.
