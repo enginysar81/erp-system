@@ -1,0 +1,75 @@
+Mevcut ERP projesine "Ürünler" sayfasını ekle. Tasarım tamamen aşağıdaki gibi olsun:
+
+1) Route:
+   GET "/products" → ürünler sayfası
+
+2) views/products.ejs:
+   - Başlık: <%= __("products.title") %>
+   - Alt açıklama: <%= __("products.subtitle") %>
+   - Üstte 4 kutucuk (Bootstrap card):
+     * <%= __("dashboard.totalProducts") %> → toplam ürün sayısı
+     * <%= __("dashboard.activeProducts") %> → status="Aktif" ürün sayısı
+     * <%= __("dashboard.lowStock") %> → stock < 5 ürün sayısı
+     * <%= __("dashboard.totalValue") %> → tüm ürünlerin (sellPrice * stock) toplamı
+   - Sağ üstte 2 buton:
+     * <%= __("button.filter") %> (şimdilik boş)
+     * <%= __("button.addProduct") %> → "/products/new"
+   - Altında ürünler grid (3 sütun, responsive):
+     Her kartta:
+       * Kapak resmi (product.coverImage, yoksa placeholder)
+       * Sağ üst köşede durum etiketi (yeşil = Aktif, gri = Pasif)
+       * Ürün adı (product.name)
+       * Açıklama (product.description)
+       * Alış Fiyatı ve Satış Fiyatı
+       * Stok (badge, örn: "10 adet")
+       * Attributes (product.attributes objesindeki tüm key:value çiftleri liste halinde)
+       * Alt butonlar:
+         - <%= __("button.stats") %>
+         - <%= __("button.edit") %>
+         - <%= product.status === "Aktif" ? __("button.deactivate") : __("button.activate") %>
+
+3) server.js:
+   - GET "/products":
+     * products.json dosyasını oku
+     * Ürün listesini ve kutu istatistiklerini products.ejs’e gönder
+
+   - POST "/products/toggle/:id":
+     * İlgili ürünü bul
+     * status "Aktif" ise "Pasif", "Pasif" ise "Aktif" yap
+     * JSON dosyasını güncelle
+     * "/products" sayfasına redirect et
+
+4) data/products.json:
+[
+  {
+    "id": "1",
+    "name": "Perde Modeli 1",
+    "description": "Beyaz tül perde",
+    "buyPrice": 4,
+    "sellPrice": 5,
+    "stock": 10,
+    "status": "Aktif",
+    "coverImage": "uploads/perde1.jpg",
+    "images": ["uploads/perde1.jpg","uploads/perde1_2.jpg"],
+    "attributes": {
+      "En": "300 cm",
+      "Boy": "250 cm",
+      "Renk": "Beyaz",
+      "Zemin": "Dantel"
+    }
+  }
+]
+
+5) locales (tr/pl/ua):
+   "products.title": "Ürün Katalog",
+   "products.subtitle": "Tüm ürünlerinizi görüntüleyin ve yönetin",
+   "dashboard.totalProducts": "Toplam Ürün",
+   "dashboard.activeProducts": "Aktif Ürün",
+   "dashboard.lowStock": "Düşük Stok",
+   "dashboard.totalValue": "Toplam Değer",
+   "button.filter": "Filtrele",
+   "button.addProduct": "Ürün Ekle",
+   "button.stats": "İstatistikler",
+   "button.edit": "Düzenle",
+   "button.activate": "Aktif Et",
+   "button.deactivate": "Pasif Et"
