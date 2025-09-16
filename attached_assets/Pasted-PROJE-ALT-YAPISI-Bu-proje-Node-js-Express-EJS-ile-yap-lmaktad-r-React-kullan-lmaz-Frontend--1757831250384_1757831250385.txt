@@ -1,0 +1,94 @@
+PROJE ALT YAPISI
+Bu proje Node.js + Express + EJS ile yapılmaktadır (React kullanılmaz).
+Frontend tasarımı EJS view dosyaları + CSS ile yapılır.
+Çoklu dil desteği TR / PL / UA i18n kullanılacaktır.
+
+HEDEF
+Mevcut “Stok Hareketleri” sayfası sade HTML gibi görünüyor. 
+Onu profesyonel, modern dashboard tarzında kullanıcı dostu hale getir.
+
+1) SAYFA YAPISI
+- Başlık: “Stok Hareketleri”
+- Üstte filtre paneli (kart tasarımında), altında hareket tablosu.
+- Export CSV / PDF butonları sağ üstte, ikonlu ve mavi outline.
+
+2) FİLTRE PANELİ
+- Kart görünümünde, gölgeli ve yuvarlatılmış (radius 14px).
+- İçerik:
+   • Tarih aralığı (date range picker, ikonlu input)
+   • Barkod no input (solunda barkod ikonu)
+   • Ürün adı autocomplete (yazdıkça ürünler listelensin, özellikleriyle birlikte görünsün)
+   • Depo seçimi dropdown
+   • [Filtrele] → mavi filled buton
+   • [Sıfırla] → gri outline buton
+- Aktif filtreler üstte “chip” olarak gösterilsin (örn. “Barkod: 123456 ✕”).
+
+3) TABLO TASARIMI
+- Responsive, kart gibi görünüm.
+- Sütunlar:
+   • Tarih → küçük gri yazı
+   • Ürün adı + özellikler → chip tarzında badge
+   • Depo / Raf → gri rozet
+   • Tür → her zaman “Giriş” (yeşil rozet)
+   • Miktar + birim → renkli badge (adet = mavi, metre = mor)
+   • Barkod(lar) → ilk barkod numarası + “(+N)” (hover/klik ile modalda tümünü göster)
+   • Not → kısalt, hover ile tam göster
+   • İşlemler → ikonlu butonlar:
+       - ✏ Düzenle (gri outline)
+       - 🖨 Yazdır (mavi outline)
+       - 🗑 Sil (kırmızı filled, confirm modal)
+- Satırlar hover ile #F9FAFB arka plan almalı.
+- Mobilde tablo yatay kaydırılabilir olsun.
+
+4) DÜZENLEME (Modal)
+- Satırdaki “Düzenle” tıklandığında modal açılır.
+- Modalda:
+   • Ürün adı, depo ve raf readonly
+   • Miktar/metre satırları düzenlenebilir
+   • Not düzenlenebilir
+- Kaydet:
+   • Stok güncellenir
+   • Barkodlar yeniden üretilir ve listelenir
+   • Eski barkodlar iptal edilir
+   • Toast: “Stok hareketi güncellendi, barkodlar yeniden oluşturuldu”
+- Tablo anında güncellenir.
+
+5) TASARIM DETAYLARI
+- Tema: açık gri (#F5F7FB), kartlar beyaz (#FFF), gölgeli (box-shadow), radius 14px.
+- Tipografi: başlık 18px semibold, tablo text 14px.
+- Renkler:
+   • Giriş → yeşil (#10B981)
+   • Adet badge → mavi (#3B82F6)
+   • Metre badge → mor (#8B5CF6)
+   • Düzenle butonu → gri outline
+   • Yazdır butonu → mavi outline
+   • Sil butonu → kırmızı filled
+- Hover: kart hafif yükselsin, tablo satırı renklensin.
+
+6) EKSTRA
+- Tablo üstünde toplam kayıt gösterilsin (“Toplam: 28 hareket”).
+- Export CSV/PDF butonları sağ üstte sabit dursun.
+- Silme işlemi confirm modal ile yapılmalı.
+- Barkod modalında “Tümünü Yazdır” seçeneği olmalı.
+
+7) i18n (TR/PL/UA)
+- stockMovements.title: "Stok Hareketleri"
+- stockMovements.filters: "Filtreler"
+- stockMovements.filter.date: "Tarih Aralığı"
+- stockMovements.filter.barcode: "Barkod No"
+- stockMovements.filter.product: "Ürün Adı"
+- stockMovements.filter.warehouse: "Depo"
+- stockMovements.actions.edit: "Düzenle"
+- stockMovements.actions.print: "Yazdır"
+- stockMovements.actions.delete: "Sil"
+- stockMovements.total: "Toplam: {X} hareket"
+- stockMovements.noResults: "Kayıt bulunamadı"
+- stockMovements.successUpdate: "Stok hareketi güncellendi, barkodlar yeniden oluşturuldu"
+- stockMovements.confirmDelete: "Bu stok hareketini silmek istediğinizden emin misiniz?"
+
+8) KABUL KRİTERLERİ
+- Sayfa profesyonel dashboard görünümünde olmalı
+- Filtreler kart içinde, aktif filtreler chip olarak görünmeli
+- Tablo hover efektli, modern ve ikonlu butonlarla olmalı
+- Düzenleme modal ile yapılmalı, kaydet sonrası barkodlar güncellenmeli
+- Responsive ve mobil uyumlu olmalı
