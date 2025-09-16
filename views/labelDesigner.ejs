@@ -1,0 +1,1543 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('labelDesigner.title') %></h1>
+            <p class="text-muted mb-0"><%= __('labelDesigner.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <button type="button" id="newTemplateBtn" class="btn btn-primary" data-testid="button-new-template">
+                <i class="fas fa-plus"></i>
+                <%= __('labelDesigner.newTemplate') %>
+            </button>
+            <button type="button" id="saveTemplateBtn" class="btn btn-success" data-testid="button-save-template" style="display: none;">
+                <i class="fas fa-save"></i>
+                <%= __('labelDesigner.saveTemplate') %>
+            </button>
+            <button type="button" id="previewBtn" class="btn btn-outline" data-testid="button-preview-template">
+                <i class="fas fa-eye"></i>
+                <%= __('labelDesigner.preview') %>
+            </button>
+            <a href="/settings?lang=<%= locale %>" class="btn btn-outline" data-testid="button-back-to-settings">
+                <i class="fas fa-arrow-left"></i>
+                <%= __('labelDesigner.backToSettings') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body -->
+<div class="content-body">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'saved') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                <%= __('labelDesigner.templateSaved') %>
+            </div>
+        <% } else if (query.success === 'deleted') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                <%= __('labelDesigner.templateDeleted') %>
+            </div>
+        <% } else if (query.error) { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('labelDesigner.error.' + query.error) || query.error %>
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Label Designer Container -->
+    <div class="label-designer-container">
+        
+        <!-- Left Panel: Template List -->
+        <div class="label-templates-panel">
+            <div class="form-section">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-list" style="color: var(--primary);"></i>
+                        <%= __('labelDesigner.templates.title') %>
+                    </h3>
+                </div>
+                <div class="form-section-body">
+                    <div id="templateList" data-testid="template-list">
+                        <!-- Templates will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel: Canvas Area -->
+        <div class="label-canvas-panel">
+            <div class="form-section">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-palette" style="color: var(--warning);"></i>
+                        <%= __('labelDesigner.canvas.title') %>
+                        <span id="canvasDimensions" class="canvas-dimensions" data-testid="text-canvas-dimensions">60mm x 40mm</span>
+                    </h3>
+                    <div class="canvas-controls">
+                        <button type="button" id="zoomInBtn" class="btn btn-sm" data-testid="button-zoom-in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button type="button" id="zoomOutBtn" class="btn btn-sm" data-testid="button-zoom-out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button type="button" id="fitToScreenBtn" class="btn btn-sm" data-testid="button-fit-screen">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-section-body">
+                    <div class="canvas-container" id="canvasContainer" data-testid="canvas-container">
+                        <div class="label-canvas" id="labelCanvas" data-testid="label-canvas">
+                            <!-- Label elements will be placed here -->
+                        </div>
+                        <div class="canvas-grid" id="canvasGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Template Settings -->
+            <div class="form-section" id="templateSettings">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-cog" style="color: var(--info);"></i>
+                        <%= __('labelDesigner.settings.title') %>
+                    </h3>
+                </div>
+                <div class="form-section-body">
+                    <div class="form-grid form-grid-3">
+                        <div class="form-group">
+                            <label class="form-label" for="templateName">
+                                <%= __('labelDesigner.settings.name') %>
+                                <span class="required">*</span>
+                            </label>
+                            <input type="text" id="templateName" class="form-control" 
+                                   placeholder="<%= __('labelDesigner.settings.namePlaceholder') %>" 
+                                   data-testid="input-template-name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="templateWidth">
+                                <%= __('labelDesigner.settings.width') %> (mm)
+                            </label>
+                            <input type="number" id="templateWidth" class="form-control" 
+                                   value="60" min="10" max="500" 
+                                   data-testid="input-template-width">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="templateHeight">
+                                <%= __('labelDesigner.settings.height') %> (mm)
+                            </label>
+                            <input type="number" id="templateHeight" class="form-control" 
+                                   value="40" min="10" max="500" 
+                                   data-testid="input-template-height">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Fields & Properties -->
+        <div class="label-fields-panel">
+            <!-- Draggable Fields Section -->
+            <div class="form-section">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-th-list" style="color: var(--success);"></i>
+                        <%= __('labelDesigner.fields.title') %>
+                    </h3>
+                </div>
+                <div class="form-section-body">
+                    <div class="draggable-fields" id="draggableFields" data-testid="draggable-fields">
+                        <div class="field-item" draggable="true" data-field="productName" data-type="text" data-testid="field-product-name">
+                            <i class="fas fa-font"></i>
+                            <span><%= __('labelDesigner.fields.productName') %></span>
+                        </div>
+                        <div class="field-item" draggable="true" data-field="features" data-type="text" data-testid="field-features">
+                            <i class="fas fa-list-ul"></i>
+                            <span><%= __('labelDesigner.fields.features') %></span>
+                        </div>
+                        <div class="field-item" draggable="true" data-field="price" data-type="text" data-testid="field-price">
+                            <i class="fas fa-tag"></i>
+                            <span><%= __('labelDesigner.fields.price') %></span>
+                        </div>
+                        <div class="field-item" draggable="true" data-field="date" data-type="text" data-testid="field-date">
+                            <i class="fas fa-calendar"></i>
+                            <span><%= __('labelDesigner.fields.date') %></span>
+                        </div>
+                        <div class="field-item" draggable="true" data-field="barcode" data-type="barcode" data-testid="field-barcode">
+                            <i class="fas fa-barcode"></i>
+                            <span><%= __('labelDesigner.fields.barcode') %></span>
+                        </div>
+                        <div class="field-item" draggable="true" data-field="logo" data-type="image" data-testid="field-logo">
+                            <i class="fas fa-image"></i>
+                            <span><%= __('labelDesigner.fields.logo') %></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Element Properties Section -->
+            <div class="form-section" id="elementProperties" style="display: none;">
+                <div class="form-section-header">
+                    <h3 class="form-section-title">
+                        <i class="fas fa-sliders-h" style="color: var(--danger);"></i>
+                        <%= __('labelDesigner.properties.title') %>
+                    </h3>
+                    <button type="button" id="deleteElementBtn" class="btn btn-sm btn-danger" data-testid="button-delete-element">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <div class="form-section-body">
+                    <div id="propertiesContent" data-testid="properties-content">
+                        <!-- Properties will be dynamically loaded based on selected element -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Template Confirmation Modal -->
+<div id="templateModal" class="modal" data-testid="modal-template">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle"><%= __('labelDesigner.modal.saveTemplate') %></h3>
+            <button type="button" id="closeModal" class="modal-close" data-testid="button-close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label" for="modalTemplateName">
+                    <%= __('labelDesigner.modal.templateName') %>
+                    <span class="required">*</span>
+                </label>
+                <input type="text" id="modalTemplateName" class="form-control" 
+                       placeholder="<%= __('labelDesigner.modal.templateNamePlaceholder') %>" 
+                       data-testid="input-modal-template-name">
+            </div>
+            <div class="form-group">
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="setAsDefault" data-testid="checkbox-set-default">
+                    <label for="setAsDefault"><%= __('labelDesigner.modal.setAsDefault') %></label>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="cancelModal" class="btn btn-secondary" data-testid="button-cancel-modal">
+                <%= __('buttons.cancel') %>
+            </button>
+            <button type="button" id="confirmSave" class="btn btn-primary" data-testid="button-confirm-save">
+                <i class="fas fa-save"></i>
+                <%= __('buttons.save') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal modal-large" data-testid="modal-preview">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><%= __('labelDesigner.preview.title') %></h3>
+            <button type="button" id="closePreviewModal" class="modal-close" data-testid="button-close-preview">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="preview-container" id="previewContainer" data-testid="preview-container">
+                <!-- Preview will be rendered here -->
+            </div>
+            <div class="preview-actions">
+                <button type="button" id="printPreview" class="btn btn-primary" data-testid="button-print-preview">
+                    <i class="fas fa-print"></i>
+                    <%= __('labelDesigner.preview.print') %>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Label Designer Styles -->
+<style>
+.label-designer-container {
+    display: grid;
+    grid-template-columns: 280px 1fr 320px;
+    gap: 24px;
+    height: calc(100vh - 140px);
+    min-height: 600px;
+}
+
+.label-templates-panel,
+.label-fields-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+}
+
+.label-canvas-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 0;
+}
+
+/* Template List */
+.template-item {
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: var(--card);
+    margin-bottom: 8px;
+}
+
+.template-item:hover {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.02);
+}
+
+.template-item.active {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.template-item.default {
+    border-color: var(--success);
+}
+
+.template-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.template-name {
+    font-weight: 600;
+    color: var(--foreground);
+}
+
+.template-actions {
+    display: flex;
+    gap: 4px;
+}
+
+.template-dimensions {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.default-badge {
+    background: var(--success);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+/* Canvas Area */
+.canvas-container {
+    position: relative;
+    background: #f8f9fa;
+    border-radius: var(--radius-sm);
+    overflow: auto;
+    min-height: 400px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.label-canvas {
+    position: relative;
+    background: white;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    box-shadow: var(--shadow);
+    width: 240px; /* 60mm * 4px/mm */
+    height: 160px; /* 40mm * 4px/mm */
+    transform-origin: center;
+    overflow: hidden;
+}
+
+.canvas-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px);
+    background-size: 20px 20px; /* 5mm grid */
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+.canvas-dimensions {
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 8px;
+}
+
+.canvas-controls {
+    display: flex;
+    gap: 4px;
+}
+
+/* Label Elements */
+.label-element {
+    position: absolute;
+    border: 1px dashed transparent;
+    cursor: move;
+    min-width: 20px;
+    min-height: 10px;
+    user-select: none;
+}
+
+.label-element:hover {
+    border-color: var(--primary);
+}
+
+.label-element.selected {
+    border-color: var(--primary);
+    border-style: solid;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.label-element .resize-handle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: var(--primary);
+    border: 1px solid white;
+    border-radius: 50%;
+}
+
+.label-element .resize-handle.se { bottom: -4px; right: -4px; cursor: se-resize; }
+.label-element .resize-handle.sw { bottom: -4px; left: -4px; cursor: sw-resize; }
+.label-element .resize-handle.ne { top: -4px; right: -4px; cursor: ne-resize; }
+.label-element .resize-handle.nw { top: -4px; left: -4px; cursor: nw-resize; }
+
+.label-element-text {
+    font-family: Arial, sans-serif;
+    line-height: 1.2;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 2px;
+}
+
+.label-element-barcode {
+    background: repeating-linear-gradient(
+        90deg,
+        #000 0px,
+        #000 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 8px;
+    font-family: monospace;
+}
+
+.label-element-image {
+    background: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+/* Draggable Fields */
+.draggable-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.field-item:hover {
+    border-color: var(--primary);
+    background: rgba(37, 99, 235, 0.02);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+}
+
+.field-item:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.field-item i {
+    color: var(--muted);
+    width: 16px;
+}
+
+.field-item span {
+    font-weight: 500;
+    color: var(--foreground);
+}
+
+/* Properties Panel */
+.properties-group {
+    margin-bottom: 16px;
+}
+
+.properties-group:last-child {
+    margin-bottom: 0;
+}
+
+.property-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.property-row .form-group {
+    margin-bottom: 0;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background: var(--card);
+    border-radius: var(--radius);
+    max-width: 500px;
+    width: 90%;
+    box-shadow: var(--shadow-hover);
+}
+
+.modal-large .modal-content {
+    max-width: 800px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: var(--foreground);
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+}
+
+.modal-body {
+    padding: 20px 24px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px 20px;
+    border-top: 1px solid var(--border);
+}
+
+.preview-container {
+    text-align: center;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: var(--radius-sm);
+}
+
+.preview-actions {
+    text-align: center;
+    margin-top: 16px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1200px) {
+    .label-designer-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        height: auto;
+        gap: 16px;
+    }
+    
+    .label-templates-panel {
+        order: 1;
+    }
+    
+    .label-canvas-panel {
+        order: 3;
+    }
+    
+    .label-fields-panel {
+        order: 2;
+    }
+    
+    .canvas-container {
+        min-height: 300px;
+        padding: 20px;
+    }
+    
+    .label-canvas {
+        width: 180px; /* 45mm * 4px/mm */
+        height: 120px; /* 30mm * 4px/mm */
+    }
+}
+
+@media (max-width: 768px) {
+    .label-canvas {
+        width: 120px; /* 30mm * 4px/mm */
+        height: 80px; /* 20mm * 4px/mm */
+    }
+}
+</style>
+
+<!-- Label Designer JavaScript -->
+<script src="/js/labelDesigner.js"></script>
+    constructor() {
+        this.currentTemplate = null;
+        this.selectedElement = null;
+        this.templates = [];
+        this.zoomLevel = 1;
+        this.isDragging = false;
+        this.isResizing = false;
+        
+        this.init();
+    }
+    
+    async init() {
+        await this.loadTemplates();
+        this.bindEvents();
+        this.setupDragAndDrop();
+        this.renderTemplateList();
+        
+        // Load default template or create new
+        const defaultTemplate = this.templates.find(t => t.isDefault);
+        if (defaultTemplate) {
+            this.loadTemplate(defaultTemplate);
+        } else {
+            this.createNewTemplate();
+        }
+    }
+    
+    async loadTemplates() {
+        try {
+            const response = await fetch('/api/labels');
+            this.templates = await response.json();
+        } catch (error) {
+            console.error('Failed to load templates:', error);
+            this.templates = [];
+        }
+    }
+    
+    bindEvents() {
+        // Template management
+        document.getElementById('newTemplateBtn').addEventListener('click', () => this.createNewTemplate());
+        document.getElementById('saveTemplateBtn').addEventListener('click', () => this.showSaveModal());
+        document.getElementById('previewBtn').addEventListener('click', () => this.showPreview());
+        
+        // Template settings
+        document.getElementById('templateName').addEventListener('input', (e) => {
+            if (this.currentTemplate) {
+                this.currentTemplate.name = e.target.value;
+                this.updateSaveButtonVisibility();
+            }
+        });
+        
+        document.getElementById('templateWidth').addEventListener('input', (e) => {
+            this.updateCanvasSize(parseInt(e.target.value), null);
+        });
+        
+        document.getElementById('templateHeight').addEventListener('input', (e) => {
+            this.updateCanvasSize(null, parseInt(e.target.value));
+        });
+        
+        // Canvas controls
+        document.getElementById('zoomInBtn').addEventListener('click', () => this.zoomIn());
+        document.getElementById('zoomOutBtn').addEventListener('click', () => this.zoomOut());
+        document.getElementById('fitToScreenBtn').addEventListener('click', () => this.fitToScreen());
+        
+        // Properties panel
+        document.getElementById('deleteElementBtn').addEventListener('click', () => this.deleteSelectedElement());
+        
+        // Modal events
+        this.bindModalEvents();
+    }
+    
+    bindModalEvents() {
+        // Save modal
+        document.getElementById('closeModal').addEventListener('click', () => this.hideSaveModal());
+        document.getElementById('cancelModal').addEventListener('click', () => this.hideSaveModal());
+        document.getElementById('confirmSave').addEventListener('click', () => this.saveTemplate());
+        
+        // Preview modal
+        document.getElementById('closePreviewModal').addEventListener('click', () => this.hidePreview());
+        document.getElementById('printPreview').addEventListener('click', () => this.printPreview());
+        
+        // Close modals on outside click
+        document.getElementById('templateModal').addEventListener('click', (e) => {
+            if (e.target.id === 'templateModal') this.hideSaveModal();
+        });
+        
+        document.getElementById('previewModal').addEventListener('click', (e) => {
+            if (e.target.id === 'previewModal') this.hidePreview();
+        });
+    }
+    
+    setupDragAndDrop() {
+        const canvas = document.getElementById('labelCanvas');
+        const fields = document.querySelectorAll('.field-item');
+        
+        // Make fields draggable
+        fields.forEach(field => {
+            field.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    field: field.dataset.field,
+                    type: field.dataset.type
+                }));
+            });
+        });
+        
+        // Canvas drop events
+        canvas.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            canvas.classList.add('drag-over');
+        });
+        
+        canvas.addEventListener('dragleave', () => {
+            canvas.classList.remove('drag-over');
+        });
+        
+        canvas.addEventListener('drop', (e) => {
+            e.preventDefault();
+            canvas.classList.remove('drag-over');
+            
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) / this.zoomLevel;
+            const y = (e.clientY - rect.top) / this.zoomLevel;
+            
+            this.addElement(data.field, data.type, x, y);
+        });
+        
+        // Canvas click for deselection
+        canvas.addEventListener('click', (e) => {
+            if (e.target === canvas) {
+                this.deselectElement();
+            }
+        });
+    }
+    
+    createNewTemplate() {
+        this.currentTemplate = {
+            id: null,
+            name: 'Yeni Etiket',
+            width: 60,
+            height: 40,
+            elements: [],
+            isDefault: false
+        };
+        
+        this.renderTemplate();
+        this.updateFormFields();
+        this.updateSaveButtonVisibility();
+        this.deselectTemplateInList();
+    }
+    
+    loadTemplate(template) {
+        this.currentTemplate = { ...template, elements: [...template.elements] };
+        this.renderTemplate();
+        this.updateFormFields();
+        this.updateSaveButtonVisibility();
+        this.highlightTemplateInList(template.id);
+    }
+    
+    renderTemplate() {
+        if (!this.currentTemplate) return;
+        
+        const canvas = document.getElementById('labelCanvas');
+        const { width, height } = this.currentTemplate;
+        
+        // Update canvas size (4px per mm scaling)
+        canvas.style.width = (width * 4) + 'px';
+        canvas.style.height = (height * 4) + 'px';
+        
+        // Clear canvas
+        canvas.innerHTML = '';
+        
+        // Render elements
+        this.currentTemplate.elements.forEach(element => {
+            this.renderElement(element);
+        });
+        
+        this.updateCanvasDimensions();
+    }
+    
+    renderElement(element) {
+        const canvas = document.getElementById('labelCanvas');
+        const elementDiv = document.createElement('div');
+        
+        elementDiv.className = 'label-element';
+        elementDiv.dataset.elementId = element.id || this.generateId();
+        elementDiv.style.left = (element.x * 4) + 'px'; // 4px per mm
+        elementDiv.style.top = (element.y * 4) + 'px';
+        elementDiv.style.width = (element.width * 4) + 'px';
+        elementDiv.style.height = (element.height * 4) + 'px';
+        
+        // Add content based on element type
+        if (element.type === 'text') {
+            const textDiv = document.createElement('div');
+            textDiv.className = 'label-element-text';
+            textDiv.style.fontSize = (element.fontSize * 4) + 'px'; // Scale font size
+            textDiv.style.fontWeight = element.bold ? 'bold' : 'normal';
+            textDiv.style.fontStyle = element.italic ? 'italic' : 'normal';
+            textDiv.style.textAlign = element.align || 'left';
+            textDiv.textContent = this.getFieldPreviewText(element.field);
+            elementDiv.appendChild(textDiv);
+        } else if (element.type === 'barcode') {
+            const barcodeDiv = document.createElement('div');
+            barcodeDiv.className = 'label-element-barcode';
+            barcodeDiv.textContent = 'BARCODE';
+            elementDiv.appendChild(barcodeDiv);
+        } else if (element.type === 'image') {
+            const imageDiv = document.createElement('div');
+            imageDiv.className = 'label-element-image';
+            imageDiv.innerHTML = '<i class="fas fa-image"></i>';
+            elementDiv.appendChild(imageDiv);
+        }
+        
+        // Add resize handles
+        this.addResizeHandles(elementDiv);
+        
+        // Bind events
+        this.bindElementEvents(elementDiv);
+        
+        canvas.appendChild(elementDiv);
+    }
+    
+    addResizeHandles(element) {
+        const handles = ['nw', 'ne', 'sw', 'se'];
+        handles.forEach(handle => {
+            const handleDiv = document.createElement('div');
+            handleDiv.className = `resize-handle ${handle}`;
+            handleDiv.addEventListener('mousedown', (e) => this.startResize(e, element, handle));
+            element.appendChild(handleDiv);
+        });
+    }
+    
+    bindElementEvents(elementDiv) {
+        elementDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.selectElement(elementDiv);
+        });
+        
+        elementDiv.addEventListener('mousedown', (e) => {
+            if (!e.target.classList.contains('resize-handle')) {
+                this.startDrag(e, elementDiv);
+            }
+        });
+    }
+    
+    selectElement(elementDiv) {
+        // Remove previous selection
+        document.querySelectorAll('.label-element.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        
+        // Select new element
+        elementDiv.classList.add('selected');
+        this.selectedElement = elementDiv;
+        
+        // Show properties panel
+        this.showElementProperties();
+    }
+    
+    deselectElement() {
+        document.querySelectorAll('.label-element.selected').forEach(el => {
+            el.classList.remove('selected');
+        });
+        this.selectedElement = null;
+        this.hideElementProperties();
+    }
+    
+    showElementProperties() {
+        const propertiesPanel = document.getElementById('elementProperties');
+        const propertiesContent = document.getElementById('propertiesContent');
+        
+        if (!this.selectedElement) return;
+        
+        const elementId = this.selectedElement.dataset.elementId;
+        const element = this.currentTemplate.elements.find(e => (e.id || this.generateId()) === elementId);
+        
+        if (!element) return;
+        
+        let html = '';
+        
+        // Common properties
+        html += `
+            <div class="properties-group">
+                <h4>Position & Size</h4>
+                <div class="property-row">
+                    <div class="form-group">
+                        <label class="form-label">X (mm)</label>
+                        <input type="number" id="propX" class="form-control form-control-sm" 
+                               value="${element.x}" min="0" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Y (mm)</label>
+                        <input type="number" id="propY" class="form-control form-control-sm" 
+                               value="${element.y}" min="0" step="0.1">
+                    </div>
+                </div>
+                <div class="property-row">
+                    <div class="form-group">
+                        <label class="form-label">Width (mm)</label>
+                        <input type="number" id="propWidth" class="form-control form-control-sm" 
+                               value="${element.width}" min="1" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Height (mm)</label>
+                        <input type="number" id="propHeight" class="form-control form-control-sm" 
+                               value="${element.height}" min="1" step="0.1">
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Text-specific properties
+        if (element.type === 'text') {
+            html += `
+                <div class="properties-group">
+                    <h4>Text Properties</h4>
+                    <div class="property-row">
+                        <div class="form-group">
+                            <label class="form-label">Font Size</label>
+                            <input type="number" id="propFontSize" class="form-control form-control-sm" 
+                                   value="${element.fontSize || 12}" min="4" max="72">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Align</label>
+                            <select id="propAlign" class="form-control form-control-sm">
+                                <option value="left" ${element.align === 'left' ? 'selected' : ''}>Left</option>
+                                <option value="center" ${element.align === 'center' ? 'selected' : ''}>Center</option>
+                                <option value="right" ${element.align === 'right' ? 'selected' : ''}>Right</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="property-row">
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="propBold" ${element.bold ? 'checked' : ''}>
+                                <label for="propBold">Bold</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="propItalic" ${element.italic ? 'checked' : ''}>
+                                <label for="propItalic">Italic</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        propertiesContent.innerHTML = html;
+        propertiesPanel.style.display = 'block';
+        
+        // Bind property change events
+        this.bindPropertyEvents();
+    }
+    
+    bindPropertyEvents() {
+        const props = ['X', 'Y', 'Width', 'Height', 'FontSize'];
+        props.forEach(prop => {
+            const input = document.getElementById(`prop${prop}`);
+            if (input) {
+                input.addEventListener('input', () => this.updateElementProperty(prop, input.value));
+            }
+        });
+        
+        const align = document.getElementById('propAlign');
+        if (align) {
+            align.addEventListener('change', () => this.updateElementProperty('Align', align.value));
+        }
+        
+        const bold = document.getElementById('propBold');
+        if (bold) {
+            bold.addEventListener('change', () => this.updateElementProperty('Bold', bold.checked));
+        }
+        
+        const italic = document.getElementById('propItalic');
+        if (italic) {
+            italic.addEventListener('change', () => this.updateElementProperty('Italic', italic.checked));
+        }
+    }
+    
+    updateElementProperty(property, value) {
+        if (!this.selectedElement) return;
+        
+        const elementId = this.selectedElement.dataset.elementId;
+        const element = this.currentTemplate.elements.find(e => (e.id || this.generateId()) === elementId);
+        
+        if (!element) return;
+        
+        // Update element data
+        const numValue = parseFloat(value);
+        switch (property) {
+            case 'X':
+                element.x = numValue;
+                this.selectedElement.style.left = (numValue * 4) + 'px';
+                break;
+            case 'Y':
+                element.y = numValue;
+                this.selectedElement.style.top = (numValue * 4) + 'px';
+                break;
+            case 'Width':
+                element.width = numValue;
+                this.selectedElement.style.width = (numValue * 4) + 'px';
+                break;
+            case 'Height':
+                element.height = numValue;
+                this.selectedElement.style.height = (numValue * 4) + 'px';
+                break;
+            case 'FontSize':
+                element.fontSize = numValue;
+                const textEl = this.selectedElement.querySelector('.label-element-text');
+                if (textEl) textEl.style.fontSize = (numValue * 4) + 'px';
+                break;
+            case 'Align':
+                element.align = value;
+                const textEl2 = this.selectedElement.querySelector('.label-element-text');
+                if (textEl2) textEl2.style.textAlign = value;
+                break;
+            case 'Bold':
+                element.bold = value;
+                const textEl3 = this.selectedElement.querySelector('.label-element-text');
+                if (textEl3) textEl3.style.fontWeight = value ? 'bold' : 'normal';
+                break;
+            case 'Italic':
+                element.italic = value;
+                const textEl4 = this.selectedElement.querySelector('.label-element-text');
+                if (textEl4) textEl4.style.fontStyle = value ? 'italic' : 'normal';
+                break;
+        }
+        
+        this.updateSaveButtonVisibility();
+    }
+    
+    hideElementProperties() {
+        document.getElementById('elementProperties').style.display = 'none';
+    }
+    
+    deleteSelectedElement() {
+        if (!this.selectedElement) return;
+        
+        const elementId = this.selectedElement.dataset.elementId;
+        const elementIndex = this.currentTemplate.elements.findIndex(e => (e.id || this.generateId()) === elementId);
+        
+        if (elementIndex > -1) {
+            this.currentTemplate.elements.splice(elementIndex, 1);
+            this.selectedElement.remove();
+            this.selectedElement = null;
+            this.hideElementProperties();
+            this.updateSaveButtonVisibility();
+        }
+    }
+    
+    addElement(field, type, x, y) {
+        const element = {
+            id: this.generateId(),
+            type: type,
+            field: field,
+            x: Math.max(0, x / 4), // Convert from pixels to mm
+            y: Math.max(0, y / 4),
+            width: type === 'barcode' ? 30 : 20,
+            height: type === 'barcode' ? 8 : 6
+        };
+        
+        // Add type-specific properties
+        if (type === 'text') {
+            element.fontSize = 12;
+            element.bold = false;
+            element.italic = false;
+            element.align = 'left';
+        }
+        
+        this.currentTemplate.elements.push(element);
+        this.renderElement(element);
+        this.updateSaveButtonVisibility();
+    }
+    
+    getFieldPreviewText(field) {
+        const previews = {
+            productName: 'Product Name',
+            features: 'Feature 1, Feature 2',
+            price: '99.99 USD',
+            date: new Date().toLocaleDateString()
+        };
+        return previews[field] || field;
+    }
+    
+    updateCanvasSize(width, height) {
+        if (!this.currentTemplate) return;
+        
+        if (width !== null) this.currentTemplate.width = width;
+        if (height !== null) this.currentTemplate.height = height;
+        
+        this.renderTemplate();
+        this.updateSaveButtonVisibility();
+    }
+    
+    updateCanvasDimensions() {
+        if (!this.currentTemplate) return;
+        const dimensionsEl = document.getElementById('canvasDimensions');
+        dimensionsEl.textContent = `${this.currentTemplate.width}mm x ${this.currentTemplate.height}mm`;
+    }
+    
+    updateFormFields() {
+        if (!this.currentTemplate) return;
+        
+        document.getElementById('templateName').value = this.currentTemplate.name;
+        document.getElementById('templateWidth').value = this.currentTemplate.width;
+        document.getElementById('templateHeight').value = this.currentTemplate.height;
+    }
+    
+    updateSaveButtonVisibility() {
+        const saveBtn = document.getElementById('saveTemplateBtn');
+        const hasChanges = this.currentTemplate && (
+            !this.currentTemplate.id || 
+            this.currentTemplate.elements.length > 0
+        );
+        
+        saveBtn.style.display = hasChanges ? 'block' : 'none';
+    }
+    
+    renderTemplateList() {
+        const listContainer = document.getElementById('templateList');
+        
+        if (this.templates.length === 0) {
+            listContainer.innerHTML = '<p class="text-muted">No templates found</p>';
+            return;
+        }
+        
+        const html = this.templates.map(template => `
+            <div class="template-item ${template.isDefault ? 'default' : ''}" 
+                 data-template-id="${template.id}" data-testid="template-item-${template.id}">
+                <div class="template-header">
+                    <span class="template-name">${template.name}</span>
+                    <div class="template-actions">
+                        ${template.isDefault ? '<span class="default-badge">Default</span>' : ''}
+                        <button type="button" class="btn btn-sm btn-outline" 
+                                onclick="labelDesigner.setDefaultTemplate('${template.id}')" 
+                                data-testid="button-set-default-${template.id}">
+                            <i class="fas fa-star"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger" 
+                                onclick="labelDesigner.deleteTemplate('${template.id}')" 
+                                data-testid="button-delete-${template.id}"
+                                ${template.isDefault ? 'disabled' : ''}>
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="template-dimensions">${template.width}mm x ${template.height}mm</div>
+            </div>
+        `).join('');
+        
+        listContainer.innerHTML = html;
+        
+        // Bind click events
+        listContainer.querySelectorAll('.template-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                if (!e.target.closest('button')) {
+                    const templateId = item.dataset.templateId;
+                    const template = this.templates.find(t => t.id === templateId);
+                    if (template) this.loadTemplate(template);
+                }
+            });
+        });
+    }
+    
+    highlightTemplateInList(templateId) {
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        const activeItem = document.querySelector(`[data-template-id="${templateId}"]`);
+        if (activeItem) activeItem.classList.add('active');
+    }
+    
+    deselectTemplateInList() {
+        document.querySelectorAll('.template-item').forEach(item => {
+            item.classList.remove('active');
+        });
+    }
+    
+    showSaveModal() {
+        if (!this.currentTemplate) return;
+        
+        document.getElementById('modalTemplateName').value = this.currentTemplate.name;
+        document.getElementById('setAsDefault').checked = this.currentTemplate.isDefault;
+        document.getElementById('templateModal').classList.add('show');
+    }
+    
+    hideSaveModal() {
+        document.getElementById('templateModal').classList.remove('show');
+    }
+    
+    async saveTemplate() {
+        const name = document.getElementById('modalTemplateName').value.trim();
+        const setAsDefault = document.getElementById('setAsDefault').checked;
+        
+        if (!name) {
+            alert('Please enter a template name');
+            return;
+        }
+        
+        if (!this.currentTemplate) return;
+        
+        try {
+            this.currentTemplate.name = name;
+            this.currentTemplate.isDefault = setAsDefault;
+            
+            let response;
+            if (this.currentTemplate.id) {
+                // Update existing template
+                response = await fetch(`/api/labels/${this.currentTemplate.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.currentTemplate)
+                });
+            } else {
+                // Create new template
+                response = await fetch('/api/labels', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(this.currentTemplate)
+                });
+            }
+            
+            if (response.ok) {
+                const savedTemplate = await response.json();
+                this.currentTemplate.id = savedTemplate.id;
+                
+                await this.loadTemplates();
+                this.renderTemplateList();
+                this.highlightTemplateInList(savedTemplate.id);
+                this.updateSaveButtonVisibility();
+                this.hideSaveModal();
+                
+                // Show success message
+                this.showMessage('Template saved successfully', 'success');
+            } else {
+                throw new Error('Failed to save template');
+            }
+            
+        } catch (error) {
+            console.error('Error saving template:', error);
+            this.showMessage('Failed to save template', 'error');
+        }
+    }
+    
+    async setDefaultTemplate(templateId) {
+        try {
+            const response = await fetch(`/api/labels/${templateId}/default`, {
+                method: 'POST'
+            });
+            
+            if (response.ok) {
+                await this.loadTemplates();
+                this.renderTemplateList();
+                this.showMessage('Default template updated', 'success');
+            } else {
+                throw new Error('Failed to set default template');
+            }
+        } catch (error) {
+            console.error('Error setting default template:', error);
+            this.showMessage('Failed to set default template', 'error');
+        }
+    }
+    
+    async deleteTemplate(templateId) {
+        if (!confirm('Are you sure you want to delete this template?')) return;
+        
+        try {
+            const response = await fetch(`/api/labels/${templateId}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                await this.loadTemplates();
+                this.renderTemplateList();
+                
+                // If deleted template was current, create new
+                if (this.currentTemplate && this.currentTemplate.id === templateId) {
+                    this.createNewTemplate();
+                }
+                
+                this.showMessage('Template deleted successfully', 'success');
+            } else {
+                throw new Error('Failed to delete template');
+            }
+        } catch (error) {
+            console.error('Error deleting template:', error);
+            this.showMessage('Failed to delete template', 'error');
+        }
+    }
+    
+    showPreview() {
+        if (!this.currentTemplate) return;
+        
+        const previewContainer = document.getElementById('previewContainer');
+        const canvas = document.getElementById('labelCanvas');
+        
+        // Create preview version
+        const previewCanvas = canvas.cloneNode(true);
+        previewCanvas.style.transform = 'scale(2)';
+        previewCanvas.style.transformOrigin = 'center';
+        
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(previewCanvas);
+        
+        document.getElementById('previewModal').classList.add('show');
+    }
+    
+    hidePreview() {
+        document.getElementById('previewModal').classList.remove('show');
+    }
+    
+    printPreview() {
+        // Create a new window for printing
+        const printWindow = window.open('', '_blank');
+        const canvas = document.getElementById('labelCanvas');
+        
+        printWindow.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Print Label</title>
+                <style>
+                    body { margin: 0; padding: 20px; }
+                    .print-label { 
+                        width: ${this.currentTemplate.width}mm; 
+                        height: ${this.currentTemplate.height}mm; 
+                        border: 1px solid #ccc;
+                        transform: scale(2);
+                        transform-origin: top left;
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-label">${canvas.innerHTML}</div>
+            </body>
+            </html>
+        `);
+        
+        printWindow.document.close();
+        printWindow.print();
+    }
+    
+    zoomIn() {
+        this.zoomLevel = Math.min(this.zoomLevel * 1.2, 3);
+        this.applyZoom();
+    }
+    
+    zoomOut() {
+        this.zoomLevel = Math.max(this.zoomLevel / 1.2, 0.3);
+        this.applyZoom();
+    }
+    
+    fitToScreen() {
+        this.zoomLevel = 1;
+        this.applyZoom();
+    }
+    
+    applyZoom() {
+        const canvas = document.getElementById('labelCanvas');
+        canvas.style.transform = `scale(${this.zoomLevel})`;
+    }
+    
+    // Drag functionality
+    startDrag(e, element) {
+        this.isDragging = true;
+        const rect = element.getBoundingClientRect();
+        const canvasRect = document.getElementById('labelCanvas').getBoundingClientRect();
+        
+        this.dragOffset = {
+            x: e.clientX - rect.left,
+            y: e.clientY - rect.top
+        };
+        
+        const onMouseMove = (e) => {
+            if (!this.isDragging) return;
+            
+            const newX = e.clientX - canvasRect.left - this.dragOffset.x;
+            const newY = e.clientY - canvasRect.top - this.dragOffset.y;
+            
+            element.style.left = Math.max(0, newX) + 'px';
+            element.style.top = Math.max(0, newY) + 'px';
+            
+            // Update element data
+            const elementId = element.dataset.elementId;
+            const elementData = this.currentTemplate.elements.find(e => (e.id || this.generateId()) === elementId);
+            if (elementData) {
+                elementData.x = Math.max(0, newX / 4);
+                elementData.y = Math.max(0, newY / 4);
+            }
+        };
+        
+        const onMouseUp = () => {
+            this.isDragging = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            this.updateSaveButtonVisibility();
+        };
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+    
+    // Resize functionality
+    startResize(e, element, handle) {
+        e.stopPropagation();
+        this.isResizing = true;
+        
+        const rect = element.getBoundingClientRect();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startWidth = parseFloat(element.style.width);
+        const startHeight = parseFloat(element.style.height);
+        const startLeft = parseFloat(element.style.left);
+        const startTop = parseFloat(element.style.top);
+        
+        const onMouseMove = (e) => {
+            if (!this.isResizing) return;
+            
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            
+            let newWidth = startWidth;
+            let newHeight = startHeight;
+            let newLeft = startLeft;
+            let newTop = startTop;
+            
+            if (handle.includes('e')) newWidth = Math.max(20, startWidth + deltaX);
+            if (handle.includes('w')) {
+                newWidth = Math.max(20, startWidth - deltaX);
+                newLeft = startLeft + deltaX;
+            }
+            if (handle.includes('s')) newHeight = Math.max(10, startHeight + deltaY);
+            if (handle.includes('n')) {
+                newHeight = Math.max(10, startHeight - deltaY);
+                newTop = startTop + deltaY;
+            }
+            
+            element.style.width = newWidth + 'px';
+            element.style.height = newHeight + 'px';
+            element.style.left = Math.max(0, newLeft) + 'px';
+            element.style.top = Math.max(0, newTop) + 'px';
+            
+            // Update element data
+            const elementId = element.dataset.elementId;
+            const elementData = this.currentTemplate.elements.find(e => (e.id || this.generateId()) === elementId);
+            if (elementData) {
+                elementData.width = newWidth / 4;
+                elementData.height = newHeight / 4;
+                elementData.x = Math.max(0, newLeft / 4);
+                elementData.y = Math.max(0, newTop / 4);
+            }
+        };
+        
+        const onMouseUp = () => {
+            this.isResizing = false;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            this.updateSaveButtonVisibility();
+        };
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    }
+    
+    generateId() {
+        return 'el_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+    }
+    
+    showMessage(message, type) {
+        // Simple message display (you can enhance this)
+        const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        
+        const alertHTML = `
+            <div class="alert ${alertClass}" style="margin-bottom: 24px;">
+                <i class="fas ${icon}"></i>
+                ${message}
+            </div>
+        `;
+        
+        const contentBody = document.querySelector('.content-body');
+        contentBody.insertAdjacentHTML('afterbegin', alertHTML);
+        
+        // Auto-remove after 3 seconds
+        setTimeout(() => {
+            const alert = contentBody.querySelector('.alert');
+            if (alert) alert.remove();
+        }, 3000);
+    }
+}
+
+// Initialize label designer when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    window.labelDesigner = new LabelDesigner();
+});
+
+// Handle StockIn JS integration
+window.StockIn = window.StockIn || {};
+window.StockIn.JS = window.StockIn.JS || {};
+
+console.log('Label Designer loaded successfully');
+</script>
