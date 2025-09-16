@@ -1,0 +1,637 @@
+<!-- Content Header -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= warehouse.name %></h1>
+            <p class="text-muted mb-0"><%= __('warehouseDetail.title') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <a href="/warehouses?lang=<%= locale %>" class="btn btn-outline-secondary" data-testid="button-back">
+                <i class="fas fa-arrow-left me-2"></i>
+                <%= __('warehouseDetail.backToList') %>
+            </a>
+            <a href="/warehouses/<%= warehouse.id %>/edit?lang=<%= locale %>" class="btn btn-primary" data-testid="button-edit">
+                <i class="fas fa-edit me-2"></i>
+                <%= __('warehouseDetail.edit') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Success/Error Messages -->
+<% if (success) { %>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <%= __('warehouseMessages.' + success) %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<% if (error) { %>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <%= __('warehouseValidation.' + error) || __('warehouseMessages.' + error) %>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+<% } %>
+
+<div class="warehouse-detail-container">
+    <div class="row">
+        <!-- Warehouse Information -->
+        <div class="col-lg-4">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <h3 class="info-card-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <%= __('warehouseDetail.info') %>
+                    </h3>
+                </div>
+                
+                <div class="info-card-body">
+                    <div class="info-list">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-warehouse text-primary"></i>
+                                <%= __('warehouses.name') %>
+                            </div>
+                            <div class="info-value" data-testid="text-warehouse-name">
+                                <%= warehouse.name %>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-power-off text-info"></i>
+                                <%= __('warehouses.status') %>
+                            </div>
+                            <div class="info-value">
+                                <span class="status-badge status-<%= warehouse.status.toLowerCase() %>" 
+                                      data-testid="badge-status">
+                                    <%= warehouse.status %>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-layer-group text-warning"></i>
+                                <%= __('warehouses.hasShelfSystem') %>
+                            </div>
+                            <div class="info-value" data-testid="text-shelf-system">
+                                <span class="feature-badge <%= warehouse.hasShelfSystem ? 'enabled' : 'disabled' %>">
+                                    <i class="fas fa-<%= warehouse.hasShelfSystem ? 'check' : 'times' %>"></i>
+                                    <%= warehouse.hasShelfSystem ? __('warehouseForm.shelfSystemYes') : __('warehouseForm.shelfSystemNo') %>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <% if (warehouse.hasShelfSystem) { %>
+                            <div class="info-item">
+                                <div class="info-label">
+                                    <i class="fas fa-list-ol text-success"></i>
+                                    <%= __('warehouses.shelfCount') %>
+                                </div>
+                                <div class="info-value" data-testid="text-shelf-count">
+                                    <span class="count-badge">
+                                        <%= warehouse.shelves ? warehouse.shelves.length : 0 %>
+                                    </span>
+                                </div>
+                            </div>
+                        <% } %>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-plus text-muted"></i>
+                                Created
+                            </div>
+                            <div class="info-value" data-testid="text-created">
+                                <%= new Date(warehouse.createdAt).toLocaleDateString(locale, { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) %>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-calendar-check text-muted"></i>
+                                Updated
+                            </div>
+                            <div class="info-value" data-testid="text-updated">
+                                <%= new Date(warehouse.updatedAt).toLocaleDateString(locale, { 
+                                    year: 'numeric', 
+                                    month: 'long', 
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                }) %>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <form method="POST" action="/warehouses/<%= warehouse.id %>/toggle?lang=<%= locale %>" style="display: inline;">
+                            <button type="submit" 
+                                    class="btn btn-outline-<%= warehouse.status === 'Aktif' ? 'warning' : 'success' %> btn-sm"
+                                    data-testid="button-toggle-status">
+                                <i class="fas fa-power-off"></i>
+                                <%= warehouse.status === 'Aktif' ? __('warehouses.deactivate') : __('warehouses.activate') %>
+                            </button>
+                        </form>
+                        
+                        <form method="POST" 
+                              action="/warehouses/<%= warehouse.id %>/delete?lang=<%= locale %>" 
+                              style="display: inline;"
+                              onsubmit="return confirm('<%= __('warehouses.confirmDelete') %>')">
+                            <button type="submit" 
+                                    class="btn btn-outline-danger btn-sm"
+                                    data-testid="button-delete">
+                                <i class="fas fa-trash"></i>
+                                <%= __('warehouses.delete') %>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Shelf Management -->
+        <div class="col-lg-8">
+            <div class="shelf-management-card">
+                <div class="shelf-management-header">
+                    <h3 class="shelf-management-title">
+                        <i class="fas fa-boxes me-2"></i>
+                        <%= __('warehouseDetail.shelfManagement') %>
+                    </h3>
+                </div>
+                
+                <div class="shelf-management-body">
+                    <% if (warehouse.hasShelfSystem) { %>
+                        <!-- Add Shelf Form -->
+                        <div class="add-shelf-section">
+                            <form method="POST" 
+                                  action="/warehouses/<%= warehouse.id %>/shelves/new?lang=<%= locale %>" 
+                                  class="add-shelf-form"
+                                  data-testid="form-add-shelf">
+                                <div class="add-shelf-input-group">
+                                    <input type="text" 
+                                           class="form-control" 
+                                           name="shelfName" 
+                                           placeholder="<%= __('warehouseDetail.shelfName') %>" 
+                                           maxlength="20"
+                                           required
+                                           data-testid="input-shelf-name">
+                                    <button type="submit" 
+                                            class="btn btn-primary" 
+                                            data-testid="button-add-shelf">
+                                        <i class="fas fa-plus"></i>
+                                        <%= __('warehouseDetail.addShelfButton') %>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- Shelves List -->
+                        <div class="shelves-section">
+                            <% if (warehouse.shelves && warehouse.shelves.length > 0) { %>
+                                <div class="shelves-grid" data-testid="grid-shelves">
+                                    <% warehouse.shelves.forEach((shelf, index) => { %>
+                                        <div class="shelf-item" data-testid="item-shelf-<%= index %>">
+                                            <div class="shelf-info">
+                                                <i class="fas fa-box shelf-icon"></i>
+                                                <span class="shelf-name" data-testid="text-shelf-name-<%= index %>">
+                                                    <%= shelf %>
+                                                </span>
+                                            </div>
+                                            <form method="POST" 
+                                                  action="/warehouses/<%= warehouse.id %>/shelves/del?lang=<%= locale %>" 
+                                                  style="display: inline;"
+                                                  onsubmit="return confirm('<%= __('warehouseDetail.confirmDeleteShelf') %>')">
+                                                <input type="hidden" name="shelfName" value="<%= shelf %>">
+                                                <button type="submit" 
+                                                        class="btn btn-outline-danger btn-sm shelf-delete-btn"
+                                                        title="<%= __('warehouseDetail.deleteShelf') %>"
+                                                        data-testid="button-delete-shelf-<%= index %>">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } else { %>
+                                <!-- No Shelves State -->
+                                <div class="no-shelves-state" data-testid="empty-shelves">
+                                    <div class="no-shelves-content">
+                                        <i class="fas fa-boxes no-shelves-icon"></i>
+                                        <h4 class="no-shelves-title"><%= __('warehouseDetail.noShelves') %></h4>
+                                        <p class="no-shelves-description"><%= __('warehouseDetail.createFirstShelf') %></p>
+                                    </div>
+                                </div>
+                            <% } %>
+                        </div>
+                    <% } else { %>
+                        <!-- Shelf System Disabled -->
+                        <div class="shelf-system-disabled" data-testid="shelf-system-disabled">
+                            <div class="disabled-content">
+                                <i class="fas fa-ban disabled-icon"></i>
+                                <h4 class="disabled-title"><%= __('warehouseDetail.shelfSystemDisabled') %></h4>
+                                <p class="disabled-description"><%= __('warehouseDetail.enableShelfSystem') %></p>
+                                <a href="/warehouses/<%= warehouse.id %>/edit?lang=<%= locale %>" 
+                                   class="btn btn-outline-primary">
+                                    <i class="fas fa-edit me-2"></i>
+                                    <%= __('warehouseDetail.edit') %>
+                                </a>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.warehouse-detail-container {
+    padding: 1rem 0;
+}
+
+.info-card, .shelf-management-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border: 1px solid #e0e6ed;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+}
+
+.info-card-header, .shelf-management-header {
+    padding: 1.25rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.info-card-title, .shelf-management-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+}
+
+.info-card-body, .shelf-management-body {
+    padding: 1.5rem;
+}
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.info-label i {
+    width: 16px;
+    font-size: 14px;
+}
+
+.info-value {
+    font-size: 0.95rem;
+    color: #374151;
+    font-weight: 500;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-aktif {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-pasif {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.feature-badge.enabled {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.feature-badge.disabled {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    height: 2rem;
+    background: #3b82f6;
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.875rem;
+}
+
+.quick-actions {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.add-shelf-section {
+    margin-bottom: 2rem;
+}
+
+.add-shelf-input-group {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.add-shelf-input-group .form-control {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.add-shelf-input-group .form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.shelves-section {
+    position: relative;
+}
+
+.shelves-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.shelf-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.shelf-item:hover {
+    border-color: #cbd5e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.shelf-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.shelf-icon {
+    color: #3b82f6;
+    font-size: 1.125rem;
+}
+
+.shelf-name {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.shelf-delete-btn {
+    padding: 0.375rem 0.5rem;
+    border-radius: 4px;
+    opacity: 0.7;
+    transition: opacity 0.2s ease;
+}
+
+.shelf-item:hover .shelf-delete-btn {
+    opacity: 1;
+}
+
+.no-shelves-state, .shelf-system-disabled {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 2rem;
+}
+
+.no-shelves-content, .disabled-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.no-shelves-icon, .disabled-icon {
+    font-size: 3rem;
+    color: #cbd5e0;
+    margin-bottom: 1rem;
+}
+
+.disabled-icon {
+    color: #f87171;
+}
+
+.no-shelves-title, .disabled-title {
+    font-size: 1.25rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.no-shelves-description, .disabled-description {
+    color: #718096;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+    .warehouse-detail-container {
+        padding: 0.5rem 0;
+    }
+    
+    .info-card-body, .shelf-management-body {
+        padding: 1rem;
+    }
+    
+    .add-shelf-input-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .add-shelf-input-group .btn {
+        width: 100%;
+    }
+    
+    .shelves-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        flex-direction: column;
+    }
+    
+    .quick-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .toolbar-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .toolbar-actions .btn {
+        width: 100%;
+    }
+}
+
+.alert {
+    border-radius: 6px;
+    border: 1px solid transparent;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: inherit;
+    opacity: 0.5;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add shelf form validation
+    const addShelfForm = document.querySelector('.add-shelf-form');
+    const shelfNameInput = document.querySelector('input[name="shelfName"]');
+    
+    if (addShelfForm && shelfNameInput) {
+        addShelfForm.addEventListener('submit', function(e) {
+            const shelfName = shelfNameInput.value.trim();
+            
+            if (!shelfName) {
+                e.preventDefault();
+                alert('<%= __("warehouseValidation.shelfNameRequired") %>');
+                shelfNameInput.focus();
+                return;
+            }
+            
+            if (shelfName.length < 1) {
+                e.preventDefault();
+                alert('<%= __("warehouseValidation.shelfNameMinLength") %>');
+                shelfNameInput.focus();
+                return;
+            }
+            
+            if (shelfName.length > 20) {
+                e.preventDefault();
+                alert('<%= __("warehouseValidation.shelfNameMaxLength") %>');
+                shelfNameInput.focus();
+                return;
+            }
+            
+            // Check for duplicate shelf names
+            const existingShelves = Array.from(document.querySelectorAll('.shelf-name')).map(el => el.textContent.trim());
+            if (existingShelves.includes(shelfName)) {
+                e.preventDefault();
+                alert('<%= __("warehouseValidation.shelfNameExists") %>');
+                shelfNameInput.focus();
+                return;
+            }
+        });
+        
+        // Real-time validation feedback
+        shelfNameInput.addEventListener('input', function() {
+            const shelfName = this.value.trim();
+            
+            // Remove existing validation classes
+            this.classList.remove('is-valid', 'is-invalid');
+            
+            if (shelfName.length === 0) {
+                return; // Don't show validation for empty field
+            }
+            
+            const existingShelves = Array.from(document.querySelectorAll('.shelf-name')).map(el => el.textContent.trim());
+            
+            if (shelfName.length > 20) {
+                this.classList.add('is-invalid');
+            } else if (existingShelves.includes(shelfName)) {
+                this.classList.add('is-invalid');
+            } else {
+                this.classList.add('is-valid');
+            }
+        });
+    }
+    
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }, 5000);
+    });
+});
+</script>
