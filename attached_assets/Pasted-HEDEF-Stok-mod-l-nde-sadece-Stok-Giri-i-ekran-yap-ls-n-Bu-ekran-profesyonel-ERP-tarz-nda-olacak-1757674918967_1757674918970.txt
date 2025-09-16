@@ -1,0 +1,93 @@
+HEDEF
+Stok modülünde sadece “Stok Girişi” ekranı yapılsın. Bu ekran profesyonel ERP tarzında olacak ve şu kurallara uyacak:
+
+1) SAYFA YAPISI (views/stock_in.ejs)
+- Başlık: “Stok Girişi”
+- Form adımları:
+  A) Ürün Seçimi
+     • Input: autocomplete ürün adı (kullanıcı yazdıkça sistemdeki ürünler listelensin)
+     • Listede aynı ürün adları varsa özellikleri de göster (ör: “24244 – Renk: Beyaz, Zemin: Dantel”)
+     • Kullanıcı seçince ürün kartının temel bilgileri sağda küçük özet olarak çıksın
+  B) Depo / Raf Seçimi
+     • Depo dropdown’dan seçilir
+     • Eğer depo.hasShelves=true ise raf listesi çıkar, kullanıcı raf seçmeden kaydedemez
+     • hasShelves=false ise raf seçimi gizlenir
+  C) Miktar Girişi ve Barkod
+     • Eğer ürün.birim == "adet":
+        – Input: “Miktar” (number, >0)
+        – Sistem otomatik 1 adet barkod üretir (6 haneli random code128)
+        – Barkod çıktıları aynı sayfada listelenir, yazdır butonu olur
+     • Eğer ürün.birim == "metre":
+        – Kullanıcı metre uzunluklarını tek tek girer (ör: 3.2, 2.5, 4.0…)
+        – Her satır için ayrı barkod üretilir (her metre satırı için bir code128)
+        – Kullanıcı “+ Metre Ekle” butonu ile yeni satır açabilir
+        – Barkod listesi formun altında canlı güncellenir
+  D) Not Alanı (opsiyonel)
+     • Kullanıcı girişe açıklama ekleyebilir
+
+- Kaydet butonuna basıldığında:
+   • stockMovements.json’a yeni giriş kaydı eklenir (productId, warehouseId, shelfId, quantity, unit, date, note)
+   • Barkodlar otomatik kaydedilir (ürün ile ilişkilendirilir)
+   • Aynı sayfada “Stok başarıyla eklendi” bildirimi + barkod listesi + “Yazdır” butonu görünür
+
+2) BARKOD SİSTEMİ
+- Barkod tipi: Code128
+- Kod: 6 haneli random sayı (örn: 483920)
+- Aynı barkod tekrar üretilmesin (benzersizlik kontrolü)
+- Barkod çıktısı:
+   • Her barkod için kutucukta ürün adı + özellik + barkod resmi
+   • Toplu yazdırma butonu (tüm barkodları tek seferde yazdır)
+- Barkodlar ileride satış ekranında okutularak ürün bulunacak
+
+3) VERİ KAYDI
+- stockMovements.json kaydı:
+  {
+    id: "txn_001",
+    productId: "...",
+    warehouseId: "...",
+    shelfId: "..." | null,
+    type: "Giriş",
+    quantity: X,
+    unit: "adet" | "metre",
+    date: "...",
+    note: "...",
+    barcodes: ["123456", "654321"]
+  }
+- Ürün toplam stok alanı güncellenir:
+   • Adet ürün → quantity kadar eklenir
+   • Metre ürün → girilen metreler toplanır
+
+4) İŞ KURALLARI
+- Ürün seçmeden kaydedilemez
+- Depo seçmeden kaydedilemez
+- hasShelves=true → raf seçimi zorunlu
+- Adet üründe miktar >0 olmalı
+- Metre üründe en az bir satır girilmeli
+- Barkod benzersiz olmalı
+- Kaydet sonrası ürün kartındaki stok hemen güncellenmeli
+
+5) i18n (TR/PL/UA)
+- stockIn.title: "Stok Girişi"
+- stockIn.product: "Ürün Seç"
+- stockIn.warehouse: "Depo Seç"
+- stockIn.shelf: "Raf Seç"
+- stockIn.quantity: "Miktar"
+- stockIn.unit: "Birim"
+- stockIn.note: "Not"
+- stockIn.addMeter: "+ Metre Ekle"
+- stockIn.save: "Kaydet"
+- stockIn.success: "Stok başarıyla eklendi"
+- stockIn.barcodes: "Oluşturulan Barkodlar"
+- stockIn.print: "Yazdır"
+- validation.productRequired: "Ürün seçilmelidir"
+- validation.warehouseRequired: "Depo seçilmelidir"
+- validation.shelfRequired: "Raf seçilmelidir"
+- validation.quantityPositive: "Miktar 0’dan büyük olmalıdır"
+- validation.meterRequired: "En az bir metre girilmelidir"
+
+6) KABUL KRİTERLERİ
+- Ürün adı yazıldığında özellikleriyle birlikte listelenir, kullanıcı doğru ürünü seçebilir
+- Depo/raf seçimi zorunluluklara göre çalışır
+- Adet ürünlerde tek barkod üretilir, metre ürünlerde her satır için ayrı barkod üretilir
+- Kaydet sonrası barkod listesi ekranda görünür ve yazdırılabilir
+- Ürün stok alanı güncellenir
