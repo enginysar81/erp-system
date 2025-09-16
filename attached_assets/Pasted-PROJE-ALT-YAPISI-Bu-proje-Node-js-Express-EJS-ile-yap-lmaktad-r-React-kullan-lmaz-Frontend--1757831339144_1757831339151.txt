@@ -1,0 +1,121 @@
+PROJE ALT YAPISI
+Bu proje Node.js + Express + EJS ile yapılmaktadır (React kullanılmaz).
+Frontend tasarımı EJS view dosyaları + CSS ile yapılır.
+Çoklu dil desteği TR / PL / UA i18n kullanılacaktır.
+
+HEDEF
+ERP sistemine profesyonel, modern ve kullanıcı dostu “Stok Hareket Listesi” ekranı ekle. 
+Kullanıcı stok girişlerini listeleyebilsin, filtreleyebilsin, düzenleyebilsin ve yeniden barkod yazdırabilsin. 
+Tasarım modern dashboard seviyesinde şık ve responsive olmalı.
+
+1) ROUTE’LAR
+- GET  /stock/movements          → hareket listesi (tablo + filtre)
+- GET  /stock/movements/:id/edit → stok hareketini düzenleme formu (modal)
+- POST /stock/movements/:id/edit → düzenleme kaydı
+- POST /stock/movements/:id/delete → hareket silme
+- POST /stock/movements/:id/reprint → barkodları yeniden yazdır
+
+2) VERİ ŞEMASI
+- data/stockMovements.json dosyasında kayıtlı
+- Kayıt alanları: { id, date, productId, productName, features[], warehouse, shelf, type, quantity, unit, barcodes[], note }
+- Düzenleme sonrası:
+   • quantity veya metre listesi güncellenebilir
+   • Barkodlar yeniden üretilir (6 haneli benzersiz code128)
+   • Eski barkodlar iptal edilir (delete flag = true)
+   • Yeni barkodlar kaydedilir
+
+3) SAYFA YAPISI
+- Başlık: “Stok Hareketleri”
+- Sağ üst: Export CSV / PDF butonları (ikonlu, mavi outline)
+- Üstte filtre paneli (kart tasarımında), altında tablo
+- Altında toplam kayıt sayısı (“Toplam: 28 hareket”)
+
+4) FİLTRE PANELİ
+- Kart görünümünde, gölgeli ve radius 14px
+- Alanlar:
+   • Tarih aralığı (date range picker, ikonlu input)
+   • Barkod no arama (input + barkod ikonu)
+   • Ürün adı autocomplete (yazdıkça ürün listelensin, özellikleriyle birlikte)
+   • Depo seçimi dropdown
+   • [Filtrele] → mavi filled
+   • [Sıfırla] → gri outline
+- Aktif filtreler üstte chip olarak gösterilsin (örn: “Barkod: 123456 ✕”)
+
+5) TABLO GÖRÜNÜMÜ
+Sütunlar:
+- Tarih (gg.aa.yyyy ss:dd, gri küçük yazı)
+- Ürün adı + özellikler (chip badge’ler, renkli baloncuk)
+- Depo / Raf (gri rozet)
+- Tür (daima “Giriş”, yeşil rozet)
+- Miktar + birim (badge: adet = mavi, metre = mor)
+- Barkod(lar): ilk barkod numarası + “(+N)” → hover/klik ile modal açılır, tüm barkodlar listelenir
+- Not: kısa göster, hover’da tam içerik
+- İşlemler (ikonlu butonlar):
+   • ✏ Düzenle (gri outline, modal açar)
+   • 🖨 Yazdır (mavi outline, barkodları yazdırır)
+   • 🗑 Sil (kırmızı filled, confirm modal)
+
+Tasarım:
+- Tablo satırları hover ile #F9FAFB
+- Responsive (mobilde yatay kaydırılabilir)
+- Modern dashboard görünümü (açık gri arka plan, beyaz kartlar, gölge, radius 14px)
+
+6) DÜZENLEME (Modal)
+- Satırdaki “Düzenle” tıklanınca modal açılır
+- Ürün, depo, raf readonly
+- Düzenlenebilir alanlar:
+   • quantity veya metre satırları
+   • note
+- Kaydet:
+   • Stok güncellenir
+   • Barkodlar yeniden üretilir ve listelenir
+   • Eski barkodlar iptal
+   • Toast bildirimi: “Stok hareketi güncellendi, barkodlar yeniden oluşturuldu”
+   • Tablo satırı anında güncellenir
+
+7) YAZDIRMA
+- Tablo satırında veya modalda “Barkod Yazdır” seçeneği
+- Tek hareketin tüm barkodları yazdırılır
+- Barkodlar A4 5x3 grid düzeninde basılır
+- “Tek barkod yazdır” ve “Tümünü yazdır” seçenekleri olmalı
+
+8) TASARIM DETAYLARI
+- Tema: açık gri (#F5F7FB), kartlar beyaz (#FFF), gölgeli, radius 14px
+- Tipografi: başlık 18px semibold, tablo metni 14px
+- Renkler:
+   • Giriş → yeşil (#10B981)
+   • Adet badge → mavi (#3B82F6)
+   • Metre badge → mor (#8B5CF6)
+   • Düzenle butonu → gri outline
+   • Yazdır butonu → mavi outline
+   • Sil butonu → kırmızı filled
+- Hover: kart hafif yükselsin, tablo satırı renklensin
+
+9) EKSTRA
+- Toplam kayıt sayısı görünür
+- Export CSV / PDF butonları sağ üstte
+- Silme confirm modal ile yapılmalı
+- Barkod modalda barkod listesi + “Tümünü Yazdır” seçeneği
+
+10) i18n (TR/PL/UA)
+- stockMovements.title: "Stok Hareketleri"
+- stockMovements.filters: "Filtreler"
+- stockMovements.filter.date: "Tarih Aralığı"
+- stockMovements.filter.barcode: "Barkod No"
+- stockMovements.filter.product: "Ürün Adı"
+- stockMovements.filter.warehouse: "Depo"
+- stockMovements.actions.edit: "Düzenle"
+- stockMovements.actions.print: "Yazdır"
+- stockMovements.actions.delete: "Sil"
+- stockMovements.total: "Toplam: {X} hareket"
+- stockMovements.noResults: "Kayıt bulunamadı"
+- stockMovements.successUpdate: "Stok hareketi güncellendi, barkodlar yeniden oluşturuldu"
+- stockMovements.confirmDelete: "Bu stok hareketini silmek istediğinizden emin misiniz?"
+
+11) KABUL KRİTERLERİ
+- Liste profesyonel dashboard görünümüne sahip
+- Filtre paneli modern, chip bazlı
+- Tablo hover efektli, ikonlu butonlarla
+- Düzenleme modalda, kaydet sonrası barkodlar güncellenir
+- Barkod yazdırma A4 grid düzeninde çalışır
+- Responsive ve mobil uyumlu
