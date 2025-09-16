@@ -1922,10 +1922,10 @@ app.post('/api/customers/payment', async (req: Request, res: Response) => {
     const transaction = await storage.createCustomerTransaction({
       customerId,
       type: 'payment',
-      amount: parseFloat(amount),
+      amount: amount.toString(),
       currency: 'USD',
       description: description || 'Payment received',
-      date: new Date().toISOString()
+      date: new Date()
     });
     
     res.json({ success: true, transaction });
