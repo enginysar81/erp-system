@@ -9,6 +9,7 @@ import { parse } from "csv-parse/sync";
 import { stringify } from "csv-stringify/sync";
 import { getUncachableGitHubClient } from "./github-client.js";
 import fs from "fs";
+import path from "path";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -1558,136 +1559,56 @@ export function registerRoutes(app: Express): void {
       const { data: user } = await octokit.rest.users.getAuthenticated();
       console.log(`🔗 Connected to GitHub: ${user.login}`);
       
-      // Files to sync - TÜM PROJE DOSYALARI
-      const filesToSync = [
-        // Root level dosyaları
-        'package.json',
-        'package-lock.json',
-        'vite.config.ts',
-        'tsconfig.json',
-        'tailwind.config.ts',
-        'postcss.config.js',
-        'drizzle.config.ts',
-        'components.json',
-        'replit.md',
-        'migrate-json-to-db.ts',
-        'update_products.js',
-        'generated-icon.png',
+      // Otomatik dosya tarama fonksiyonu - HİÇBİR DOSYA EKSİK KALMAZ!
+      function getAllProjectFiles(dir: string = '.', fileList: string[] = []): string[] {
+        const files = fs.readdirSync(dir);
         
-        // Server klasörü - TÜM DOSYALAR
-        'server/index.ts',
-        'server/routes.ts',
-        'server/storage.ts',
-        'server/github-client.js',
-        'server/barcodeUtils.ts',
+        files.forEach(file => {
+          const filePath = path.join(dir, file);
+          const stat = fs.statSync(filePath);
+          
+          if (stat.isDirectory()) {
+            // Bu klasörleri hariç tut (gereksiz/büyük)
+            if (![
+              'node_modules', 
+              '.git', 
+              'dist', 
+              '.next', 
+              '.vite',
+              'tmp',
+              '.cache'
+            ].includes(file)) {
+              getAllProjectFiles(filePath, fileList);
+            }
+          } else {
+            // Geçici dosyaları hariç tut ama diğer hepsini al
+            if (!file.startsWith('.') || file === '.gitignore') {
+              // Binary dosyalar için size kontrolü (5MB'dan büyük dosyaları atla)
+              if (stat.size <= 5 * 1024 * 1024) {
+                fileList.push(filePath.replace(/\\/g, '/')); // Windows uyumlu path
+              }
+            }
+          }
+        });
         
-        // Shared klasörü
-        'shared/schema.ts',
+        return fileList;
+      }
+      
+      // TÜM PROJE DOSYALARINI OTOMATIK BUL
+      console.log('🔍 Projede tüm dosyalar taranıyor...');
+      const allFiles = getAllProjectFiles('.');
+      const filesToSync = allFiles.filter(file => {
+        // Sadece aşağıdaki dosya türlerini hariç tut (GERÇEKTEn gereksiz olanlar)
+        const skipExtensions = ['.log', '.tmp', '.cache', '.lock'];
+        const skipFiles: string[] = []; // HİÇBİR DOSYA HARİÇ TUTMA!
         
-        // Views klasörü - TÜM EJS DOSYALARI
-        'views/dashboard.ejs',
-        'views/layout.ejs',
-        'views/products.ejs',
-        'views/customers.ejs',
-        'views/warehouses.ejs',
-        'views/stock_movements.ejs',
-        'views/import_export.ejs',
-        'views/product_form.ejs',
-        'views/customer-form.ejs',
-        'views/warehouse_form.ejs',
-        'views/warehouse_detail.ejs',
-        'views/stock_in.ejs',
-        'views/stock_by_warehouse.ejs',
-        'views/attributes.ejs',
-        'views/attribute_edit.ejs',
-        'views/labelDesigner.ejs',
+        const ext = path.extname(file).toLowerCase();
+        const fileName = path.basename(file);
         
-        // Client klasörü - TÜM FRONTEND DOSYALARI
-        'client/index.html',
-        'client/src/App.tsx',
-        'client/src/main.tsx',
-        'client/src/index.css',
-        'client/src/pages/home.tsx',
-        'client/src/pages/not-found.tsx',
-        'client/src/pages/import-export.tsx',
-        'client/src/pages/products-grid.tsx',
-        'client/src/lib/queryClient.ts',
-        'client/src/lib/utils.ts',
-        'client/src/hooks/use-toast.ts',
-        'client/src/hooks/use-mobile.tsx',
-        'client/src/components/GridEditor.tsx',
-        
-        // Client UI Components - TÜM ShadCN COMPONENTS
-        'client/src/components/ui/accordion.tsx',
-        'client/src/components/ui/alert-dialog.tsx',
-        'client/src/components/ui/alert.tsx',
-        'client/src/components/ui/aspect-ratio.tsx',
-        'client/src/components/ui/avatar.tsx',
-        'client/src/components/ui/badge.tsx',
-        'client/src/components/ui/breadcrumb.tsx',
-        'client/src/components/ui/button.tsx',
-        'client/src/components/ui/calendar.tsx',
-        'client/src/components/ui/card.tsx',
-        'client/src/components/ui/carousel.tsx',
-        'client/src/components/ui/chart.tsx',
-        'client/src/components/ui/checkbox.tsx',
-        'client/src/components/ui/collapsible.tsx',
-        'client/src/components/ui/command.tsx',
-        'client/src/components/ui/context-menu.tsx',
-        'client/src/components/ui/dialog.tsx',
-        'client/src/components/ui/drawer.tsx',
-        'client/src/components/ui/dropdown-menu.tsx',
-        'client/src/components/ui/form.tsx',
-        'client/src/components/ui/hover-card.tsx',
-        'client/src/components/ui/input-otp.tsx',
-        'client/src/components/ui/input.tsx',
-        'client/src/components/ui/label.tsx',
-        'client/src/components/ui/menubar.tsx',
-        'client/src/components/ui/navigation-menu.tsx',
-        'client/src/components/ui/pagination.tsx',
-        'client/src/components/ui/popover.tsx',
-        'client/src/components/ui/progress.tsx',
-        'client/src/components/ui/radio-group.tsx',
-        'client/src/components/ui/resizable.tsx',
-        'client/src/components/ui/scroll-area.tsx',
-        'client/src/components/ui/select.tsx',
-        'client/src/components/ui/separator.tsx',
-        'client/src/components/ui/sheet.tsx',
-        'client/src/components/ui/sidebar.tsx',
-        'client/src/components/ui/skeleton.tsx',
-        'client/src/components/ui/slider.tsx',
-        'client/src/components/ui/switch.tsx',
-        'client/src/components/ui/table.tsx',
-        'client/src/components/ui/tabs.tsx',
-        'client/src/components/ui/textarea.tsx',
-        'client/src/components/ui/toast.tsx',
-        'client/src/components/ui/toaster.tsx',
-        'client/src/components/ui/toggle-group.tsx',
-        'client/src/components/ui/toggle.tsx',
-        'client/src/components/ui/tooltip.tsx',
-        
-        // Data klasörü - TÜM JSON DOSYALARI
-        'data/attributes.json',
-        'data/barcodes.json',
-        'data/customer-transactions.json',
-        'data/customers.json',
-        'data/labels.json',
-        'data/products.json',
-        'data/stockMovements.json',
-        'data/warehouses.json',
-        
-        // Locales klasörü - TÜM DİL DOSYALARI
-        'locales/tr.json',
-        'locales/pl.json',
-        'locales/ua.json',
-        
-        // Public klasörü - TÜM STATIC DOSYALAR
-        'public/css/style.css',
-        'public/js/main.js',
-        'public/js/labelDesigner.js',
-        'public/js/stockByWarehouse.js',
-        'public/img/placeholder-product.svg'
-      ];
+        return !skipExtensions.includes(ext) && !skipFiles.includes(fileName);
+      });
+      
+      console.log(`📁 Toplam ${filesToSync.length} dosya yedeklenecek:`);
       
       let syncCount = 0;
       let errorCount = 0;
