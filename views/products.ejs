@@ -1,0 +1,902 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('products.title') %></h1>
+            <p class="text-muted mb-0"><%= __('products.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <button class="btn btn-outline" onclick="toggleFilterPanel()" data-testid="button-filter">
+                <i class="fas fa-filter"></i>
+                <%= __('button.filter') %>
+                <span id="activeFiltersCount" class="badge badge-primary" style="display: none; margin-left: 4px;"></span>
+            </button>
+            <a href="/import-export" class="btn btn-info" data-testid="button-import-export">
+                <i class="fas fa-exchange-alt"></i>
+                Import/Export
+            </a>
+            <a href="/products/new" class="btn btn-primary" data-testid="button-add-product">
+                <i class="fas fa-plus"></i>
+                <%= __('button.addProduct') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Panel -->
+<div id="filterPanel" class="filter-panel" data-testid="panel-filter">
+    <div class="filter-header">
+        <h3><%= __('filters.title') %></h3>
+        <button class="filter-close-btn" onclick="toggleFilterPanel()" data-testid="button-close-filter">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <div class="filter-content">
+        <!-- A) Genel Arama Section -->
+        <div class="filter-section">
+            <div class="form-group">
+                <input type="text" 
+                       id="searchInput" 
+                       class="form-control" 
+                       placeholder="<%= __('filters.search.placeholder') %>"
+                       data-testid="input-search">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+        
+        <!-- Status Filter Section -->
+        <div class="filter-section">
+            <h4 class="filter-section-title"><%= __('fields.status') %></h4>
+            <div class="radio-group">
+                <label class="radio-item" data-testid="radio-status-all">
+                    <input type="radio" name="status" value="all" checked>
+                    <span class="radio-mark"></span>
+                    <%= __('filters.status.all') %>
+                </label>
+                <label class="radio-item" data-testid="radio-status-active">
+                    <input type="radio" name="status" value="Aktif">
+                    <span class="radio-mark"></span>
+                    <%= __('filters.status.active') %>
+                </label>
+                <label class="radio-item" data-testid="radio-status-inactive">
+                    <input type="radio" name="status" value="Pasif">
+                    <span class="radio-mark"></span>
+                    <%= __('filters.status.inactive') %>
+                </label>
+            </div>
+        </div>
+
+        <!-- Price Filters Section -->
+        <div class="filter-section">
+            <h4 class="filter-section-title"><%= __('filters.price.range') %></h4>
+            
+            <!-- Buy Price Range -->
+            <div class="price-range-group">
+                <div class="price-range-header">
+                    <label class="price-range-label"><%= __('filters.price.buy') %></label>
+                    <select id="buyCurrencySelect" 
+                            class="form-control currency-select"
+                            data-testid="select-buy-currency">
+                        <option value="all"><%= __('filters.currency.all') %></option>
+                        <option value="USD">USD</option>
+                        <option value="PLN">PLN</option>
+                        <option value="UAH">UAH</option>
+                    </select>
+                </div>
+                <div class="price-inputs">
+                    <input type="number" 
+                           id="buyMinPrice" 
+                           placeholder="<%= __('filters.min') %>"
+                           class="form-control price-input"
+                           data-testid="input-buy-min"
+                           step="0.01"
+                           min="0">
+                    <span class="price-separator">-</span>
+                    <input type="number" 
+                           id="buyMaxPrice" 
+                           placeholder="<%= __('filters.max') %>"
+                           class="form-control price-input"
+                           data-testid="input-buy-max"
+                           step="0.01"
+                           min="0">
+                </div>
+            </div>
+            
+            <!-- Sell Price Range -->
+            <div class="price-range-group">
+                <div class="price-range-header">
+                    <label class="price-range-label"><%= __('filters.price.sell') %></label>
+                    <select id="sellCurrencySelect" 
+                            class="form-control currency-select"
+                            data-testid="select-sell-currency">
+                        <option value="all"><%= __('filters.currency.all') %></option>
+                        <option value="USD">USD</option>
+                        <option value="PLN">PLN</option>
+                        <option value="UAH">UAH</option>
+                    </select>
+                </div>
+                <div class="price-inputs">
+                    <input type="number" 
+                           id="sellMinPrice" 
+                           placeholder="<%= __('filters.min') %>"
+                           class="form-control price-input"
+                           data-testid="input-sell-min"
+                           step="0.01"
+                           min="0">
+                    <span class="price-separator">-</span>
+                    <input type="number" 
+                           id="sellMaxPrice" 
+                           placeholder="<%= __('filters.max') %>"
+                           class="form-control price-input"
+                           data-testid="input-sell-max"
+                           step="0.01"
+                           min="0">
+                </div>
+            </div>
+            
+            <!-- Currency Hint -->
+            <div class="filter-hint">
+                <i class="fas fa-info-circle"></i>
+                <span><%= __('filters.currency.hint') %></span>
+            </div>
+        </div>
+
+        <!-- Attributes Filter Section -->
+        <% if (attributes && attributes.length > 0) { %>
+            <div class="filter-section">
+                <h4 class="filter-section-title"><%= __('filters.attributes') %></h4>
+                <div class="attributes-accordion">
+                    <% attributes.forEach((attribute, index) => { %>
+                        <div class="accordion-item">
+                            <button class="accordion-toggle" 
+                                    data-testid="button-accordion-<%= attribute.id %>">
+                                <span><%= attribute.name %></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="accordion-content" style="max-height: 0px; overflow: hidden;">
+                                <% if (attribute.type === 'OPTIONS' && attribute.options) { %>
+                                    <div class="checkbox-group">
+                                        <% attribute.options.forEach((option, optIndex) => { %>
+                                            <label class="checkbox-item" data-testid="checkbox-<%= attribute.id %>-<%= optIndex %>">
+                                                <input type="checkbox" 
+                                                       name="attr_<%= attribute.id %>" 
+                                                       value="<%= option %>">
+                                                <span class="checkbox-mark"></span>
+                                                <%= option %>
+                                            </label>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        <% } %>
+    </div>
+    
+    <!-- Filter Actions -->
+    <div class="filter-actions">
+        <button class="btn btn-outline" onclick="clearAllFilters()" data-testid="button-clear-filters">
+            <i class="fas fa-times"></i>
+            <%= __('filters.clear') %>
+        </button>
+        <button class="btn btn-primary" onclick="applyFilters()" data-testid="button-apply-filters">
+            <i class="fas fa-check"></i>
+            <%= __('filters.apply') %>
+        </button>
+    </div>
+</div>
+
+<!-- Filter Overlay for Mobile -->
+<div id="filterOverlay" class="filter-overlay" onclick="toggleFilterPanel()" data-testid="overlay-filter"></div>
+
+<!-- Content Body -->
+<div class="content-body" id="contentBody">
+    <!-- Active Filters Chips -->
+    <div id="activeFiltersSection" class="active-filters-section" style="display: none;" data-testid="section-active-filters">
+        <div class="active-filters-header">
+            <h5 class="active-filters-title"><%= __('filters.active.title') %></h5>
+            <button class="btn btn-sm btn-outline clear-all-filters" onclick="clearAllFilters()" data-testid="button-clear-all-filters">
+                <i class="fas fa-trash"></i>
+                <%= __('chip.clearAll') %>
+            </button>
+        </div>
+        <div id="activeFiltersContainer" class="active-filters-container">
+            <!-- Dynamic filter chips will be inserted here -->
+        </div>
+    </div>
+    
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="icon" style="color: var(--primary);">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <div class="metric" style="color: var(--primary);" data-testid="stat-total-products">
+                <%= stats.totalProducts %>
+            </div>
+            <div class="label"><%= __('dashboard.totalProducts') %></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon" style="color: var(--success);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="metric" style="color: var(--success);" data-testid="stat-active-products">
+                <%= stats.activeProducts %>
+            </div>
+            <div class="label"><%= __('dashboard.activeProducts') %></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon" style="color: var(--warning);">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="metric" style="color: var(--warning);" data-testid="stat-low-stock">
+                <%= stats.lowStock %>
+            </div>
+            <div class="label"><%= __('dashboard.lowStock') %></div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="icon" style="color: var(--primary);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="metric" style="color: var(--primary);" data-testid="stat-total-value">
+                $<%= stats.totalValue %>
+            </div>
+            <div class="label"><%= __('dashboard.totalValue') %></div>
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <% if (products.length > 0) { %>
+        <div class="products-grid">
+            <% products.forEach((product, index) => { %>
+                <div class="product-card" 
+                     data-testid="card-product-<%= product.id %>"
+                     data-name="<%= product.name %>"
+                     data-description="<%= product.description %>"
+                     data-status="<%= product.status %>"
+                     data-buy-price="<%= product.buyPrice %>"
+                     data-sell-price="<%= product.sellPrice %>"
+                     data-buy-currency="<%= product.buyCurrency || 'USD' %>"
+                     data-sell-currency="<%= product.sellCurrency || 'USD' %>"
+                     data-stock="<%= product.stock %>"
+                     data-attributes='<%= JSON.stringify(product.attributes || []) %>'>
+                    
+                    <!-- Product Image -->
+                    <div class="product-image-container" 
+                         role="button" 
+                         style="cursor: pointer;"
+                         onclick="openImageModal('<%= product.id %>', '<%= product.name %>')" 
+                         data-images="<%- JSON.stringify(product.images || [product.coverImage]).replace(/"/g, '&quot;') %>"
+                         data-testid="button-image-<%= product.id %>">
+                        <% if (product.coverImage) { %>
+                            <img src="/<%= product.coverImage %>" 
+                                 alt="<%= product.name %>" 
+                                 class="product-image"
+                                 loading="lazy"
+                                 onerror="this.src='/img/placeholder-product.svg'"
+                                 data-testid="img-product-<%= product.id %>" />
+                        <% } else { %>
+                            <img src="/img/placeholder-product.svg" 
+                                 alt="<%= product.name %>" 
+                                 class="product-image"
+                                 data-testid="img-product-<%= product.id %>" />
+                        <% } %>
+                        
+                        <!-- Status Badge -->
+                        <div class="product-status-badge <%= product.status === 'Aktif' ? 'badge-success' : 'badge-muted' %>"
+                             data-testid="status-product-<%= product.id %>">
+                            <%= product.status %>
+                        </div>
+                    </div>
+
+                    <!-- Product Body -->
+                    <div class="product-body">
+                        <!-- Product Title -->
+                        <h3 class="product-title" data-testid="title-product-<%= product.id %>">
+                            <%= product.name %>
+                        </h3>
+                        
+                        <!-- Product Description -->
+                        <p class="product-description" data-testid="description-product-<%= product.id %>">
+                            <%= product.description %>
+                        </p>
+
+                        <!-- Price Container -->
+                        <div class="price-container">
+                            <div class="price-item buy-price">
+                                <div class="label">Alış</div>
+                                <div class="value" data-testid="buy-price-<%= product.id %>">
+                                    <%= product.buyPrice %> <%= product.buyCurrency || 'USD' %>
+                                </div>
+                            </div>
+                            <div class="price-item sell-price">
+                                <div class="label">Satış</div>
+                                <div class="value" data-testid="sell-price-<%= product.id %>">
+                                    <%= product.sellPrice %> <%= product.sellCurrency || 'USD' %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Stock Badge -->
+                        <div class="stock-badge">
+                            <span class="badge <%= product.stock < 5 ? (product.stock === 0 ? 'badge-danger' : 'badge-warning') : 'badge-info' %>" 
+                                  data-testid="stock-<%= product.id %>">
+                                <i class="fas fa-box"></i> <%= product.stock %> <%= product.unit || 'adet' %>
+                            </span>
+                        </div>
+
+                        <!-- Attributes Chips -->
+                        <% if (product.attributes && product.attributes.length > 0) { %>
+                            <div class="chips-container" data-testid="attributes-<%= product.id %>">
+                                <% product.attributes.filter(attr => attr.value && attr.value.trim()).forEach((attr) => { %>
+                                    <span class="chip" data-testid="chip-<%= product.id %>-<%= attr.attributeId %>">
+                                        <%= attr.name %>: <%= attr.value %>
+                                    </span>
+                                <% }) %>
+                            </div>
+                        <% } %>
+
+                        <!-- Action Buttons -->
+                        <div class="product-actions">
+                            <!-- Statistics Button - Blue Outline -->
+                            <button class="btn btn-outline-primary btn-sm stats-button" 
+                                    data-testid="button-stats-<%= product.id %>"
+                                    data-product-id="<%= product.id %>"
+                                    data-product-name="<%= product.name %>"
+                                    data-product-status="<%= product.status %>">
+                                <i class="fas fa-chart-line"></i>
+                                İstatistikleri Görüntüle
+                            </button>
+                            
+                            <!-- Edit Button - Gray Outline -->
+                            <a href="/products/<%= product.id %>/edit?lang=<%= locale %>" 
+                               class="btn btn-outline-secondary btn-sm" 
+                               data-testid="button-edit-<%= product.id %>">
+                                <i class="fas fa-edit"></i>
+                                Düzenle
+                            </a>
+                            
+                            <!-- Toggle Status Button -->
+                            <% if (product.status === 'Aktif') { %>
+                                <button class="btn btn-warning btn-sm" 
+                                        onclick="toggleProductStatus('<%= product.id %>', 'Pasif')"
+                                        data-testid="button-deactivate-<%= product.id %>">
+                                    <i class="fas fa-pause-circle"></i>
+                                    Pasiflestir
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-success btn-sm" 
+                                        onclick="toggleProductStatus('<%= product.id %>', 'Aktif')"
+                                        data-testid="button-activate-<%= product.id %>">
+                                    <i class="fas fa-play-circle"></i>
+                                    Aktifleştir
+                                </button>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    <% } else { %>
+        <!-- Empty State -->
+        <div class="text-center" style="padding: 80px 0;">
+            <div class="card" style="max-width: 500px; margin: 0 auto; padding: 40px;">
+                <i class="fas fa-box-open" style="font-size: 4rem; color: var(--muted); margin-bottom: 24px;"></i>
+                <h3 style="color: var(--muted); margin-bottom: 16px;"><%= __('products.empty.title') %></h3>
+                <p class="text-muted mb-lg"><%= __('products.empty.subtitle') %></p>
+                <a href="/products/new" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    <%= __('button.addProduct') %>
+                </a>
+            </div>
+        </div>
+    <% } %>
+</div>
+
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 80vw; margin: 0 auto;">
+        <div class="modal-content" style="background: transparent; border: none; box-shadow: none; position: relative;">
+            <!-- Close Button -->
+            <button type="button" onclick="closeImageModal()" aria-label="Close" 
+                    style="position: absolute; top: 10px; right: 10px; z-index: 9999; 
+                           background: rgba(0,0,0,0.7); color: white; border: none; 
+                           border-radius: 50%; width: 40px; height: 40px; 
+                           font-size: 18px; cursor: pointer; 
+                           display: flex; align-items: center; justify-content: center;">
+                ✕
+            </button>
+            
+            <!-- Previous Button -->
+            <button type="button" id="prevImageBtn" onclick="previousImage()" aria-label="Önceki" 
+                    style="position: absolute; left: 20px; top: 50%; transform: translateY(-50%); z-index: 9999; 
+                           background: rgba(0,0,0,0.7); color: white; border: none; 
+                           border-radius: 50%; width: 50px; height: 50px; 
+                           font-size: 20px; cursor: pointer; display: none;
+                           align-items: center; justify-content: center;">
+                ‹
+            </button>
+            
+            <!-- Next Button -->
+            <button type="button" id="nextImageBtn" onclick="nextImage()" aria-label="Sonraki" 
+                    style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); z-index: 9999; 
+                           background: rgba(0,0,0,0.7); color: white; border: none; 
+                           border-radius: 50%; width: 50px; height: 50px; 
+                           font-size: 20px; cursor: pointer; display: none;
+                           align-items: center; justify-content: center;">
+                ›
+            </button>
+            
+            <!-- Modal Body -->
+            <div class="modal-body" style="padding: 0;" onclick="event.stopPropagation();">
+                <img id="modalImage" src="" alt="" class="img-fluid" 
+                     style="max-height: 80vh; max-width: 100%; object-fit: contain; border-radius: 8px; display: block;">
+                     
+                <!-- Image Counter -->
+                <div id="imageCounter" style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); 
+                                             background: rgba(0,0,0,0.7); color: white; padding: 5px 15px; 
+                                             border-radius: 20px; font-size: 14px; display: none;">
+                    <span id="currentImageIndex">1</span> / <span id="totalImages">1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Modal -->
+<div id="statsModal" class="modal" style="display: none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+            <div class="modal-title">
+                <h3 id="modalProductName"></h3>
+                <small id="modalProductId" class="text-muted"></small>
+            </div>
+            <div class="modal-header-actions">
+                <span id="modalProductStatus" class="badge"></span>
+                <button class="modal-close" id="modalCloseButton">&times;</button>
+            </div>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="modal-body">
+            <!-- Metrics Grid -->
+            <div class="stats-metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-value">382</div>
+                    <div class="metric-label">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.totalSales') %>
+                        <% } else { %>
+                            Toplam Satış
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value">311</div>
+                    <div class="metric-label">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.totalIn') %>
+                        <% } else { %>
+                            Toplam Giriş
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value">139</div>
+                    <div class="metric-label">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.stock') %>
+                        <% } else { %>
+                            Stok
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value">0.92<small> / gün</small></div>
+                    <div class="metric-label">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.salesRate') %>
+                        <% } else { %>
+                            Satış Hızı
+                        <% } %>
+                    </div>
+                    <div class="metric-subtitle">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.depletion') %>: ~60 gün
+                        <% } else { %>
+                            Tahmini tükenme: ~60 gün
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <!-- Daily Sales Chart -->
+                <div class="chart-container">
+                    <h4 class="chart-title">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.dailySales') %>
+                        <% } else { %>
+                            Günlük Satışlar (30g)
+                        <% } %>
+                    </h4>
+                    <canvas id="dailySalesChart" width="400" height="200"></canvas>
+                </div>
+
+                <!-- Monthly Movements Chart -->
+                <div class="chart-container">
+                    <h4 class="chart-title">
+                        <% if (typeof __ !== 'undefined') { %>
+                            <%= __('stats.monthlyMovements') %>
+                        <% } else { %>
+                            Aylık Stok Hareketleri (6 Ay)
+                        <% } %>
+                    </h4>
+                    <canvas id="monthlyMovementsChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script>
+// ===== FILTER FUNCTIONALITY =====
+
+// Global filter state
+window.window.filterState = window.window.filterState || {
+    q: '',
+    status: 'all',
+    buyMin: '',
+    buyMax: '',
+    sellMin: '',
+    sellMax: '',
+    attributes: {}
+};
+
+let searchTimeout = null;
+let isFilterPanelOpen = false;
+
+// Toggle filter panel
+function toggleFilterPanel() {
+    const panel = document.getElementById('filterPanel');
+    const overlay = document.getElementById('filterOverlay');
+    const contentBody = document.getElementById('contentBody');
+    
+    isFilterPanelOpen = !isFilterPanelOpen;
+    
+    if (isFilterPanelOpen) {
+        panel.classList.add('open');
+        overlay.classList.add('show');
+        
+        // On desktop, adjust content body margin
+        if (window.innerWidth > 768) {
+            contentBody.classList.add('filter-open');
+        }
+    } else {
+        panel.classList.remove('open');
+        overlay.classList.remove('show');
+        contentBody.classList.remove('filter-open');
+    }
+}
+
+// Toggle accordion
+function toggleAccordion(button) {
+    const content = button.nextElementSibling;
+    const icon = button.querySelector('i');
+    
+    button.classList.toggle('active');
+    content.classList.toggle('open');
+    
+    if (content.classList.contains('open')) {
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+
+// Debounced search function
+function debounceSearch(func, delay) {
+    return function(...args) {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => func.apply(this, args), delay);
+    };
+}
+
+// Update active filters count
+function updateActiveFiltersCount() {
+    let count = 0;
+    
+    // Count search query
+    if (window.filterState.q.trim()) count++;
+    
+    // Count status filter
+    if (window.filterState.status !== 'all') count++;
+    
+    // Count price filters
+    if (window.filterState.buyMin || window.filterState.buyMax) count++;
+    if (window.filterState.sellMin || window.filterState.sellMax) count++;
+    
+    // Count attribute filters
+    Object.keys(window.filterState.attributes).forEach(attrId => {
+        if (window.filterState.attributes[attrId] && window.filterState.attributes[attrId].length > 0) {
+            count++;
+        }
+    });
+    
+    const badge = document.getElementById('activeFiltersCount');
+    if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = 'inline-block';
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+// Apply filters to products
+function applyFilters() {
+    const productCards = document.querySelectorAll('.product-card');
+    let visibleCount = 0;
+    
+    productCards.forEach(card => {
+        let visible = true;
+        
+        // Text search filter
+        if (window.filterState.q.trim()) {
+            const searchTerm = window.filterState.q.toLowerCase();
+            const name = card.dataset.name?.toLowerCase() || '';
+            const description = card.dataset.description?.toLowerCase() || '';
+            
+            // Search in attributes as well
+            let attributesText = '';
+            try {
+                const attributes = JSON.parse(card.dataset.attributes || '[]');
+                attributesText = attributes.map(attr => 
+                    `${attr.name} ${attr.value}`.toLowerCase()
+                ).join(' ');
+            } catch (e) {
+                attributesText = '';
+            }
+            
+            const searchableText = `${name} ${description} ${attributesText}`;
+            visible = visible && searchableText.includes(searchTerm);
+        }
+        
+        // Status filter
+        if (window.filterState.status !== 'all') {
+            const cardStatus = card.dataset.status || '';
+            visible = visible && cardStatus === window.filterState.status;
+        }
+        
+        // Buy price filter
+        if (window.filterState.buyMin || window.filterState.buyMax) {
+            const buyPrice = parseFloat(card.dataset.buyPrice) || 0;
+            if (window.filterState.buyMin && buyPrice < parseFloat(window.filterState.buyMin)) {
+                visible = false;
+            }
+            if (window.filterState.buyMax && buyPrice > parseFloat(window.filterState.buyMax)) {
+                visible = false;
+            }
+        }
+        
+        // Sell price filter
+        if (window.filterState.sellMin || window.filterState.sellMax) {
+            const sellPrice = parseFloat(card.dataset.sellPrice) || 0;
+            if (window.filterState.sellMin && sellPrice < parseFloat(window.filterState.sellMin)) {
+                visible = false;
+            }
+            if (window.filterState.sellMax && sellPrice > parseFloat(window.filterState.sellMax)) {
+                visible = false;
+            }
+        }
+        
+        // Attribute filters
+        if (Object.keys(window.filterState.attributes).length > 0) {
+            try {
+                const cardAttributes = JSON.parse(card.dataset.attributes || '[]');
+                
+                // AND between different attribute groups
+                for (const attrId in window.filterState.attributes) {
+                    const selectedValues = window.filterState.attributes[attrId];
+                    if (selectedValues.length > 0) {
+                        // Find if this product has any of the selected values for this attribute
+                        const hasMatch = cardAttributes.some(attr => 
+                            attr.attributeId === attrId && selectedValues.includes(attr.value)
+                        );
+                        if (!hasMatch) {
+                            visible = false;
+                            break;
+                        }
+                    }
+                }
+            } catch (e) {
+                // If attributes parsing fails, assume no match for attribute filters
+                if (Object.keys(window.filterState.attributes).some(attrId => 
+                    window.filterState.attributes[attrId].length > 0
+                )) {
+                    visible = false;
+                }
+            }
+        }
+        
+        // Show/hide card with animation
+        if (visible) {
+            card.style.display = 'block';
+            setTimeout(() => {
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 10);
+            visibleCount++;
+        } else {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(10px)';
+            setTimeout(() => {
+                card.style.display = 'none';
+            }, 200);
+        }
+    });
+    
+    // Update count display (you can add this feature if needed)
+    console.log(`Filtered products: ${visibleCount} of ${productCards.length}`);
+    
+    updateActiveFiltersCount();
+}
+
+// Clear all filters
+function clearAllFilters() {
+    // Reset filter state
+    window.filterState = {
+        q: '',
+        status: 'all',
+        buyMin: '',
+        buyMax: '',
+        sellMin: '',
+        sellMax: '',
+        attributes: {}
+    };
+    
+    // Reset UI controls
+    document.getElementById('searchInput').value = '';
+    document.querySelector('input[name="status"][value="all"]').checked = true;
+    document.getElementById('buyMinPrice').value = '';
+    document.getElementById('buyMaxPrice').value = '';
+    document.getElementById('sellMinPrice').value = '';
+    document.getElementById('sellMaxPrice').value = '';
+    
+    // Reset attribute checkboxes
+    document.querySelectorAll('input[type="checkbox"][name^="attr_"]').forEach(checkbox => {
+        checkbox.checked = false;
+    });
+    
+    // Apply filters to show all products
+    applyFilters();
+}
+
+// Initialize filter functionality
+function initializeFilters() {
+    // Search input with debounce
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        const debouncedSearch = debounceSearch((e) => {
+            window.filterState.q = e.target.value;
+            applyFilters();
+        }, 300);
+        
+        searchInput.addEventListener('input', debouncedSearch);
+    }
+    
+    // Status radio buttons
+    document.querySelectorAll('input[name="status"]').forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                window.filterState.status = e.target.value;
+                applyFilters();
+            }
+        });
+    });
+    
+    // Price range inputs
+    ['buyMinPrice', 'buyMaxPrice', 'sellMinPrice', 'sellMaxPrice'].forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', (e) => {
+                const field = inputId.replace('Price', '');
+                window.filterState[field] = e.target.value;
+                applyFilters();
+            });
+        }
+    });
+    
+    // Attribute checkboxes
+    document.querySelectorAll('input[type="checkbox"][name^="attr_"]').forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+            const attrId = e.target.name.replace('attr_', '');
+            const value = e.target.value;
+            
+            if (!window.filterState.attributes[attrId]) {
+                window.filterState.attributes[attrId] = [];
+            }
+            
+            if (e.target.checked) {
+                if (!window.filterState.attributes[attrId].includes(value)) {
+                    window.filterState.attributes[attrId].push(value);
+                }
+            } else {
+                window.filterState.attributes[attrId] = window.filterState.attributes[attrId].filter(v => v !== value);
+                if (window.filterState.attributes[attrId].length === 0) {
+                    delete window.filterState.attributes[attrId];
+                }
+            }
+            
+            applyFilters();
+        });
+    });
+    
+    // Close panel when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && isFilterPanelOpen) {
+            const panel = document.getElementById('filterPanel');
+            const filterButton = document.querySelector('[data-testid="button-filter"]');
+            
+            if (!panel.contains(e.target) && !filterButton.contains(e.target)) {
+                toggleFilterPanel();
+            }
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        const contentBody = document.getElementById('contentBody');
+        if (window.innerWidth <= 768) {
+            contentBody.classList.remove('filter-open');
+        } else if (isFilterPanelOpen) {
+            contentBody.classList.add('filter-open');
+        }
+    });
+}
+
+// Initialize product cards on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Add reveal class to all product cards for animation
+    const cards = document.querySelectorAll('.product-card');
+    cards.forEach((card, index) => {
+        setTimeout(() => {
+            card.classList.add('reveal');
+        }, index * 100);
+    });
+    
+    // Add loading states to toggle buttons
+    const toggleForms = document.querySelectorAll('form[action*="/products/toggle/"]');
+    toggleForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const button = this.querySelector('button[type="submit"]');
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> İşleniyor...';
+        });
+    });
+    
+    // Initialize filter functionality
+    initializeFilters();
+    
+    // Initial filter application
+    applyFilters();
+});
+
+</script>
+
+<!-- Bootstrap JS for modal functionality -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
