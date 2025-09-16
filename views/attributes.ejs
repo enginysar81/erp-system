@@ -1,0 +1,352 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('attributes.title') %></h1>
+            <p class="text-muted mb-0">Ürün özelliklerini buradan yönetebilirsiniz</p>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body -->
+<div class="content-body">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'added') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Yeni özellik başarıyla eklendi!
+            </div>
+        <% } else if (query.success === 'updated') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Özellik başarıyla güncellendi!
+            </div>
+        <% } else if (query.success === 'deleted') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Özellik başarıyla silindi!
+            </div>
+        <% } else if (query.success === 'deletedWithProducts') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Özellik ve ürünlerdeki kullanımları başarıyla silindi!
+            </div>
+        <% } else if (query.error === 'nameRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('validation.nameRequired') %>
+            </div>
+        <% } else if (query.error === 'optionsRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('validation.optionsRequired') %>
+            </div>
+        <% } else if (query.error === 'typeRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                Tür seçimi gereklidir!
+            </div>
+        <% } else if (query.error === 'notFound') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                Özellik bulunamadı!
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Add New Attribute Form -->
+    <div class="stats-card" style="margin-bottom: 32px;">
+        <div style="padding: 24px;">
+            <h3 style="margin: 0 0 16px 0; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-plus" style="color: var(--primary); margin-right: 8px;"></i>
+                <%= __('attributes.addNew') %>
+            </h3>
+            
+            <form action="/settings/attributes/new?lang=<%= locale %>" method="POST">
+                <div style="display: grid; grid-template-columns: 2fr 1fr 2fr; gap: 16px; margin-bottom: 20px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                            <%= __('attributes.name') %>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="name" 
+                            placeholder="<%= __('attributes.name') %>"
+                            style="
+                                width: 100%;
+                                padding: 12px 16px;
+                                border: 2px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                transition: border-color 0.2s;
+                                background: var(--card-bg);
+                                color: var(--text-primary);
+                            "
+                            required
+                            data-testid="input-attribute-name">
+                    </div>
+                    
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                            <%= __('attributes.type') %>
+                        </label>
+                        <select 
+                            name="type" 
+                            id="attributeType"
+                            style="
+                                width: 100%;
+                                padding: 12px 16px;
+                                border: 2px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                transition: border-color 0.2s;
+                                background: var(--card-bg);
+                                color: var(--text-primary);
+                            "
+                            required
+                            onchange="toggleOptionsField()"
+                            data-testid="select-attribute-type">
+                            <option value="TEXT" selected><%= __('attributes.type.text') %></option>
+                            <option value="OPTIONS"><%= __('attributes.type.options') %></option>
+                        </select>
+                    </div>
+                    
+                    <div id="optionsField" style="display: none;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-secondary);">
+                            <%= __('attributes.options') %>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="options" 
+                            placeholder="<%= __('attributes.options.help') %>"
+                            style="
+                                width: 100%;
+                                padding: 12px 16px;
+                                border: 2px solid var(--border-color);
+                                border-radius: 8px;
+                                font-size: 14px;
+                                transition: border-color 0.2s;
+                                background: var(--card-bg);
+                                color: var(--text-primary);
+                            "
+                            data-testid="input-attribute-options">
+                    </div>
+                </div>
+                
+                <button 
+                    type="submit" 
+                    class="btn btn-primary"
+                    data-testid="button-add-attribute">
+                    <i class="fas fa-plus"></i>
+                    Kaydet
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attributes Table -->
+    <div class="stats-card">
+        <div style="padding: 24px;">
+            <h3 style="margin: 0 0 24px 0; font-size: 1.2rem; font-weight: 600; color: var(--text-primary);">
+                <i class="fas fa-list" style="color: var(--primary); margin-right: 8px;"></i>
+                Mevcut Özellikler
+            </h3>
+
+            <% if (attributes.length > 0) { %>
+                <div class="table-container">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid var(--border-color);">
+                                <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text-secondary); font-size: 14px; width: 60px;">
+                                    ID
+                                </th>
+                                <th style="padding: 12px 16px; text-align: left; font-weight: 600; color: var(--text-secondary); font-size: 14px;">
+                                    <%= __('attributes.name') %>
+                                </th>
+                                <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 14px; width: 100px;">
+                                    <%= __('attributes.type') %>
+                                </th>
+                                <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 14px; width: 120px;">
+                                    <%= __('attributes.countOptions') %>
+                                </th>
+                                <th style="padding: 12px 16px; text-align: center; font-weight: 600; color: var(--text-secondary); font-size: 14px; width: 160px;">
+                                    <%= __('attributes.actions') %>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% attributes.forEach((attribute, index) => { %>
+                                <tr style="border-bottom: 1px solid var(--border-color);" data-testid="row-attribute-<%= attribute.id %>">
+                                    <td style="padding: 16px; color: var(--text-secondary); font-size: 14px;">
+                                        #<%= attribute.id %>
+                                    </td>
+                                    <td style="padding: 16px; color: var(--text-primary); font-weight: 500;" data-testid="name-attribute-<%= attribute.id %>">
+                                        <%= attribute.name %>
+                                    </td>
+                                    <td style="padding: 16px; text-align: center;">
+                                        <% if (attribute.type === 'TEXT') { %>
+                                            <span style="
+                                                background: var(--primary-bg, #e3f2fd);
+                                                color: var(--primary, #1976d2);
+                                                padding: 4px 8px;
+                                                border-radius: 4px;
+                                                font-size: 12px;
+                                                font-weight: 500;
+                                            " data-testid="type-attribute-<%= attribute.id %>">
+                                                <%= __('attributes.type.text') %>
+                                            </span>
+                                        <% } else { %>
+                                            <span style="
+                                                background: var(--success-bg, #e8f5e8);
+                                                color: var(--success, #2e7d32);
+                                                padding: 4px 8px;
+                                                border-radius: 4px;
+                                                font-size: 12px;
+                                                font-weight: 500;
+                                            " data-testid="type-attribute-<%= attribute.id %>">
+                                                <%= __('attributes.type.options') %>
+                                            </span>
+                                        <% } %>
+                                    </td>
+                                    <td style="padding: 16px; text-align: center; color: var(--text-secondary); font-size: 14px;" data-testid="options-count-<%= attribute.id %>">
+                                        <% if (attribute.type === 'OPTIONS' && attribute.options) { %>
+                                            <%= attribute.options.length %> seçenek
+                                        <% } else { %>
+                                            -
+                                        <% } %>
+                                    </td>
+                                    <td style="padding: 16px; text-align: center;">
+                                        <div style="display: flex; gap: 8px; justify-content: center;">
+                                            <a 
+                                                href="/settings/attributes/<%= attribute.id %>?lang=<%= locale %>" 
+                                                style="
+                                                    background: var(--primary);
+                                                    color: white;
+                                                    border: none;
+                                                    padding: 8px 12px;
+                                                    border-radius: 6px;
+                                                    font-size: 12px;
+                                                    cursor: pointer;
+                                                    transition: all 0.2s;
+                                                    display: inline-flex;
+                                                    align-items: center;
+                                                    gap: 4px;
+                                                    text-decoration: none;
+                                                "
+                                                data-testid="button-edit-attribute-<%= attribute.id %>">
+                                                <i class="fas fa-edit"></i>
+                                                <%= __('attributes.edit') %>
+                                            </a>
+                                            <form action="/settings/attributes/delete/<%= attribute.id %>?lang=<%= locale %>" method="POST" style="display: inline;" onsubmit="return confirm('Bu özelliği silmek istediğinizden emin misiniz?');">
+                                                <button 
+                                                    type="submit" 
+                                                    class="btn btn-danger btn-sm"
+                                                    style="
+                                                        background: var(--danger);
+                                                        color: white;
+                                                        border: none;
+                                                        padding: 8px 12px;
+                                                        border-radius: 6px;
+                                                        font-size: 12px;
+                                                        cursor: pointer;
+                                                        transition: all 0.2s;
+                                                        display: inline-flex;
+                                                        align-items: center;
+                                                        gap: 4px;
+                                                    "
+                                                    data-testid="button-delete-attribute-<%= attribute.id %>">
+                                                    <i class="fas fa-trash"></i>
+                                                    <%= __('attributes.delete') %>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div style="text-align: center; padding: 48px 24px; color: var(--text-secondary);">
+                    <i class="fas fa-list-ul" style="font-size: 48px; margin-bottom: 16px; opacity: 0.3;"></i>
+                    <h4 style="margin: 0 0 8px 0; font-weight: 500;">Henüz özellik eklenmemiş</h4>
+                    <p style="margin: 0; opacity: 0.8;">Yukarıdaki formu kullanarak ilk özelliğinizi ekleyebilirsiniz.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: var(--success-bg, #d4edda);
+    color: var(--success-text, #155724);
+    border: 1px solid var(--success-border, #c3e6cb);
+}
+
+.alert-error {
+    background: var(--danger-bg, #f8d7da);
+    color: var(--danger-text, #721c24);
+    border: 1px solid var(--danger-border, #f1b0b7);
+}
+
+.table-container {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.table-container table tr:hover {
+    background: var(--hover-bg, rgba(0,0,0,0.02));
+}
+
+.btn-danger:hover {
+    background: var(--danger-dark, #c82333) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+
+select:focus {
+    outline: none;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+}
+</style>
+
+<script>
+function toggleOptionsField() {
+    const typeSelect = document.getElementById('attributeType');
+    const optionsField = document.getElementById('optionsField');
+    const optionsInput = optionsField.querySelector('input[name="options"]');
+    
+    if (typeSelect.value === 'OPTIONS') {
+        optionsField.style.display = 'block';
+        optionsInput.required = true;
+    } else {
+        optionsField.style.display = 'none';
+        optionsInput.required = false;
+        optionsInput.value = '';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleOptionsField();
+});
+</script>
