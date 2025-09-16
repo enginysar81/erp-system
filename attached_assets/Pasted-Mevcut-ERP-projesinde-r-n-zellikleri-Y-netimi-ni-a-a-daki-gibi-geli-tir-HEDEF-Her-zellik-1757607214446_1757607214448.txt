@@ -1,0 +1,94 @@
+Mevcut ERP projesinde “Ürün Özellikleri Yönetimi”ni aşağıdaki gibi geliştir:
+
+HEDEF
+- Her özellik için “Tür” alanı ekle: TEXT (Metin) veya OPTIONS (Seçenekli).
+- Tür OPTIONS ise, ayarlarda bu özelliğe ait seçenekler (örn. “Beyaz”, “Krem”, “Lacivert”) tanımlanır.
+- Ürün Ekle/Düzenle formunda:
+  - TEXT tipli özellik: serbest metin input
+  - OPTIONS tipli özellik: dropdown (tek seçim)
+- Ürün kartında seçilen değer görünsün.
+
+1) VERİ YAPILARI
+- data/attributes.json yapısını şöyle güncelle:
+[
+  { "id": "1", "name": "En",   "type": "TEXT",    "options": [] },
+  { "id": "2", "name": "Boy",  "type": "TEXT",    "options": [] },
+  { "id": "3", "name": "Renk", "type": "OPTIONS", "options": ["Beyaz","Krem","Lacivert"] },
+  { "id": "4", "name": "Zemin","type": "OPTIONS", "options": ["Dantel","Çiçekli","Kadife"] }
+]
+- Ürün kaydı (products.json) attributes alanı:
+"attributes": [
+  { "attributeId": "1", "name": "En",   "value": "300 cm" },
+  { "attributeId": "2", "name": "Boy",  "value": "250 cm" },
+  { "attributeId": "3", "name": "Renk", "value": "Beyaz"  },
+  { "attributeId": "4", "name": "Zemin","value": "Dantel" }
+]
+(Not: Ürün kaydında sadece bir değer tutulacak; çoklu değer desteklemiyoruz.)
+
+2) ROUTE’LAR (AYARLAR)
+- GET  /settings/attributes             → listele (id, ad, tür, seçenek sayısı)
+- POST /settings/attributes/new         → yeni özellik ekle (name, type, options[])
+- GET  /settings/attributes/:id         → düzenleme sayfası (adı, türü, seçenekleri)
+- POST /settings/attributes/:id/update  → adı/türü/seçenekleri güncelle
+- POST /settings/attributes/delete/:id  → sil
+- Validasyon:
+  - name zorunlu, en az 2 karakter
+  - type ∈ {TEXT, OPTIONS}
+  - type=OPTIONS ise options en az 1 öğe içermeli; seçeneklerde tekrar/boş bırakma olmasın
+  - Silme: eğer bir özellik ürünlerde kullanılıyorsa uyarı ver; yine de silinecekse ürünlerdeki bu özelliği kaldır.
+
+3) AYARLAR EKRANI (views/attributes.ejs)
+- “Yeni Özellik Ekle” bölümünde alanlar:
+  - Özellik Adı (input)
+  - Tür (radio veya select: TEXT / OPTIONS)
+  - Tür OPTIONS seçilirse “Seçenekler” alanını göster (tag/çoklu satır: virgülle ayrılmış veya satır satır giriş).
+  - Kaydet butonu.
+- “Mevcut Özellikler” tablosu:
+  - Sütunlar: ID | Özellik Adı | Tür | Seçenek Sayısı | İşlemler (Düzenle / Sil)
+- “Düzenle” sayfasında:
+  - Ad, Tür, Seçenekler düzenlenebilir (OPTIONS ise seçenek ekle/kaldır).
+  - Kaydet / İptal.
+- Kullanılabilirlik:
+  - TEXT → “Serbest metin girişli özellik”
+  - OPTIONS → “Ön tanımlı seçeneklerden seçilir”
+
+4) ÜRÜN EKLE/DÜZENLE ENTEGRASYONU (views/product_form.ejs)
+- attributes.json dosyasını yükle, listede sırayla göster:
+  - TEXT tipinde: label = name, input=text (placeholder örn: “300 cm”)
+  - OPTIONS tipinde: label = name, select dropdown (options dizisinden)
+- Form gönderiminde attributes[] şu formatta gönder/ kaydet:
+  [{ attributeId, name, value }]
+- Form üstüne kısayol butonu ekle:
+  - “Ürün Özelliklerini Yönet” → /settings/attributes (yeni sekmede)
+
+5) ÜRÜN KARTI ENTEGRASYONU (views/products.ejs)
+- attributes[] dizisini listele: “Ad: Değer” (ör. Renk: Beyaz, Zemin: Dantel)
+- Sadece value dolu olanları göster.
+
+6) ÇOK DİLLİLİK (TR/PL/UA) – i18n anahtarları ekle
+- attributes.title → Ürün Özellikleri Yönetimi
+- attributes.addNew → Yeni Özellik Ekle
+- attributes.name → Özellik Adı
+- attributes.type → Tür
+- attributes.type.text → Metin
+- attributes.type.options → Seçenekli
+- attributes.options → Seçenekler
+- attributes.options.help → Seçenekleri virgülle ayırın
+- attributes.countOptions → Seçenek Sayısı
+- attributes.edit → Düzenle
+- attributes.delete → Sil
+- form.attributes → Ürün Özellikleri
+- form.manageAttributes → Ürün Özelliklerini Yönet
+- validation.nameRequired → Özellik adı zorunludur
+- validation.optionsRequired → Seçenekli tür için en az bir seçenek gerekir
+
+7) KABUL KRİTERLERİ
+- Yeni özellik eklerken TEXT/OPTIONS zorunlu; OPTIONS seçildiyse en az 1 seçenek girmeden kaydetme.
+- Ürün formunda TEXT alanları serbest yazı; OPTIONS alanları dropdown olarak gelir ve kaydedilir.
+- Ürün kartında attributes listesi doğru görüntülenir.
+- Bir özelliği silince (onayla) ürünlerdeki karşılığı da kaldırılır.
+- Tüm metinler TR/PL/UA çevirilerinden gelir.
+
+8) GÜVENLİK/VERİ SAĞLAMLIĞI
+- Ad ve seçeneklerde baş/son boşlukları kırp; seçeneklerde tekrarları temizle.
+- Büyük/küçük harf standardize etme (örn. seçenekleri olduğu gibi sakla ama karşılaştırmada case-insensitive).
