@@ -1,0 +1,380 @@
+[
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 3,
+    "unit": "adet",
+    "note": "Test adet barkod generation",
+    "barcodes": [
+      "947916",
+      "349825",
+      "548413"
+    ],
+    "id": "movement_1757678293935_ly4plwcny",
+    "date": "2025-09-12T11:58:13.935Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 10.75,
+    "unit": "metre",
+    "note": "Test metre barkod generation",
+    "barcodes": [
+      "300060",
+      "171052",
+      "981559"
+    ],
+    "id": "movement_1757678306281_zvzvxckfp",
+    "date": "2025-09-12T11:58:26.281Z"
+  },
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 3,
+    "unit": "adet",
+    "note": "Integration test - DENEME product 3 units",
+    "barcodes": [
+      "594046",
+      "334823",
+      "114558"
+    ],
+    "id": "movement_1757678566902_aew2yvgft",
+    "date": "2025-09-12T12:02:46.902Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 7,
+    "unit": "metre",
+    "note": "Integration test - 241083 product with 3 meter entries",
+    "barcodes": [
+      "290776",
+      "337264",
+      "245257"
+    ],
+    "id": "movement_1757678603521_dl4lwb2ao",
+    "date": "2025-09-12T12:03:23.521Z"
+  },
+  {
+    "productId": "1",
+    "warehouseId": "1",
+    "shelfId": "A-3",
+    "type": "Giriş",
+    "quantity": 3,
+    "unit": "metre",
+    "note": "Final integration test - 02H product",
+    "barcodes": [],
+    "id": "movement_1757678655938_r7ml4hkve",
+    "date": "2025-09-12T12:04:15.938Z"
+  },
+  {
+    "productId": "1",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 2,
+    "unit": "adet",
+    "note": "Testing persistence fix - adet unit",
+    "barcodes": [
+      "824993",
+      "667694"
+    ],
+    "id": "movement_1757678921540_tivtuw7h8",
+    "date": "2025-09-12T12:08:41.540Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 4.25,
+    "unit": "metre",
+    "note": "Testing persistence fix - metre unit",
+    "barcodes": [
+      "974332",
+      "687078",
+      "153863"
+    ],
+    "id": "movement_1757678935109_pgu795ov8",
+    "date": "2025-09-12T12:08:55.109Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 3,
+    "unit": "adet",
+    "note": "Test stok girişi - barkod testi",
+    "barcodes": [
+      "939838",
+      "116691",
+      "245693"
+    ],
+    "id": "movement_1757681757278_lrog4zfhc",
+    "date": "2025-09-12T12:55:57.278Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 15.5,
+    "unit": "metre",
+    "note": "Test metre girişi",
+    "barcodes": [
+      "372077",
+      "586130"
+    ],
+    "id": "movement_1757681904395_eg44jvnwq",
+    "date": "2025-09-12T12:58:24.395Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "132148"
+    ],
+    "id": "movement_1757683519553_gmm77i86f",
+    "date": "2025-09-12T13:25:19.553Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-3",
+    "type": "Giriş",
+    "quantity": 5,
+    "unit": "metre",
+    "barcodes": [
+      "452723"
+    ],
+    "id": "movement_1757683758983_q1v84otot",
+    "date": "2025-09-12T13:29:18.983Z"
+  },
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 2,
+    "unit": "adet",
+    "barcodes": [
+      "449312",
+      "705085"
+    ],
+    "id": "movement_1757683879989_6wr2ss3r3",
+    "date": "2025-09-12T13:31:19.989Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-3",
+    "type": "Giriş",
+    "quantity": 20,
+    "unit": "metre",
+    "barcodes": [
+      "597408"
+    ],
+    "id": "movement_1757684572468_zhzamx0ft",
+    "date": "2025-09-12T13:42:52.468Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "C-1",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "155477"
+    ],
+    "id": "movement_1757684627242_dahh1w1yf",
+    "date": "2025-09-12T13:43:47.242Z"
+  },
+  {
+    "productId": "1",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 5,
+    "unit": "metre",
+    "barcodes": [
+      "651669"
+    ],
+    "id": "movement_1757685127223_zvm8c6rmt",
+    "date": "2025-09-12T13:52:07.223Z"
+  },
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 2,
+    "unit": "adet",
+    "barcodes": [
+      "924944",
+      "662957"
+    ],
+    "id": "movement_1757685169903_pddo3gpno",
+    "date": "2025-09-12T13:52:49.903Z"
+  },
+  {
+    "productId": "1",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 5,
+    "unit": "metre",
+    "barcodes": [
+      "262551"
+    ],
+    "id": "movement_1757685291994_m9pbzxqsq",
+    "date": "2025-09-12T13:54:51.994Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "B-2",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "642703"
+    ],
+    "id": "movement_1757686231153_bx7qyzjca",
+    "date": "2025-09-12T14:10:31.153Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 3.1,
+    "unit": "metre",
+    "barcodes": [
+      "879022"
+    ],
+    "id": "movement_1757686592864_jagl130kl",
+    "date": "2025-09-12T14:16:32.864Z"
+  },
+  {
+    "productId": "1",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "108266"
+    ],
+    "id": "movement_1757688993638_j2iwnkn25",
+    "date": "2025-09-12T14:56:33.638Z"
+  },
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 2,
+    "unit": "adet",
+    "barcodes": [
+      "893120",
+      "215421"
+    ],
+    "id": "movement_1757689184913_h71pnwaop",
+    "date": "2025-09-12T14:59:44.913Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 15,
+    "unit": "metre",
+    "barcodes": [
+      "104965"
+    ],
+    "id": "movement_1757689684055_tvxglj8vj",
+    "date": "2025-09-12T15:08:04.055Z"
+  },
+  {
+    "productId": "3",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 3,
+    "unit": "adet",
+    "barcodes": [
+      "375632",
+      "236416",
+      "642904"
+    ],
+    "id": "movement_1757689761524_acr31fgn5",
+    "date": "2025-09-12T15:09:21.524Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "478496"
+    ],
+    "id": "movement_1757690011149_z9a59dvgy",
+    "date": "2025-09-12T15:13:31.149Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 35,
+    "unit": "metre",
+    "barcodes": [
+      "180449",
+      "987505"
+    ],
+    "id": "movement_1757690134315_k9oov49yk",
+    "date": "2025-09-12T15:15:34.315Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-1",
+    "type": "Giriş",
+    "quantity": 10,
+    "unit": "metre",
+    "barcodes": [
+      "845141"
+    ],
+    "id": "movement_1757691401501_9xqyvowle",
+    "date": "2025-09-12T15:36:41.501Z"
+  },
+  {
+    "productId": "2",
+    "warehouseId": "1",
+    "shelfId": "A-2",
+    "type": "Giriş",
+    "quantity": 6,
+    "unit": "metre",
+    "barcodes": [
+      "625317"
+    ],
+    "id": "movement_1757699899028_2im9meexu",
+    "date": "2025-09-12T17:58:19.028Z"
+  }
+]
