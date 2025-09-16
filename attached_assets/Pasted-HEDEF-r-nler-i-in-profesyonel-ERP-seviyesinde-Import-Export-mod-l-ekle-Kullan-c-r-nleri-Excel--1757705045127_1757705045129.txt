@@ -1,0 +1,76 @@
+HEDEF
+Ürünler için profesyonel ERP seviyesinde Import/Export modülü ekle. Kullanıcı ürünleri Excel/CSV formatında indirebilsin, şablonla topluca içeri yükleyebilsin, hataları önceden görsün.
+
+1) EXPORT (DIŞARI AKTARMA)
+- Menü: Ürünler > Import/Export > Export
+- Kullanıcı isterse Excel (.xlsx) veya CSV (.csv) olarak indirebilir.
+- Eğer ürün listesinde filtre uygulanmışsa sadece filtre sonucu ürünler indirilsin.
+- Eğer filtre yoksa tüm ürünler indirilsin.
+- Dosya adı tarih/saat içersin: urunler_2025-09-12.xlsx
+- Alanlar: Ürün Adı, Açıklama, Birim (adet/metre), Alış Fiyatı, Satış Fiyatı, Para Birimleri, Durum, Özellikler (attributes).
+- Yetki kontrolü: alış fiyatı sadece admin yetkisiyle export edilsin.
+
+2) IMPORT (İÇERİ AKTARMA)
+- Menü: Ürünler > Import/Export > Import
+- Adımlar:
+  A) Şablon indir (Excel/CSV). Sütunlar:
+     • Ürün Adı (zorunlu)
+     • Açıklama
+     • Birim (adet/metre) (zorunlu)
+     • Alış Fiyatı
+     • Satış Fiyatı
+     • Alış Para Birimi (USD/PLN/UAH)
+     • Satış Para Birimi (USD/PLN/UAH)
+     • Durum (Aktif/Pasif)
+     • Özellik1, Özellik2, Özellik3 (attributes.json’dan)
+  B) Kullanıcı şablonu doldurup yükler (xlsx/csv).
+  C) Sistem dosyayı işler ama henüz kaydetmez → Önizleme ekranı açılır:
+     • Doğru satırlar yeşil
+     • Hatalı satırlar kırmızı
+     • Hata nedeni satırda gösterilir
+  D) Kullanıcı “Onayla & Kaydet” butonuna basınca sadece doğru satırlar kalıcı olarak products.json’a eklenir.
+
+3) DOĞRULAMA KURALLARI
+- Ürün Adı boş olamaz
+- Birim sadece “adet” veya “metre” olabilir
+- Para birimi sadece USD/PLN/UAH olabilir
+- Durum sadece Aktif veya Pasif olabilir
+- Aynı ürün adı + aynı özellik seti varsa duplicate kabul edilir ve kaydedilmez
+- Fiyat alanları sayısal olmalı
+- Eksik/hatalı satırlar kaydedilmez ama raporda listelenir
+
+4) RAPORLAMA
+- Yükleme sonrası özet ver:
+   • Toplam satır sayısı
+   • Başarıyla eklenen ürün sayısı
+   • Hatalı satır sayısı
+- Hatalı satırlar tablo halinde (satır numarası + hata açıklaması)
+- Başarılı ürünler ürün listesinde anında görünür
+
+5) TOPLU GÜNCELLEME
+- Import ekranında “Mevcut ürünleri güncelle” seçeneği olsun.
+- Eğer işaretlenirse: aynı ürün adı bulunan kayıtlarda fiyat, açıklama, stok güncellensin.
+- İşaretlenmezse: duplicate ürünler kaydedilmez.
+
+6) i18n (TR/PL/UA)
+- importExport.title: "Ürün Import/Export"
+- importExport.export: "Dışarı Aktar"
+- importExport.import: "İçeri Aktar"
+- importExport.downloadTemplate: "Şablon İndir"
+- importExport.selectFile: "Excel/CSV Dosyası Seç"
+- importExport.preview: "Önizleme"
+- importExport.confirm: "Onayla & Kaydet"
+- importExport.result.success: "{count} ürün başarıyla eklendi"
+- importExport.result.failed: "{count} satırda hata bulundu"
+- importExport.errors: "Hatalar"
+- validation.required: "Bu alan zorunludur"
+- validation.invalidUnit: "Geçersiz birim (adet/metre)"
+- validation.invalidCurrency: "Geçersiz para birimi (USD/PLN/UAH)"
+- validation.duplicateProduct: "Bu ürün zaten mevcut"
+
+7) KABUL KRİTERLERİ
+- Export dosyası filtreye göre indirilmeli.
+- Import sırasında önizleme olmadan kaydetme yapılmamalı.
+- Hatalı satırlar kullanıcıya net şekilde gösterilmeli.
+- Doğru satırlar başarılı şekilde eklenmeli.
+- Duplicate ürünler eklenmemeli, güncelleme seçeneği varsa kurala göre işlenmeli.
