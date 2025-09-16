@@ -1,0 +1,218 @@
+[
+  {
+    "id": "tpl_001",
+    "name": "Standart Etiket",
+    "width": 60,
+    "height": 40,
+    "elements": [
+      {
+        "type": "text",
+        "field": "productName",
+        "x": 5,
+        "y": 5,
+        "fontSize": 12,
+        "bold": true,
+        "width": 50,
+        "height": 8,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "field": "features",
+        "x": 5,
+        "y": 15,
+        "fontSize": 8,
+        "bold": false,
+        "width": 50,
+        "height": 6,
+        "align": "left"
+      },
+      {
+        "type": "barcode",
+        "field": "barcode",
+        "x": 5,
+        "y": 25,
+        "width": 50,
+        "height": 10
+      },
+      {
+        "type": "text",
+        "field": "price",
+        "x": 45,
+        "y": 5,
+        "fontSize": 10,
+        "bold": true,
+        "width": 10,
+        "height": 6,
+        "align": "right"
+      }
+    ],
+    "isDefault": true,
+    "createdAt": "2025-09-12T15:00:00.000Z",
+    "updatedAt": "2025-09-12T17:52:15.894Z"
+  },
+  {
+    "id": "tpl_002",
+    "name": "Mini Etiket",
+    "width": 40,
+    "height": 25,
+    "elements": [
+      {
+        "type": "text",
+        "field": "productName",
+        "x": 2,
+        "y": 2,
+        "fontSize": 8,
+        "bold": true,
+        "width": 36,
+        "height": 6,
+        "align": "center"
+      },
+      {
+        "type": "barcode",
+        "field": "barcode",
+        "x": 2,
+        "y": 10,
+        "width": 36,
+        "height": 8
+      },
+      {
+        "type": "text",
+        "field": "price",
+        "x": 2,
+        "y": 20,
+        "fontSize": 6,
+        "bold": false,
+        "width": 36,
+        "height": 4,
+        "align": "center"
+      }
+    ],
+    "isDefault": false,
+    "createdAt": "2025-09-12T15:00:00.000Z",
+    "updatedAt": "2025-09-12T15:00:00.000Z"
+  },
+  {
+    "id": "tpl_003",
+    "name": "Detaylı Etiket",
+    "width": 80,
+    "height": 50,
+    "elements": [
+      {
+        "type": "text",
+        "field": "productName",
+        "x": 5,
+        "y": 5,
+        "fontSize": 14,
+        "bold": true,
+        "width": 50,
+        "height": 10,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "field": "features",
+        "x": 5,
+        "y": 18,
+        "fontSize": 9,
+        "bold": false,
+        "width": 50,
+        "height": 8,
+        "align": "left"
+      },
+      {
+        "type": "barcode",
+        "field": "barcode",
+        "x": 5,
+        "y": 30,
+        "width": 45,
+        "height": 12
+      },
+      {
+        "type": "text",
+        "field": "price",
+        "x": 60,
+        "y": 5,
+        "fontSize": 16,
+        "bold": true,
+        "width": 15,
+        "height": 12,
+        "align": "center"
+      },
+      {
+        "type": "text",
+        "field": "date",
+        "x": 60,
+        "y": 20,
+        "fontSize": 7,
+        "bold": false,
+        "width": 15,
+        "height": 5,
+        "align": "center"
+      },
+      {
+        "type": "image",
+        "field": "logo",
+        "x": 60,
+        "y": 30,
+        "width": 15,
+        "height": 15
+      }
+    ],
+    "isDefault": false,
+    "createdAt": "2025-09-12T15:00:00.000Z",
+    "updatedAt": "2025-09-12T15:00:00.000Z"
+  },
+  {
+    "name": "Standart Etiket (Copy)",
+    "width": 60,
+    "height": 40,
+    "elements": [
+      {
+        "type": "text",
+        "field": "productName",
+        "x": 5,
+        "y": 5,
+        "fontSize": 12,
+        "bold": true,
+        "width": 50,
+        "height": 8,
+        "align": "left"
+      },
+      {
+        "type": "text",
+        "field": "features",
+        "x": 5,
+        "y": 15,
+        "fontSize": 8,
+        "bold": false,
+        "width": 50,
+        "height": 6,
+        "align": "left"
+      },
+      {
+        "type": "barcode",
+        "field": "barcode",
+        "x": 5,
+        "y": 25,
+        "width": 50,
+        "height": 10
+      },
+      {
+        "type": "text",
+        "field": "price",
+        "x": 45,
+        "y": 5,
+        "fontSize": 10,
+        "bold": true,
+        "width": 10,
+        "height": 6,
+        "align": "right"
+      }
+    ],
+    "isDefault": false,
+    "createdAt": "2025-09-12T17:51:48.355Z",
+    "updatedAt": "2025-09-12T17:51:48.355Z",
+    "id": "tpl_1757699508355_chb3qk"
+  }
+]
