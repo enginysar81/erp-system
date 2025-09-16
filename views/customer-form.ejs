@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="<%= locale %>">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= __('customers.title') %> - ERP System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        .customer-form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .form-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px 15px 0 0;
+            margin: -2rem -2rem 2rem -2rem;
+        }
+        .card {
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .form-section {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 25px;
+        }
+        .auto-generate-info {
+            background: #e3f2fd;
+            border: 1px solid #bbdefb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+        }
+        .balance-input-group {
+            position: relative;
+        }
+        .currency-badge {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .required-field::after {
+            content: ' *';
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-building"></i> ERP System
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/customers">
+                    <i class="bi bi-arrow-left"></i> <%= __('customerForm.backToList') %>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="customer-form-container">
+            <div class="card">
+                <div class="form-header">
+                    <h1 class="mb-0">
+                        <i class="bi bi-person-plus-fill me-2"></i>
+                        <%= customer ? __('customerForm.title.edit') : __('customerForm.title.create') %>
+                    </h1>
+                    <p class="mb-0 mt-2 opacity-75"><%= __('customerForm.subtitle') %></p>
+                </div>
+
+                <div class="card-body">
+                    <form id="customerForm" method="POST" action="<%= customer ? `/api/customers/${customer.id}` : '/api/customers' %>">
+                        <% if (customer) { %>
+                            <input type="hidden" name="_method" value="PUT">
+                        <% } %>
+
+                        <!-- Basic Information Section -->
+                        <div class="form-section">
+                            <h5 class="mb-3">
+                                <i class="bi bi-info-circle me-2"></i>
+                                <%= __('customerForm.section.basic') %>
+                            </h5>
+
+                            <!-- Auto Generate Code -->
+                            <div class="mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="autoGenerateCode" 
+                                           <%= !customer ? 'checked' : '' %>>
+                                    <label class="form-check-label" for="autoGenerateCode">
+                                        <%= __('customerForm.autoGenerateCode') %>
+                                    </label>
+                                </div>
+                                <div class="auto-generate-info" id="autoGenerateInfo">
+                                    <small class="text-muted">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        <%= __('customerForm.autoGenerateCodeDesc') %>
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Customer Code -->
+                            <div class="mb-3">
+                                <label for="code" class="form-label required-field">
+                                    <%= __('fields.customerCode') %>
+                                </label>
+                                <input type="text" class="form-control" id="code" name="code" 
+                                       value="<%= customer ? customer.code : '' %>"
+                                       placeholder="<%= __('customerForm.codePlaceholder') %>"
+                                       maxlength="6" required>
+                                <div class="invalid-feedback" id="codeError"></div>
+                            </div>
+
+                            <!-- Customer Name -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label required-field">
+                                    <%= __('fields.customerName') %>
+                                </label>
+                                <input type="text" class="form-control" id="name" name="name" 
+                                       value="<%= customer ? customer.name : '' %>"
+                                       placeholder="<%= __('customerForm.namePlaceholder') %>"
+                                       required>
+                                <div class="invalid-feedback" id="nameError"></div>
+                            </div>
+
+                            <!-- Phone -->
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">
+                                    <%= __('fields.phone') %>
+                                </label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       value="<%= customer ? customer.phone || '' : '' %>"
+                                       placeholder="<%= __('customerForm.phonePlaceholder') %>">
+                            </div>
+
+                            <!-- Address -->
+                            <div class="mb-3">
+                                <label for="address" class="form-label">
+                                    <%= __('fields.address') %>
+                                </label>
+                                <textarea class="form-control" id="address" name="address" rows="3"
+                                          placeholder="<%= __('customerForm.addressPlaceholder') %>"><%= customer ? customer.address || '' : '' %></textarea>
+                            </div>
+
+                            <!-- Currency -->
+                            <div class="mb-3">
+                                <label for="currency" class="form-label">
+                                    <%= __('fields.currency') %>
+                                </label>
+                                <select class="form-select" id="currency" name="currency">
+                                    <option value="USD" <%= (customer && customer.currency === 'USD') || (!customer) ? 'selected' : '' %>>USD - US Dollar</option>
+                                    <option value="PLN" <%= customer && customer.currency === 'PLN' ? 'selected' : '' %>>PLN - Polish Złoty</option>
+                                    <option value="UAH" <%= customer && customer.currency === 'UAH' ? 'selected' : '' %>>UAH - Ukrainian Hryvnia</option>
+                                    <option value="TRY" <%= customer && customer.currency === 'TRY' ? 'selected' : '' %>>TRY - Turkish Lira</option>
+                                </select>
+                            </div>
+
+                            <!-- Opening Balance -->
+                            <div class="mb-3">
+                                <label for="openingBalance" class="form-label">
+                                    <%= __('fields.openingBalance') %>
+                                </label>
+                                <div class="balance-input-group">
+                                    <input type="number" class="form-control" id="openingBalance" name="openingBalance" 
+                                           value="<%= customer ? customer.openingBalance : '0' %>"
+                                           step="0.01" style="padding-right: 60px;">
+                                    <span class="currency-badge" id="currencyBadge">USD</span>
+                                </div>
+                                <small class="text-muted">
+                                    <%= __('customerForm.openingBalanceDesc') %>
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="/customers" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-1"></i>
+                                <%= __('customerForm.backToList') %>
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="bi bi-save me-1"></i>
+                                <%= __('customers.save') %>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle me-2"></i>
+                        <%= __('common.success') %>
+                    </h5>
+                </div>
+                <div class="modal-body">
+                    <p id="successMessage"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="window.location.href='/customers'">
+                        <%= __('customerForm.backToList') %>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Auto-generate code functionality
+        const autoGenerateCheckbox = document.getElementById('autoGenerateCode');
+        const codeInput = document.getElementById('code');
+        const autoGenerateInfo = document.getElementById('autoGenerateInfo');
+
+        function toggleAutoGenerate() {
+            if (autoGenerateCheckbox.checked) {
+                codeInput.value = 'AUTO_GENERATE';
+                codeInput.disabled = true;
+                autoGenerateInfo.style.display = 'block';
+            } else {
+                codeInput.value = '';
+                codeInput.disabled = false;
+                autoGenerateInfo.style.display = 'none';
+            }
+        }
+
+        autoGenerateCheckbox.addEventListener('change', toggleAutoGenerate);
+        
+        // Initial state
+        toggleAutoGenerate();
+
+        // Currency badge update
+        const currencySelect = document.getElementById('currency');
+        const currencyBadge = document.getElementById('currencyBadge');
+
+        currencySelect.addEventListener('change', function() {
+            currencyBadge.textContent = this.value;
+        });
+
+        // Form submission
+        document.getElementById('customerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            // Convert opening balance to number
+            data.openingBalance = parseFloat(data.openingBalance) || 0;
+            
+            const isEdit = '<%= customer ? "true" : "false" %>' === 'true';
+            const url = isEdit ? `/api/customers/<%= customer ? customer.id : '' %>` : '/api/customers';
+            const method = isEdit ? 'PUT' : 'POST';
+            
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const message = isEdit ? '<%= __('customerForm.success.updated') %>' : '<%= __('customerForm.success.added') %>';
+                    document.getElementById('successMessage').textContent = message;
+                    new bootstrap.Modal(document.getElementById('successModal')).show();
+                } else {
+                    alert(data.message || 'Bir hata oluştu');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Sunucu hatası oluştu');
+            });
+        });
+    </script>
+</body>
+</html>
