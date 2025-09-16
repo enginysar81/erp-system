@@ -1,0 +1,1199 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= product ? __('productForm.title.edit') : __('productForm.title.create') %></h1>
+            <p class="text-muted mb-0"><%= __('productForm.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <a href="/products?lang=<%= locale %>" class="btn btn-outline" data-testid="button-back-to-list">
+                <i class="fas fa-arrow-left"></i>
+                <%= __('productForm.backToList') %>
+            </a>
+            <% if (!product) { %>
+                <a href="/settings/attributes?lang=<%= locale %>" class="btn btn-primary" target="_blank" data-testid="button-manage-attributes">
+                    <i class="fas fa-cog"></i>
+                    <%= __('productForm.manageAttributes') %>
+                </a>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body -->
+<div class="content-body">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'added') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Yeni ürün başarıyla eklendi!
+            </div>
+        <% } else if (query.success === 'updated') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Ürün başarıyla güncellendi!
+            </div>
+        <% } else if (query.error === 'nameRequired') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('validation.required') %>
+            </div>
+        <% } else if (query.error === 'notFound') { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                Ürün bulunamadı!
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Product Form -->
+    <form action="<%= product ? `/products/${product.id}/update` : '/products/new' %>?lang=<%= locale %>" method="POST" enctype="multipart/form-data" id="productForm" data-testid="form-product">
+        
+        <!-- Two Column Layout -->
+        <div class="product-form-container">
+            
+            <!-- Left Column: Basic Info + Attributes -->
+            <div class="product-form-left">
+                
+                <!-- Basic Information Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-info-circle" style="color: var(--primary);"></i>
+                            <%= __('productForm.section.basic') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        
+                        <!-- Name and Status Row -->
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="productName">
+                                    <%= __('fields.name') %>
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="autocomplete-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="productName"
+                                        name="name" 
+                                        class="form-control"
+                                        value="<%= product ? product.name : '' %>"
+                                        placeholder="Örn: Premium Perde Modeli"
+                                        autocomplete="off"
+                                        required
+                                        data-testid="input-product-name">
+                                    <div id="nameAutocompleteDropdown" class="autocomplete-dropdown" style="display: none;"></div>
+                                    <div id="duplicateWarning" class="duplicate-warning" style="display: none;">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                        <span id="duplicateMessage"></span>
+                                        <a href="#" id="duplicateEditLink" class="duplicate-edit-link"><%= __('action.goToEdit') %></a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="productStatus">
+                                    <%= __('fields.status') %>
+                                </label>
+                                <select 
+                                    id="productStatus"
+                                    name="status"
+                                    class="form-control"
+                                    data-testid="select-product-status">
+                                    <option value="Aktif" <%= product && product.status === 'Aktif' ? 'selected' : '' %>>Aktif</option>
+                                    <option value="Pasif" <%= product && product.status === 'Pasif' ? 'selected' : '' %>>Pasif</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="form-group">
+                            <label class="form-label" for="productDescription">
+                                <%= __('fields.description') %>
+                            </label>
+                            <textarea 
+                                id="productDescription"
+                                name="description" 
+                                class="form-control form-textarea"
+                                rows="3"
+                                placeholder="Ürün açıklaması ve özelliklerini buraya yazabilirsiniz..."
+                                data-testid="textarea-product-description"><%= product ? product.description : '' %></textarea>
+                        </div>
+                        
+                        <!-- Prices and Currencies -->
+                        <div class="form-grid form-grid-2">
+                            <!-- Buy Price -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <%= __('fields.buyPrice') %>
+                                </label>
+                                <div class="currency-group">
+                                    <input 
+                                        type="number" 
+                                        name="buyPrice" 
+                                        class="form-control"
+                                        value="<%= product ? product.buyPrice : '' %>"
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        data-testid="input-product-buy-price">
+                                    <select name="buyCurrency" class="form-control currency-select" data-testid="select-buy-currency">
+                                        <option value="USD" <%= product && product.buyCurrency === 'USD' ? 'selected' : (!product ? 'selected' : '') %>><%= __('currency.usd') %></option>
+                                        <option value="PLN" <%= product && product.buyCurrency === 'PLN' ? 'selected' : '' %>><%= __('currency.pln') %></option>
+                                        <option value="UAH" <%= product && product.buyCurrency === 'UAH' ? 'selected' : '' %>><%= __('currency.uah') %></option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Sell Price -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <%= __('fields.sellPrice') %>
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="currency-group">
+                                    <input 
+                                        type="number" 
+                                        name="sellPrice" 
+                                        class="form-control"
+                                        value="<%= product ? product.sellPrice : '' %>"
+                                        placeholder="0.00"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                        data-testid="input-product-sell-price">
+                                    <select name="sellCurrency" class="form-control currency-select" data-testid="select-sell-currency">
+                                        <option value="USD" <%= product && product.sellCurrency === 'USD' ? 'selected' : (!product ? 'selected' : '') %>><%= __('currency.usd') %></option>
+                                        <option value="PLN" <%= product && product.sellCurrency === 'PLN' ? 'selected' : '' %>><%= __('currency.pln') %></option>
+                                        <option value="UAH" <%= product && product.sellCurrency === 'UAH' ? 'selected' : '' %>><%= __('currency.uah') %></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Stock and Unit -->
+                        <div class="form-grid form-grid-2">
+                            <div class="form-group">
+                                <label class="form-label" for="productStock">
+                                    <%= __('fields.stock') %>
+                                </label>
+                                <input 
+                                    type="number" 
+                                    id="productStock"
+                                    name="stock" 
+                                    class="form-control"
+                                    value="<%= product ? product.stock : '0' %>"
+                                    placeholder="0"
+                                    min="0"
+                                    data-testid="input-product-stock">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label class="form-label" for="productUnit">
+                                    <%= __('fields.unit') %>
+                                    <span class="required">*</span>
+                                </label>
+                                <select 
+                                    id="productUnit"
+                                    name="unit"
+                                    class="form-control"
+                                    required
+                                    data-testid="select-product-unit">
+                                    <option value="adet" <%= product && product.unit === 'adet' ? 'selected' : (!product ? 'selected' : '') %>><%= __('unit.adet') %></option>
+                                    <option value="metre" <%= product && product.unit === 'metre' ? 'selected' : '' %>><%= __('unit.metre') %></option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Price Warning -->
+                        <div id="priceWarning" class="price-warning" style="display: none;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <%= __('validation.priceWarning') %>
+                        </div>
+                        
+                    </div>
+                </div>
+                
+                <!-- Product Attributes Section -->
+                <% if (attributes && attributes.length > 0) { %>
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <h3 class="form-section-title">
+                                <i class="fas fa-tags" style="color: var(--primary);"></i>
+                                <%= __('productForm.section.attributes') %>
+                            </h3>
+                        </div>
+                        <div class="form-section-body">
+                            
+                            <div class="form-grid form-grid-2">
+                                <% attributes.forEach((attribute) => { 
+                                    // Find existing value for this attribute in the product
+                                    const existingValue = product && product.attributes ? 
+                                        product.attributes.find(attr => attr.attributeId === attribute.id)?.value || '' : '';
+                                %>
+                                    <div class="form-group">
+                                        <label class="form-label" for="attribute_<%= attribute.id %>">
+                                            <%= attribute.name %>
+                                            <% if (attribute.type === 'TEXT') { %>
+                                                <span class="form-label-help">(serbest metin)</span>
+                                            <% } else { %>
+                                                <span class="form-label-help">(seçeneklerden seçin)</span>
+                                            <% } %>
+                                        </label>
+                                        
+                                        <% if (attribute.type === 'TEXT') { %>
+                                            <input 
+                                                type="text" 
+                                                id="attribute_<%= attribute.id %>"
+                                                name="attribute_<%= attribute.id %>" 
+                                                class="form-control"
+                                                value="<%= existingValue %>"
+                                                placeholder="Örn: 300 cm"
+                                                data-testid="input-attribute-<%= attribute.id %>">
+                                        <% } else if (attribute.type === 'OPTIONS' && attribute.options && attribute.options.length > 0) { %>
+                                            <select 
+                                                id="attribute_<%= attribute.id %>"
+                                                name="attribute_<%= attribute.id %>"
+                                                class="form-control"
+                                                data-testid="select-attribute-<%= attribute.id %>">
+                                                <option value="">-- Seçiniz --</option>
+                                                <% attribute.options.forEach((option) => { %>
+                                                    <option value="<%= option %>" <%= existingValue === option ? 'selected' : '' %>><%= option %></option>
+                                                <% }) %>
+                                            </select>
+                                        <% } %>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+                
+            </div>
+            
+            <!-- Right Column: Image Management -->
+            <div class="product-form-right">
+                <div class="form-section image-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-images" style="color: var(--primary);"></i>
+                            <%= __('productForm.section.images') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        
+                        <!-- Image Upload Area -->
+                        <div class="image-upload-area" onclick="document.getElementById('imageInput').click()">
+                            <div class="upload-icon">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                            </div>
+                            <div class="upload-text"><%= __('images.upload') %></div>
+                            <div class="upload-hint">PNG, JPG, WEBP - Max 5MB (Max 10 resim)</div>
+                        </div>
+                        
+                        <input 
+                            type="file" 
+                            id="imageInput"
+                            name="images[]"
+                            accept=".jpg,.jpeg,.png,.webp" 
+                            multiple 
+                            style="display: none;"
+                            data-testid="input-images">
+                        
+                        <!-- Cover Preview -->
+                        <div class="cover-preview">
+                            <% if (product && product.coverImage) { %>
+                                <img src="/<%= product.coverImage %>" alt="Cover" class="cover-image" id="coverPreview">
+                                <div class="cover-badge"><%= __('images.coverBadge') %></div>
+                            <% } else { %>
+                                <div class="cover-placeholder" id="coverPlaceholder">
+                                    <div class="placeholder-visual">
+                                        <div class="placeholder-pattern"></div>
+                                        <div class="placeholder-icon">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    </div>
+                                    <div class="placeholder-text">Kapak Resmi</div>
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Thumbnail Grid -->
+                        <div class="thumbnail-grid" id="thumbnailGrid">
+                            <% if (product && product.images && product.images.length > 0) { %>
+                                <% product.images.forEach((image, index) => { %>
+                                    <div class="thumbnail-item" data-image="<%= image %>">
+                                        <img src="/<%= image %>" alt="Thumbnail" class="thumbnail-image">
+                                        <% if (product.coverImage === image) { %>
+                                            <div class="thumbnail-cover-badge"><%= __('images.coverBadge') %></div>
+                                        <% } %>
+                                        <div class="thumbnail-actions">
+                                            <button type="button" class="thumbnail-btn" onclick="setCover('<%= image %>')" title="<%= __('images.setCover') %>">
+                                                <i class="fas fa-star"></i>
+                                            </button>
+                                            <button type="button" class="thumbnail-btn" onclick="previewImage('<%= image %>')" title="<%= __('images.preview') %>">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button type="button" class="thumbnail-btn" onclick="deleteImage('<%= image %>')" title="<%= __('images.delete') %>">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                        
+                        <!-- Hidden inputs for images -->
+                        <input type="hidden" name="images" id="imagesInput" value="<%- product && product.images ? JSON.stringify(product.images) : '[]' %>">
+                        <input type="hidden" name="coverImage" id="coverImageInput" value="<%- JSON.stringify(product ? product.coverImage || '' : '') %>">
+                        
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+        
+    </form>
+    
+    <!-- Sticky Action Bar -->
+    <div class="sticky-actions">
+        <a href="/products?lang=<%= locale %>" class="btn btn-outline" data-testid="button-cancel-product">
+            <i class="fas fa-times"></i>
+            <%= __('buttons.cancel') %>
+        </a>
+        <button type="submit" form="productForm" class="btn btn-primary" data-testid="button-save-product">
+            <i class="fas fa-save"></i>
+            <%= product ? 'Güncelle' : __('buttons.save') %>
+        </button>
+    </div>
+    
+</div>
+
+<!-- Image Preview Modal -->
+<div id="imagePreviewModal" class="image-preview-modal" style="display: none;" onclick="closePreview(event)">
+    <div class="image-preview-content">
+        <button class="image-preview-close" onclick="closePreview()">&times;</button>
+        <button class="image-preview-nav image-preview-prev" onclick="prevImage()" style="display: none;">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="image-preview-nav image-preview-next" onclick="nextImage()" style="display: none;">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <img id="previewImage" src="" alt="Preview">
+        <div class="image-preview-counter" id="imageCounter" style="display: none;">
+            <span id="currentImageIndex">1</span> / <span id="totalImages">1</span>
+        </div>
+    </div>
+</div>
+
+<style>
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+}
+
+.alert-success {
+    background: var(--success-bg, #d4edda);
+    color: var(--success-text, #155724);
+    border: 1px solid var(--success-border, #c3e6cb);
+}
+
+.alert-error {
+    background: var(--danger-bg, #f8d7da);
+    color: var(--danger-text, #721c24);
+    border: 1px solid var(--danger-border, #f1b0b7);
+}
+</style>
+
+<script>
+// Price validation and Autocomplete functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const buyPriceInput = document.querySelector('[name="buyPrice"]');
+    const sellPriceInput = document.querySelector('[name="sellPrice"]');
+    const priceWarning = document.getElementById('priceWarning');
+    const productNameInput = document.getElementById('productName');
+    const autocompleteDropdown = document.getElementById('nameAutocompleteDropdown');
+    const duplicateWarning = document.getElementById('duplicateWarning');
+    const duplicateMessage = document.getElementById('duplicateMessage');
+    const duplicateEditLink = document.getElementById('duplicateEditLink');
+    
+    let autocompleteTimeout;
+    let allProducts = [];
+    
+    function checkPrices() {
+        const buyPrice = parseFloat(buyPriceInput.value) || 0;
+        const sellPrice = parseFloat(sellPriceInput.value) || 0;
+        
+        if (buyPrice > 0 && sellPrice > 0 && sellPrice < buyPrice) {
+            priceWarning.style.display = 'flex';
+        } else {
+            priceWarning.style.display = 'none';
+        }
+    }
+    
+    // Initialize price validation
+    if (buyPriceInput && sellPriceInput) {
+        buyPriceInput.addEventListener('input', checkPrices);
+        sellPriceInput.addEventListener('input', checkPrices);
+        checkPrices(); // Check on load
+    }
+    
+    // Autocomplete functionality
+    if (productNameInput && autocompleteDropdown) {
+        
+        function formatAttributesText(attributes) {
+            if (!attributes || attributes.length === 0) return '';
+            return attributes.map(attr => `${attr.name}: ${attr.value}`).join(', ');
+        }
+        
+        function showAutocompleteDropdown(products) {
+            if (products.length === 0) {
+                autocompleteDropdown.innerHTML = '<div class="autocomplete-empty"><i class="fas fa-search"></i> Ürün bulunamadı</div>';
+            } else {
+                autocompleteDropdown.innerHTML = products.map(product => {
+                    const attributesText = formatAttributesText(product.attributes);
+                    return `
+                        <div class="autocomplete-item" data-product-id="${product.id}">
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1F2937;">${product.name}</div>
+                                ${attributesText ? `<div style="font-size: 12px; color: #6B7280; margin-top: 2px;">${attributesText}</div>` : ''}
+                                <div style="font-size: 11px; color: #9CA3AF; margin-top: 2px;">
+                                    ${product.buyPrice ? `Alış: ${product.buyPrice} ${product.buyCurrency}` : ''} 
+                                    ${product.sellPrice ? `| Satış: ${product.sellPrice} ${product.sellCurrency}` : ''}
+                                    | ${product.unit} | ${product.status}
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right" style="color: #D1D5DB;"></i>
+                        </div>
+                    `;
+                }).join('');
+            }
+            autocompleteDropdown.style.display = 'block';
+        }
+        
+        function hideAutocompleteDropdown() {
+            autocompleteDropdown.style.display = 'none';
+        }
+        
+        function getFormAttributes() {
+            const attributes = [];
+            const attributeInputs = document.querySelectorAll('[name^="attribute_"]');
+            
+            attributeInputs.forEach(input => {
+                const attributeId = input.name.replace('attribute_', '');
+                const value = input.value.trim();
+                if (value) {
+                    // Get attribute name from label
+                    const label = document.querySelector(`label[for="attribute_${attributeId}"]`);
+                    const attributeName = label ? label.textContent.replace(/\(.*\)/, '').trim() : `Attribute ${attributeId}`;
+                    
+                    attributes.push({
+                        attributeId: attributeId,
+                        name: attributeName,
+                        value: value
+                    });
+                }
+            });
+            
+            return attributes;
+        }
+        
+        function compareAttributes(attr1, attr2) {
+            if (attr1.length !== attr2.length) return false;
+            
+            // Sort attributes by ID for comparison
+            const sorted1 = attr1.sort((a, b) => a.attributeId.localeCompare(b.attributeId));
+            const sorted2 = attr2.sort((a, b) => a.attributeId.localeCompare(b.attributeId));
+            
+            return sorted1.every((attr, index) => {
+                const other = sorted2[index];
+                return attr.attributeId === other.attributeId && 
+                       attr.value.toLowerCase() === other.value.toLowerCase();
+            });
+        }
+        
+        function checkForDuplicates(inputName) {
+            // Check for exact name matches
+            const nameMatches = allProducts.filter(product => 
+                product.name.toLowerCase() === inputName.toLowerCase()
+            );
+            
+            if (nameMatches.length > 0) {
+                const product = nameMatches[0];
+                const attributesText = formatAttributesText(product.attributes);
+                duplicateMessage.textContent = `Bu isimde bir ürün mevcut: ${product.name}${attributesText ? ` (${attributesText})` : ''}`;
+                duplicateEditLink.href = `/products/${product.id}/edit?lang=<%= locale %>`;
+                duplicateWarning.style.display = 'flex';
+                return true;
+            }
+            
+            // Check for identical attributes (regardless of name)
+            const formAttributes = getFormAttributes();
+            if (formAttributes.length > 0) {
+                const attributeMatches = allProducts.filter(product => {
+                    if (!product.attributes || product.attributes.length === 0) return false;
+                    return compareAttributes(formAttributes, product.attributes);
+                });
+                
+                if (attributeMatches.length > 0) {
+                    const product = attributeMatches[0];
+                    const attributesText = formatAttributesText(product.attributes);
+                    duplicateMessage.textContent = `Aynı özelliklere sahip ürün mevcut: ${product.name} (${attributesText})`;
+                    duplicateEditLink.href = `/products/${product.id}/edit?lang=<%= locale %>`;
+                    duplicateWarning.style.display = 'flex';
+                    return true;
+                }
+            }
+            
+            duplicateWarning.style.display = 'none';
+            return false;
+        }
+        
+        function fetchProducts(query = '') {
+            const url = query ? `/api/products/names?q=${encodeURIComponent(query)}` : '/api/products/names';
+            
+            autocompleteDropdown.innerHTML = '<div class="autocomplete-loading"><i class="fas fa-spinner fa-spin"></i> Yükleniyor...</div>';
+            autocompleteDropdown.style.display = 'block';
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(products => {
+                    allProducts = products;
+                    showAutocompleteDropdown(products);
+                    
+                    // No real-time duplicate checking - will only check on form submit
+                })
+                .catch(error => {
+                    console.error('Autocomplete fetch error:', error);
+                    autocompleteDropdown.innerHTML = '<div class="autocomplete-error"><i class="fas fa-exclamation-triangle"></i> Yükleme hatası</div>';
+                });
+        }
+        
+        // Input event listener
+        productNameInput.addEventListener('input', function(e) {
+            const query = e.target.value.trim();
+            
+            clearTimeout(autocompleteTimeout);
+            
+            if (query.length >= 1) {
+                autocompleteTimeout = setTimeout(() => {
+                    fetchProducts(query);
+                }, 300); // 300ms debounce
+            } else if (query.length === 0) {
+                fetchProducts(); // Show default products
+            } else {
+                hideAutocompleteDropdown();
+                duplicateWarning.style.display = 'none';
+            }
+        });
+        
+        // Focus event - show dropdown
+        productNameInput.addEventListener('focus', function() {
+            if (allProducts.length === 0) {
+                fetchProducts(productNameInput.value.trim());
+            } else {
+                showAutocompleteDropdown(allProducts);
+            }
+        });
+        
+        // Click outside to hide dropdown
+        document.addEventListener('click', function(e) {
+            if (!productNameInput.contains(e.target) && !autocompleteDropdown.contains(e.target)) {
+                hideAutocompleteDropdown();
+            }
+        });
+        
+        // Handle autocomplete item clicks
+        autocompleteDropdown.addEventListener('click', function(e) {
+            const item = e.target.closest('.autocomplete-item');
+            if (item) {
+                const productId = item.dataset.productId;
+                const product = allProducts.find(p => p.id === productId);
+                
+                if (product) {
+                    productNameInput.value = product.name;
+                    hideAutocompleteDropdown();
+                    checkForDuplicates(product.name);
+                    
+                    // Optionally fill other fields based on selected product
+                    // This can be uncommented if you want to auto-fill fields
+                    /*
+                    if (product.unit) {
+                        const unitSelect = document.querySelector('[name="unit"]');
+                        if (unitSelect) unitSelect.value = product.unit;
+                    }
+                    */
+                }
+            }
+        });
+        
+        // Keyboard navigation for autocomplete
+        productNameInput.addEventListener('keydown', function(e) {
+            const items = autocompleteDropdown.querySelectorAll('.autocomplete-item');
+            let selectedIndex = Array.from(items).findIndex(item => item.classList.contains('selected'));
+            
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (selectedIndex < items.length - 1) {
+                    if (selectedIndex >= 0) items[selectedIndex].classList.remove('selected');
+                    items[selectedIndex + 1].classList.add('selected');
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (selectedIndex > 0) {
+                    items[selectedIndex].classList.remove('selected');
+                    items[selectedIndex - 1].classList.add('selected');
+                } else if (selectedIndex === 0) {
+                    items[selectedIndex].classList.remove('selected');
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0) {
+                    items[selectedIndex].click();
+                }
+            } else if (e.key === 'Escape') {
+                hideAutocompleteDropdown();
+            }
+        });
+        
+        // Add event listeners to attribute fields (no real-time duplicate checking)
+        function addAttributeListeners() {
+            const attributeInputs = document.querySelectorAll('[name^="attribute_"]');
+            attributeInputs.forEach(input => {
+                // No real-time duplicate checking - will only check on form submit
+                input.addEventListener('change', function() {
+                    // Just for maintaining functionality structure
+                });
+            });
+        }
+        
+        // Initialize attribute listeners
+        addAttributeListeners();
+        
+        // Add validation to form submission
+        const productForm = document.getElementById('productForm');
+        if (productForm) {
+            productForm.addEventListener('submit', function(e) {
+                // Check if at least one attribute is selected
+                const attributeInputs = document.querySelectorAll('[name^="attribute_"]');
+                let hasSelectedAttribute = false;
+                
+                attributeInputs.forEach(input => {
+                    if (input.value && input.value.trim() !== '') {
+                        hasSelectedAttribute = true;
+                    }
+                });
+                
+                if (!hasSelectedAttribute) {
+                    e.preventDefault();
+                    alert('En az bir özellik seçilmelidir! Lütfen ürün özelliklerini belirtin.');
+                    return false;
+                }
+                
+                // Check for duplicates
+                const productName = productNameInput.value.trim();
+                if (productName && allProducts.length > 0) {
+                    const isDuplicate = checkForDuplicates(productName);
+                    if (isDuplicate) {
+                        e.preventDefault();
+                        alert('Duplicate ürün tespit edildi! Lütfen ürün bilgilerini kontrol edin veya mevcut ürünü düzenleyin.');
+                        return false;
+                    }
+                }
+            });
+        }
+    }
+});
+
+// Image management functions
+window.currentImages = window.currentImages || <%- product && product.images ? JSON.stringify(product.images) : '[]' %>;
+window.currentCover = window.currentCover || <%- JSON.stringify(product ? product.coverImage || "" : "") %>;
+
+// Upload notification function
+function showUploadNotification(type, title, message) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `upload-notification upload-notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <div class="notification-icon">
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i>
+            </div>
+            <div class="notification-text">
+                <div class="notification-title">${title}</div>
+                <div class="notification-message">${message}</div>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `;
+    
+    // Add styles if not already added
+    if (!document.getElementById('notification-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'notification-styles';
+        styles.textContent = `
+            .upload-notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                max-width: 400px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                z-index: 9999;
+                animation: slideInRight 0.3s ease;
+                border-left: 4px solid #3B82F6;
+            }
+            .upload-notification-success { border-left-color: #10B981; }
+            .upload-notification-error { border-left-color: #EF4444; }
+            .upload-notification-warning { border-left-color: #F59E0B; }
+            .notification-content {
+                display: flex;
+                align-items: flex-start;
+                padding: 16px;
+                gap: 12px;
+            }
+            .notification-icon {
+                color: #3B82F6;
+                font-size: 18px;
+                margin-top: 2px;
+            }
+            .upload-notification-success .notification-icon { color: #10B981; }
+            .upload-notification-error .notification-icon { color: #EF4444; }
+            .upload-notification-warning .notification-icon { color: #F59E0B; }
+            .notification-text {
+                flex: 1;
+            }
+            .notification-title {
+                font-weight: 600;
+                color: #1F2937;
+                margin-bottom: 4px;
+            }
+            .notification-message {
+                font-size: 14px;
+                color: #6B7280;
+            }
+            .notification-close {
+                background: none;
+                border: none;
+                color: #9CA3AF;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 4px;
+            }
+            .notification-close:hover {
+                background: #F3F4F6;
+                color: #6B7280;
+            }
+            @keyframes slideInRight {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    // Add notification to page
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.style.animation = 'slideInRight 0.3s ease reverse';
+            setTimeout(() => notification.remove(), 300);
+        }
+    }, 5000);
+}
+
+function setCover(imagePath) {
+    // For new products (not saved yet), just update locally
+    const productId = new URLSearchParams(window.location.search).get('id') || 
+                     window.location.pathname.split('/').pop();
+    
+    if (productId === 'new' || !productId) {
+        // Just update locally for new products
+        updateCoverLocally(imagePath);
+        return;
+    }
+    
+    // For existing products, call new API endpoint
+    fetch(`/products/${productId}/images/cover`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ path: imagePath })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateCoverLocally(imagePath);
+        } else {
+            alert(data.error || 'Kapak resmi ayarlanamadı.');
+        }
+    })
+    .catch(error => {
+        console.error('Set cover error:', error);
+        alert('Kapak resmi ayarlama sırasında bir hata oluştu.');
+    });
+}
+
+function updateCoverLocally(imagePath) {
+    window.currentCover = imagePath;
+    document.getElementById('coverImageInput').value = window.currentCover;
+    
+    // Update cover preview
+    const coverPreview = document.getElementById('coverPreview');
+    const coverPlaceholder = document.getElementById('coverPlaceholder');
+    
+    if (coverPreview) {
+        coverPreview.src = '/' + imagePath;
+    } else if (coverPlaceholder) {
+        coverPlaceholder.innerHTML = `
+            <img src="/${imagePath}" alt="Cover" class="cover-image" id="coverPreview">
+            <div class="cover-badge"><%= __('images.coverBadge') %></div>
+        `;
+    }
+    
+    // Update thumbnail badges
+    document.querySelectorAll('.thumbnail-cover-badge').forEach(badge => badge.remove());
+    const thumbnailItem = document.querySelector(`[data-image="${imagePath}"]`);
+    if (thumbnailItem) {
+        const badge = document.createElement('div');
+        badge.className = 'thumbnail-cover-badge';
+        badge.textContent = '<%= __("images.coverBadge") %>';
+        thumbnailItem.appendChild(badge);
+    }
+}
+
+let currentPreviewIndex = 0;
+let previewImages = [];
+
+function previewImage(imagePath) {
+    // Set up images array and find current index
+    previewImages = [...window.currentImages];
+    currentPreviewIndex = previewImages.findIndex(img => img === imagePath);
+    
+    if (currentPreviewIndex === -1) {
+        currentPreviewIndex = 0;
+    }
+    
+    updatePreviewImage();
+    document.getElementById('imagePreviewModal').style.display = 'flex';
+    
+    // Setup navigation visibility
+    const hasMultiple = previewImages.length > 1;
+    document.querySelector('.image-preview-prev').style.display = hasMultiple ? 'block' : 'none';
+    document.querySelector('.image-preview-next').style.display = hasMultiple ? 'block' : 'none';
+    document.getElementById('imageCounter').style.display = hasMultiple ? 'block' : 'none';
+    
+    updateImageCounter();
+}
+
+function updatePreviewImage() {
+    if (previewImages.length > 0 && currentPreviewIndex >= 0 && currentPreviewIndex < previewImages.length) {
+        document.getElementById('previewImage').src = '/' + previewImages[currentPreviewIndex];
+    }
+}
+
+function updateImageCounter() {
+    document.getElementById('currentImageIndex').textContent = currentPreviewIndex + 1;
+    document.getElementById('totalImages').textContent = previewImages.length;
+}
+
+function prevImage() {
+    if (currentPreviewIndex > 0) {
+        currentPreviewIndex--;
+        updatePreviewImage();
+        updateImageCounter();
+    }
+}
+
+function nextImage() {
+    if (currentPreviewIndex < previewImages.length - 1) {
+        currentPreviewIndex++;
+        updatePreviewImage();
+        updateImageCounter();
+    }
+}
+
+function closePreview(event) {
+    if (!event || event.target === event.currentTarget) {
+        document.getElementById('imagePreviewModal').style.display = 'none';
+        document.getElementById('previewImage').src = '';
+        previewImages = [];
+        currentPreviewIndex = 0;
+    }
+}
+
+// Keyboard navigation for modal
+document.addEventListener('keydown', function(e) {
+    const modal = document.getElementById('imagePreviewModal');
+    if (modal.style.display === 'flex') {
+        if (e.key === 'Escape') {
+            closePreview();
+        } else if (e.key === 'ArrowLeft') {
+            prevImage();
+        } else if (e.key === 'ArrowRight') {
+            nextImage();
+        }
+    }
+});
+
+function deleteImage(imagePath) {
+    if (confirm('Bu resmi silmek istediğinizden emin misiniz?')) {
+        // Get product ID
+        const productId = new URLSearchParams(window.location.search).get('id') || 
+                         window.location.pathname.split('/').pop();
+        
+        if (productId === 'new' || !productId) {
+            // For new products, just remove locally
+            deleteImageLocally(imagePath);
+            return;
+        }
+        
+        // Call new API endpoint
+        fetch(`/products/${productId}/images/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ path: imagePath })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Remove from current images array
+                window.currentImages = window.currentImages.filter(img => img !== imagePath);
+                document.getElementById('imagesInput').value = JSON.stringify(window.currentImages);
+                
+                // If deleted image was cover, set new cover
+                if (window.currentCover === imagePath) {
+                    window.currentCover = window.currentImages.length > 0 ? window.currentImages[0] : '';
+                    document.getElementById('coverImageInput').value = window.currentCover;
+                }
+                
+                // Remove from DOM
+                const thumbnailItem = document.querySelector(`[data-image="${imagePath}"]`);
+                if (thumbnailItem) {
+                    thumbnailItem.remove();
+                }
+                
+                // Update cover preview if needed
+                if (window.currentCover === imagePath || window.currentImages.length === 0) {
+                    updateCoverPreview();
+                }
+                
+                alert(data.message);
+            } else {
+                alert(data.error || 'Resim silinemedi.');
+            }
+        })
+        .catch(error => {
+            console.error('Delete error:', error);
+            alert('Resim silme sırasında bir hata oluştu.');
+        });
+    }
+}
+
+function deleteImageLocally(imagePath) {
+    // Remove from current images array
+    window.currentImages = window.currentImages.filter(img => img !== imagePath);
+    document.getElementById('imagesInput').value = JSON.stringify(window.currentImages);
+    
+    // If deleted image was cover, set new cover
+    if (window.currentCover === imagePath) {
+        window.currentCover = window.currentImages.length > 0 ? window.currentImages[0] : '';
+        document.getElementById('coverImageInput').value = window.currentCover;
+    }
+    
+    // Remove from DOM
+    const thumbnailItem = document.querySelector(`[data-image="${imagePath}"]`);
+    if (thumbnailItem) {
+        thumbnailItem.remove();
+    }
+    
+    // Update cover preview if needed
+    if (window.currentCover === imagePath || window.currentImages.length === 0) {
+        updateCoverPreview();
+    }
+}
+
+function updateCoverPreview() {
+    const coverPreview = document.getElementById('coverPreview');
+    const coverPlaceholder = document.getElementById('coverPlaceholder');
+    
+    if (window.currentImages.length > 0 && window.currentCover) {
+        if (coverPlaceholder && coverPlaceholder.parentElement) {
+            coverPlaceholder.parentElement.innerHTML = `
+                <img src="/${window.currentCover}" alt="Cover" class="cover-image" id="coverPreview">
+                <div class="cover-badge"><%= __('images.coverBadge') %></div>
+            `;
+        } else if (coverPreview) {
+            coverPreview.src = '/' + window.currentCover;
+        }
+    } else {
+        if (coverPreview && coverPreview.parentElement) {
+            coverPreview.parentElement.innerHTML = `
+                <div class="cover-placeholder" id="coverPlaceholder">
+                    <img src="/img/placeholder-product.svg" alt="Placeholder" style="max-width: 100px; opacity: 0.5;">
+                    <div style="margin-top: 8px; font-size: 14px; color: var(--muted);">Kapak Resmi</div>
+                </div>
+            `;
+        }
+    }
+}
+
+// Image upload handling
+document.getElementById('imageInput').addEventListener('change', function(event) {
+    const files = event.target.files;
+    if (files.length === 0) return;
+    
+    // Check file limits
+    if (window.currentImages.length + files.length > 10) {
+        showUploadNotification('warning', 'Limit Aşıldı', 'Maksimum 10 resim yükleyebilirsiniz.');
+        return;
+    }
+    
+    uploadImages(files);
+});
+
+function uploadImages(files) {
+    const formData = new FormData();
+    
+    // Add all files to FormData
+    for (let file of files) {
+        if (file.size > 5 * 1024 * 1024) {
+            showUploadNotification('warning', 'Dosya Boyutu', `${file.name} dosyası 5MB'dan büyük olamaz.`);
+            return;
+        }
+        formData.append('images', file);
+    }
+    
+    // Show loading state
+    const uploadArea = document.querySelector('.image-upload-area');
+    const originalContent = uploadArea.innerHTML;
+    uploadArea.innerHTML = `
+        <div class="upload-loading">
+            <div class="loading-spinner">
+                <div class="spinner-circle"></div>
+            </div>
+            <div class="loading-text">Resimler yükleniyor...</div>
+            <div class="loading-progress">
+                <div class="progress-bar"></div>
+            </div>
+        </div>
+    `;
+    
+    // Upload to server
+    fetch('/api/upload-images', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        uploadArea.innerHTML = originalContent;
+        
+        if (data.success) {
+            // Add new images to current array
+            window.currentImages = window.currentImages.concat(data.imagePaths);
+            document.getElementById('imagesInput').value = JSON.stringify(window.currentImages);
+            
+            // Set first image as cover if no cover exists
+            if (!window.currentCover && data.imagePaths.length > 0) {
+                window.currentCover = data.imagePaths[0];
+                document.getElementById('coverImageInput').value = window.currentCover;
+                
+                // Update cover preview
+                const coverPlaceholder = document.getElementById('coverPlaceholder');
+                if (coverPlaceholder) {
+                    coverPlaceholder.innerHTML = `
+                        <img src="/${window.currentCover}" alt="Cover" class="cover-image" id="coverPreview">
+                        <div class="cover-badge"><%= __('images.coverBadge') %></div>
+                    `;
+                }
+            }
+            
+            // Add thumbnails to grid
+            data.imagePaths.forEach(imagePath => {
+                addThumbnail(imagePath);
+            });
+            
+            showUploadNotification('success', 'Başarılı!', data.message);
+        } else {
+            showUploadNotification('error', 'Yükleme Hatası', data.error || 'Resim yüklenemedi.');
+        }
+    })
+    .catch(error => {
+        uploadArea.innerHTML = originalContent;
+        console.error('Upload error:', error);
+        showUploadNotification('error', 'Bağlantı Hatası', 'Resim yükleme sırasında bir hata oluştu.');
+    });
+}
+
+function addThumbnail(imagePath) {
+    const thumbnailGrid = document.getElementById('thumbnailGrid');
+    const thumbnailItem = document.createElement('div');
+    thumbnailItem.className = 'thumbnail-item';
+    thumbnailItem.setAttribute('data-image', imagePath);
+    
+    const isCover = window.currentCover === imagePath;
+    
+    thumbnailItem.innerHTML = `
+        <img src="/${imagePath}" alt="Thumbnail" class="thumbnail-image">
+        ${isCover ? '<div class="thumbnail-cover-badge"><%= __("images.coverBadge") %></div>' : ''}
+        <div class="thumbnail-actions">
+            <button type="button" class="thumbnail-btn" onclick="setCover('${imagePath}')" title="<%= __('images.setCover') %>">
+                <i class="fas fa-star"></i>
+            </button>
+            <button type="button" class="thumbnail-btn" onclick="previewImage('${imagePath}')" title="<%= __('images.preview') %>">
+                <i class="fas fa-eye"></i>
+            </button>
+            <button type="button" class="thumbnail-btn" onclick="deleteImage('${imagePath}')" title="<%= __('images.delete') %>">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    
+    thumbnailGrid.appendChild(thumbnailItem);
+}
+
+// Drag and drop for image upload area
+const uploadArea = document.querySelector('.image-upload-area');
+if (uploadArea) {
+    uploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.classList.remove('dragover');
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            // Check file limits
+            if (window.currentImages.length + files.length > 10) {
+                showUploadNotification('warning', 'Limit Aşıldı', 'Maksimum 10 resim yükleyebilirsiniz.');
+                return;
+            }
+            
+            // Upload dropped files
+            uploadImages(files);
+        }
+    });
+}
+</script>
