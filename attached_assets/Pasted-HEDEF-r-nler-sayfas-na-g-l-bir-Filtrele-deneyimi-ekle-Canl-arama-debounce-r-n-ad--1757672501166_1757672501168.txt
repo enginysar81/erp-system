@@ -1,0 +1,112 @@
+HEDEF
+Ürünler sayfasına güçlü bir “Filtrele” deneyimi ekle.
+• Canlı arama (debounce) → ürün adı + açıklama + attributes içinde arar.
+• Sol filtre paneli (sabit/çöker) → özelliklere göre checkbox seçimi.
+• Fiyat aralığı → ALIŞ ve SATIŞ için ayrı min–max.
+• Durum filtresi (Aktif/Pasif/Tümü) opsiyonel.
+• URL senkronizasyonu (query string) + “Sıfırla” + aktif filtre chip’leri.
+• TR/PL/UA i18n.
+
+1) YERLEŞİM
+- Ürünler sayfasında sağdaki “Filtrele” butonuna tıklayınca sol tarafta açılan bir panel göster:
+  • Masaüstü: sol sabit panel (width ~280px), içerik sağda kayar.
+  • Mobil: panel off-canvas (slide-in), kapama için X ve dış alan tıkı.
+- Panel bölümleri:
+  A) Genel Arama
+     - Tek input: placeholder i18n (örn: “Ürün adı veya özellik ara…”).
+     - 300ms debounce ile canlı filtre.
+     - Arama; name, description ve attributes[].value alanlarında case-insensitive eşleşme yapar.
+  B) Özellikler (Attributes)
+     - data/attributes.json’dan oku.
+     - Her attribute bir “accordion” grubu.
+     - TYPE=TEXT ise: küçük bir metin arama (attribute özelinde) + altta “Sık değerler” (varsa) chip’leri (opsiyonel).
+     - TYPE=OPTIONS ise: seçenekleri checkbox listesi. Birden fazla seçenek seçilebilir.
+     - Mantık:
+       · Aynı attribute içinde çoklu seçim → OR
+       · Farklı attribute’lar arasında → AND
+  C) Fiyat Aralıkları
+     - İki ayrı blok:
+       · SATIŞ FİYATI: Min – Max (number)
+       · ALIŞ FİYATI: Min – Max (number)
+     - Birim farkı dikkate alınmaz; sadece sayısal değer filtrelenir (kur modülü sonra).
+  D) Durum (opsiyonel)
+     - Radio: Tümü / Aktif / Pasif
+  E) Butonlar
+     - [Uygula]  [Sıfırla] (Sıfırla tüm filtreleri temizler)
+
+2) CANLI FİLTRELEME DAVRANIŞI
+- Kullanıcı yazınca:
+  • 300ms debounce sonrası listeyi anında filtrele (client-side).
+  • Aynı anda URL query’ye yansıt (pushState) → q=... & attrs=... & sellMin=... vb.
+- Checkbox/değer girişlerinde:
+  • Anında sonuçları güncelle.
+  • “Uygula” sadece mobilde paneli kapatmak için kullanılabilir; masaüstünde anlık çalışsın.
+
+3) URL SENKRONİZASYONU
+- Query param şeması:
+  • q=metin
+  • status=active|passive (yoksa tümü)
+  • sellMin= / sellMax=
+  • buyMin=  / buyMax=
+  • attrs=attributeId:value1|value2;attributeId2:valueA   (ör: attrs=3:Beyaz|Krem;4:Dantel)
+- Sayfa ilk yüklendiğinde:
+  • Query’yi parse et, panel kontrollerini doldur, başlangıç filtresini uygula.
+- Filtre değiştikçe:
+  • pushState ile query’yi güncelle (sayfayı yenileme).
+
+4) ARAMA ALGORİTMASI
+- Bir ürün görünür sayılmalıysa şu koşullar sağlanmalı:
+  A) Metin araması: q boş değilse
+     • name, description veya herhangi bir attributes[].value içinde “contains” (case-insensitive) eşleşmesi olmalı.
+  B) Attribute filtreleri:
+     • attrs paramındaki her attributeId için ürünün attributes[]’ında eşleşen value’lardan en az biri olmalı (AND).
+  C) Fiyat aralıkları:
+     • SATIŞ: sellMin ≤ product.sellPrice ≤ sellMax (boş olan sınırlar yok sayılır)
+     • ALIŞ:  buyMin  ≤ product.buyPrice  ≤ buyMax  (boş olan sınırlar yok sayılır)
+  D) Durum:
+     • Seçiliyse product.status eşleşmeli.
+- Tüm kontroller boş ise tüm ürünler görünür.
+
+5) AKTİF FİLTRE CHIP’LERİ
+- Panel dışında, ürün grid’inin üstünde “aktif filtreler” alanı göster:
+  • Her aktif kriter için bir chip (örn: “q: krem”, “Renk: Beyaz”, “Satış ≥ 10”, “Alış ≤ 5”, “Durum: Aktif”).
+  • Chip üzerindeki X’e tıklayınca ilgili kriter temizlenir ve sonuçlar güncellenir.
+  • “Tümünü Temizle” chip’i (çöp ikonu) tüm filtreleri sıfırlar.
+- i18n metinleri kullan.
+
+6) PERFORMANS
+- 1K–5K ürün için client-side filtre yeter; 5K+ için:
+  • Filtre parametrelerini server-side da destekle (aynı query şeması).
+  • İlk yüklemede server filtreli liste döndürsün; front-end yalnızca ince ayar yapsın.
+- Debounce 300ms; input event’lerinde gereksiz tekrar hesaplamayı önle.
+
+7) GÖRSEL DİL
+- Sol panel: açık gri zemin, kart kenarlıklı; başlıklar semibold.
+- Input/select odak hüzmesi; checkbox listeleri çok sütunlu olmasın (satır sarımı olsun).
+- Tüm bölüm aralarına 16px boşluk; “Uygula / Sıfırla” alt şeritte sabit.
+- Aktif filtre chip’leri: yumuşak arkaplan (örn. #EEF2FF, #E0F2FE), metin kontrastlı; hover’da X belirgin.
+
+8) i18n (TR/PL/UA) — ek anahtarlar
+- filters.title: "Arama ve Filtreler"
+- filters.search.placeholder: "Ürün adı veya özellik ara…"
+- filters.attributes: "Ürün Özellikleri"
+- filters.price.sell: "Satış Fiyatı"
+- filters.price.buy: "Alış Fiyatı"
+- filters.min: "Min"
+- filters.max: "Max"
+- filters.status: "Durum"
+- filters.status.all: "Tümü"
+- filters.status.active: "Aktif"
+- filters.status.passive: "Pasif"
+- filters.apply: "Uygula"
+- filters.reset: "Sıfırla"
+- filters.active.title: "Aktif Filtreler"
+- chip.clearAll: "Tümünü Temizle"
+
+9) KABUL KRİTERLERİ
+- Ürün adı/özellik yazınca 300ms içinde kartlar canlı filtrelenir.
+- Attribute checkbox’ları seçilince sonuçlar anında güncellenir; aynı attribute içindeki seçeneklerde OR, farklı attributelar arasında AND uygulanır.
+- Satış ve Alış için min–max alanları ayrı çalışır; boş bırakılan sınırlar yok sayılır.
+- Tüm uygulanan kriterler üstte chip olarak görünür; tek tek veya hepsi temizlenebilir.
+- Sayfa yenilense bile query’den aynı filtre durumu tekrar yüklenir.
+- Mobilde panel off-canvas açılır, “Uygula” paneli kapatır; filtreler korunur.
