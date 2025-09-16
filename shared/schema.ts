@@ -18,10 +18,14 @@ export const products = pgTable("products", {
   coverImage: text("cover_image"),
   images: text("images").array().default([]),
   attributes: text("attributes").array().default([]),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export type InsertProduct = z.infer<typeof insertProductSchema>;
