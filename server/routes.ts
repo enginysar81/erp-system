@@ -7,6 +7,8 @@ import multer from "multer";
 import XLSX from "xlsx";
 import { parse } from "csv-parse/sync";
 import { stringify } from "csv-stringify/sync";
+import { getUncachableGitHubClient } from "./github-client.js";
+import fs from "fs";
 
 // Configure multer for file uploads
 const upload = multer({ 
@@ -1541,6 +1543,120 @@ export function registerRoutes(app: Express): void {
     } catch (error) {
       console.error('Grid import error:', error);
       res.status(500).json({ message: "Grid içeri aktarma hatası" });
+    }
+  });
+
+  // GitHub backup endpoint
+  app.post("/api/github/backup", async (req, res) => {
+    try {
+      console.log('🔄 GitHub backup started...');
+      
+      const octokit = await getUncachableGitHubClient();
+      const repoName = 'erp-system';
+      
+      // Get user info
+      const { data: user } = await octokit.rest.users.getAuthenticated();
+      console.log(`🔗 Connected to GitHub: ${user.login}`);
+      
+      // Files to sync
+      const filesToSync = [
+        'package.json',
+        'package-lock.json',
+        'server/index.ts',
+        'server/routes.ts',
+        'server/storage.ts',
+        'server/github-client.js',
+        'server/barcodeUtils.ts',
+        'shared/schema.ts',
+        'vite.config.ts',
+        'tsconfig.json',
+        'tailwind.config.ts',
+        'postcss.config.js',
+        'drizzle.config.ts',
+        'components.json',
+        'replit.md',
+        'views/dashboard.ejs',
+        'views/layout.ejs',
+        'views/products.ejs',
+        'views/customers.ejs',
+        'views/warehouses.ejs',
+        'views/stock_movements.ejs',
+        'views/import_export.ejs',
+        'locales/tr.json',
+        'public/css/style.css'
+      ];
+      
+      let syncCount = 0;
+      let errorCount = 0;
+      const errors: string[] = [];
+      
+      for (const filePath of filesToSync) {
+        try {
+          if (fs.existsSync(filePath)) {
+            const content = fs.readFileSync(filePath, 'utf8');
+            
+            // Check if file exists on GitHub
+            let sha = null;
+            try {
+              const { data: existingFile } = await octokit.rest.repos.getContent({
+                owner: user.login,
+                repo: repoName,
+                path: filePath,
+              });
+              sha = (existingFile as any).sha;
+            } catch (e) {
+              // File doesn't exist, will create new
+            }
+            
+            const requestData: any = {
+              owner: user.login,
+              repo: repoName,
+              path: filePath,
+              message: sha ? `Update ${filePath}` : `Add ${filePath}`,
+              content: Buffer.from(content).toString('base64'),
+            };
+            
+            if (sha) {
+              requestData.sha = sha;
+            }
+            
+            await octokit.rest.repos.createOrUpdateFileContents(requestData);
+            console.log(`✅ ${filePath}`);
+            syncCount++;
+            
+          } else {
+            console.log(`⚠️ ${filePath} not found`);
+          }
+        } catch (error: any) {
+          console.log(`❌ ${filePath} - Error: ${error.message}`);
+          errors.push(`${filePath}: ${error.message}`);
+          errorCount++;
+        }
+        
+        // Rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      console.log(`📊 Backup Summary:`);
+      console.log(`✅ Success: ${syncCount} files`);
+      console.log(`❌ Errors: ${errorCount} files`);
+      console.log(`🚀 GitHub Repository: https://github.com/${user.login}/${repoName}`);
+      
+      res.json({
+        success: true,
+        syncCount,
+        errorCount,
+        errors,
+        repository: `https://github.com/${user.login}/${repoName}`,
+        message: 'Backup completed successfully'
+      });
+      
+    } catch (error: any) {
+      console.error('❌ GitHub backup error:', error);
+      res.status(500).json({ 
+        success: false,
+        message: error.message || 'GitHub backup failed' 
+      });
     }
   });
 
