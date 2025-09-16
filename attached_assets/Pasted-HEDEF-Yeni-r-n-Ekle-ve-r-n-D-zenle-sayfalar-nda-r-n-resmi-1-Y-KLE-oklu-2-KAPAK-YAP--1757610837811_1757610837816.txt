@@ -1,0 +1,94 @@
+HEDEF
+“Yeni Ürün Ekle” ve “Ürün Düzenle” sayfalarında ürün resmi:
+1) YÜKLE (çoklu)
+2) KAPAK YAP
+3) SİL (diskten ve kayıttan)
+4) ÖNİZLE (modal/lightbox)
+özellikleri SORUNSUZ çalışsın. Mevcut işlevler ve i18n korunacak.
+
+A) DİZİN ve STATIC SERVİS
+- public/uploads klasörü var mı kontrol et; yoksa oluştur.
+- Sunucu static ayarında public klasörü servis ediliyor mu kontrol et.
+- Görsel URL’leri **/uploads/…** ile başlamalı (başında / zorunlu).
+- EJS’te <img src="<%= product.coverImage %>"> gibi referanslarda yolun / ile başladığını doğrula.
+
+B) YÜKLEME (multer)
+- Multer kurulumunu kontrol et ve şu şekilde yapılandır:
+  • storage: diskStorage (dest: public/uploads)
+  • filename: benzersiz (timestamp + random + orijinal uzantı)
+  • limits: fileSize ≤ 5MB
+  • fileFilter: yalnızca jpg/jpeg/png/webp
+- Formlar için enctype="multipart/form-data" olduğunu doğrula.
+- Yükleme uçları:
+  • POST /products/new  → çoklu upload (field name: images[])
+  • POST /products/edit/:id  → mevcut ürüne yeni görseller ekleyebilsin (append)
+- Yükleme işlemi sonrası:
+  • Kaydedilen her dosyanın public tarafındaki yolu **/uploads/…** formatında images[] dizisine ekle.
+  • coverImage boşsa images[0]’ı kapak yap.
+  • Yanıtta/redirect’te kullanıcıya başarı bildirimi göster.
+
+C) KAPAK YAP
+- Route: POST /products/:id/images/cover
+  • Body: { path: "/uploads/xxx.webp" }
+  • Ürünün images[] içinde bu path var mı doğrula; varsa coverImage = path olarak güncelle.
+  • Başarılıysa 200/redirect; i18n mesajı: “Kapak resmi güncellendi”.
+
+D) SİLME
+- Route: POST /products/:id/images/delete
+  • Body: { path: "/uploads/xxx.webp" }
+  • Ürünün images[] dizisinden çıkar.
+  • fs.unlink ile public/uploads içindeki fiziksel dosyayı sil (dosya yoksa hatayı yut).
+  • Eğer silinen görsel coverImage ise:
+     – images[] boş değilse coverImage = images[0]
+     – boşsa coverImage = null
+  • Başarılıysa 200/redirect; i18n mesajı: “Görsel silindi”.
+
+E) ÖNİZLEME (Modal/Lightbox)
+- Kart ve form sağ panelindeki thumbnail’lere “Önizle” butonu / tıklama ekle:
+  • Fullscreen modal aç; img src olarak seçilen görseli kullan.
+  • ESC, arka plan tıkı, X ile kapanabilsin.
+  • Birden fazla görsel varsa ileri/geri (prev/next) okları olsun.
+  • Mobilde swipe (olmazsa yalnızca oklar yeterli).
+- Teknik:
+  • Modal DOM’u sayfa içinde bir kez bulunsun, açılırken src ve index set edilsin.
+  • Kapandıktan sonra src temizle.
+
+F) DÜZENLEME EKRANI ENTEGRASYONU
+- GET /products/edit/:id çıktısında:
+  • Mevcut images[] thumbnails grid olarak gelsin.
+  • Her kartta: [Kapak Yap] [Önizle] [Sil] butonları.
+  • Kapak olan görselde “Kapak” rozeti.
+- POST /products/edit/:id ile yeni yüklenen görseller eski listeye EKLENSİN (overwrite etme).
+- Doğrulama: 10 görselden fazlasına izin verme (sınırı aştıysa uyar).
+
+G) HATA KONTROLLERİ
+- Multer error handler: boyut/uzantı hatalarında anlamlı i18n mesajları.
+- Dosya adı çakışması olmasın (benzersiz isim).
+- images[] dışında path kabul etme (güvenlik).
+- Kötü yol (../) içeren path’leri reddet (normalize et).
+
+H) i18n ANAHTARLARI (TR/PL/UA)
+- images.upload: “Resim Yükle”
+- images.setCover: “Kapak Yap”
+- images.coverBadge: “Kapak”
+- images.preview: “Önizle”
+- images.delete: “Sil”
+- images.added: “Görsel(ler) yüklendi”
+- images.coverUpdated: “Kapak resmi güncellendi”
+- images.deleted: “Görsel silindi”
+- images.limitExceeded: “En fazla 10 görsel yükleyebilirsiniz”
+- images.typeError: “Yalnızca JPG, PNG, WEBP yükleyebilirsiniz”
+- images.sizeError: “Her görsel en fazla 5MB olmalı”
+
+I) KABUL KRİTERLERİ (MANUEL TEST)
+- Yeni üründe çoklu yükleme çalışır; en az 2 görsel eklenir.
+- Kapak Yap tıklayınca rozet anında güncellenir; kart/kapak önizlemede doğru görünür.
+- Sil tıklayınca görsel grid’den kalkar; dosya diskten silinir; kapak silinirse yedek kapak atanır.
+- Önizleme butonu modalı açar; ESC/arka plan ile kapanır; birden fazla görselde ileri/geri çalışır.
+- Ürün listesi sayfasındaki kartta coverImage her zaman görünür (yoksa placeholder).
+
+J) SIK KARŞILAŞILAN SORUNLAR (HIZLI KONTROL)
+- “Yükleme olmuyor” → form enctype="multipart/form-data" mı? input name="images[]" çoklu mu?
+- “Resim görünmüyor” → path “/uploads/…” ile mi başlıyor? public/uploads’ta dosya var mı?
+- “Silindi ama dosya kaldı” → fs.unlink doğru dizini (public/uploads) hedefliyor mu?
+- “Kapak değişmiyor” → seçilen path images[] içinde mi? JSON kaydı gerçekten güncelleniyor mu?
