@@ -1,0 +1,83 @@
+PROJE ALT YAPISI
+Proje Node.js + Express + EJS ile yapılmaktadır (React kullanılmaz).
+Frontend EJS view dosyaları ve CSS ile yapılır.
+Çoklu dil desteği TR / PL / UA i18n kullanılacaktır.
+
+HEDEF
+1) Sistem menüsünü global olarak gizlenebilir hale getir. Menü default olarak gizli olsun, kullanıcı hamburger butonuna basınca açılsın. Tüm sayfalarda bu davranış geçerli olsun.
+2) Depo stok listesi sayfasında PL ve UA çevirilerini i18n’e ekle.
+
+1) MENÜ DAVRANIŞI (GLOBAL)
+- Layout dosyasında (ör. views/layout.ejs) menü paneli default olarak collapsed (gizli) olacak.
+- Sayfanın sol üst köşesinde ☰ (hamburger) butonu olacak.
+- Butona basıldığında menü slide-out panel gibi açılacak.
+- Menü açıkken sağ kısım gri arka plan overlay ile kapanacak, kullanıcı boşluğa tıklayınca kapanacak.
+- Bu davranış tüm sistem sayfaları için geçerli olacak (dashboard, ürünler, stoklar, raporlar).
+- Menü durumunu (açık/kapalı) localStorage’da tut, kullanıcı sayfa değiştirince aynı kalsın.
+
+2) DEPO STOK LİSTESİ (views/stock_by_warehouse.ejs)
+- Barkod bazlı listeleme kalsın (her barkod ayrı satır).
+- Filtre paneli: Depo seçimi + raf seçimi + ürün adı araması.
+- Tablo kolonları: Ürün, Özellikler, Miktar, Barkod, Raf.
+- Satıra tıklayınca modal açılır, barkod detayları görünür.
+- Modalda “Yazdır” ve “Export” butonları olacak.
+- TR çevirilere ek olarak PL ve UA çevirileri de i18n’de tanımlansın.
+
+3) i18n
+TR:
+- stockByWarehouse.title: "Depo Stok Listesi"
+- stockByWarehouse.filter.warehouse: "Depo"
+- stockByWarehouse.filter.shelf: "Raf"
+- stockByWarehouse.filter.product: "Ürün Adı"
+- stockByWarehouse.actions.filter: "Filtrele"
+- stockByWarehouse.actions.reset: "Sıfırla"
+- stockByWarehouse.table.product: "Ürün"
+- stockByWarehouse.table.features: "Özellikler"
+- stockByWarehouse.table.qty: "Miktar"
+- stockByWarehouse.table.barcode: "Barkod"
+- stockByWarehouse.table.shelf: "Raf"
+- stockByWarehouse.modal.details: "Barkod Detayı"
+- stockByWarehouse.modal.print: "Yazdır"
+- stockByWarehouse.modal.export: "Dışa Aktar"
+- stockByWarehouse.noResults: "Kayıt bulunamadı"
+
+PL:
+- stockByWarehouse.title: "Lista magazynowa"
+- stockByWarehouse.filter.warehouse: "Magazyn"
+- stockByWarehouse.filter.shelf: "Regał"
+- stockByWarehouse.filter.product: "Nazwa produktu"
+- stockByWarehouse.actions.filter: "Filtruj"
+- stockByWarehouse.actions.reset: "Resetuj"
+- stockByWarehouse.table.product: "Produkt"
+- stockByWarehouse.table.features: "Cechy"
+- stockByWarehouse.table.qty: "Ilość"
+- stockByWarehouse.table.barcode: "Kod kreskowy"
+- stockByWarehouse.table.shelf: "Regał"
+- stockByWarehouse.modal.details: "Szczegóły kodu kreskowego"
+- stockByWarehouse.modal.print: "Drukuj"
+- stockByWarehouse.modal.export: "Eksportuj"
+- stockByWarehouse.noResults: "Brak wyników"
+
+UA:
+- stockByWarehouse.title: "Складський список"
+- stockByWarehouse.filter.warehouse: "Склад"
+- stockByWarehouse.filter.shelf: "Стелаж"
+- stockByWarehouse.filter.product: "Назва товару"
+- stockByWarehouse.actions.filter: "Фільтрувати"
+- stockByWarehouse.actions.reset: "Скинути"
+- stockByWarehouse.table.product: "Товар"
+- stockByWarehouse.table.features: "Характеристики"
+- stockByWarehouse.table.qty: "Кількість"
+- stockByWarehouse.table.barcode: "Штрихкод"
+- stockByWarehouse.table.shelf: "Стелаж"
+- stockByWarehouse.modal.details: "Деталі штрихкоду"
+- stockByWarehouse.modal.print: "Друк"
+- stockByWarehouse.modal.export: "Експорт"
+- stockByWarehouse.noResults: "Немає результатів"
+
+4) KABUL KRİTERLERİ
+- Menü tüm sayfalarda gizli başlar, hamburger butonuyla açılır/kapanır.
+- Menü açık/kapalı durumu localStorage’da saklanır.
+- Depo stok listesinde barkod bazlı listeleme çalışır.
+- PL ve UA çevirileri doğru görünür.
+- Tüm tasarım responsive ve kullanıcı dostudur.
