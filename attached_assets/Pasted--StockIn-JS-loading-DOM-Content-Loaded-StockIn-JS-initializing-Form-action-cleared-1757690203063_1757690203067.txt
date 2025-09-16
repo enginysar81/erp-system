@@ -1,0 +1,63 @@
+ 🚀 StockIn JS loading...
+ ✅ DOM Content Loaded - StockIn JS initializing
+ 🛡️ Form action cleared and novalidate set
+ 🔍 DOM Elements check: Object
+ Initializing filter system
+uploads/img_1757672616075_bb0718e9348d99be.jpg:1  Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+ 🚀 Form submit event triggered
+ ✅ preventDefault and stopPropagation called
+ 🔍 Starting form validation...
+ 📦 Checking product selection: 241083
+ 🏢 Checking warehouse selection: 1
+ 🏠 Warehouse shelf system check: Object
+entry:1551 🏠 Shelf is required, checking selection...
+entry:1553 📦 Available shelves: Array(6)
+entry:1559 ✅ Shelf selected: A-2
+entry:1569 📏 Validating quantities for unit: metre
+entry:1579 📏 Meter inputs found: 2
+entry:1592 📏 Meter values: Array(2)
+entry:1601 🔍 Validation errors: Array(0)
+entry:1609 ✅ Validation passed!
+entry:1274 ✅ Form validation passed
+entry:1614 🔧 DEBUG: submitStockEntry başladı
+entry:1615 🔒 Disabling submit button
+entry:1620 📝 Building request data...
+entry:1644 📏 Meter data: Array(2)
+entry:1652 📤 Sending AJAX request: Object
+entry:1662 📥 Response received: Object
+entry:1675 ✅ API Success Response: Object
+entry:1683 💾 Saved product info for barcodes: 241083
+entry:1686 🎉 Showing success toast...
+entry:1690 🏷️ Calling showGeneratedBarcodes...
+entry:1724 🏷️ showGeneratedBarcodes called with: Object
+entry:1732 🔍 DOM elements check: Object
+entry:1739 👻 Hiding empty element
+entry:1745 📦 Using product info: 241083
+entry:1752 🔄 Processing 2 barcodes...
+entry:1754 🏷️ Processing barcode 1: 180449
+entry:1762 📋 Template cloned successfully
+entry:1768 ✅ Product name set: 241083
+entry:1778 ✅ Attributes set: Renk: Beyaz | Zemin: Karesanal | İPLİK: 450 DNY MATSEDEF
+entry:1786 ✅ Barcode image URL set: /api/barcode/180449/image
+entry:1795 ✅ Barcode code set: 180449
+entry:1807 ✅ Print handler added
+entry:1815 ✅ Barcode 1 appended to DOM
+entry:1754 🏷️ Processing barcode 2: 987505
+entry:1762 📋 Template cloned successfully
+entry:1768 ✅ Product name set: 241083
+entry:1778 ✅ Attributes set: Renk: Beyaz | Zemin: Karesanal | İPLİK: 450 DNY MATSEDEF
+entry:1786 ✅ Barcode image URL set: /api/barcode/987505/image
+entry:1795 ✅ Barcode code set: 987505
+entry:1807 ✅ Print handler added
+entry:1815 ✅ Barcode 2 appended to DOM
+entry:1824 🎯 All barcodes processed. Generated barcodes count: 2
+entry:1830 🖨️ Print all button visibility: true
+entry:1835 ✅ showGeneratedBarcodes completed successfully
+entry:1692 🏷️ showGeneratedBarcodes completed
+entry:1695 🔄 Resetting form...
+entry:2058 🔄 resetForm: Starting form reset (KEEPING generated barcodes)
+entry:1376 🔄 resetSelectedProduct: Clearing product selection (preserving barcodes)
+entry:1384 ✅ resetSelectedProduct: Product selection cleared (generated barcodes preserved)
+entry:2075 ✅ resetForm: Form reset completed (generated barcodes preserved)
+entry:1697 ✅ submitStockEntry completed successfully
+entry:1717 🔓 Re-enabling submit button
