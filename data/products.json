@@ -1,0 +1,295 @@
+[
+  {
+    "id": "1",
+    "name": "02H",
+    "buyPrice": "3",
+    "sellPrice": "3",
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "currency": "USD",
+    "stock": 25,
+    "unit": "metre",
+    "status": "Aktif",
+    "description": null,
+    "coverImage": "/uploads/img_1757672559798_11635e6aebc3931f.jpg",
+    "images": [
+      "/uploads/img_1757672593441_41b9aab596798607.jpg",
+      "/uploads/img_1757672593951_a70c39d0dc588a54.jpg",
+      "/uploads/img_1757672594288_7ceea90c6dfe1388.jpg",
+      "/uploads/img_1757672594291_c59832a196e8cb11.jpg",
+      "/uploads/img_1757672594456_d32f14b489c3e8af.jpg",
+      "/uploads/img_1757672558598_0397ba1685f3bc2a.jpg",
+      "/uploads/img_1757672559276_ae7dea85ffd651d7.jpg",
+      "/uploads/img_1757672559623_683099873dbfcee6.jpg",
+      "/uploads/img_1757672559788_23af2554b5caec50.jpg",
+      "/uploads/img_1757672559798_11635e6aebc3931f.jpg"
+    ],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Beyaz"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Karesanal"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "450 DNY MATSEDEF"
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "241083",
+    "buyPrice": "3",
+    "sellPrice": "4",
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "currency": "USD",
+    "stock": 174.6,
+    "unit": "metre",
+    "status": "Aktif",
+    "description": null,
+    "coverImage": "/uploads/img_1757672616075_bb0718e9348d99be.jpg",
+    "images": [
+      "/uploads/img_1757672644332_2711a3811c11a4ad.jpg",
+      "/uploads/img_1757672644335_23f9cf287fa6ab26.jpg",
+      "/uploads/img_1757672644498_8d17061103287c0a.jpg",
+      "/uploads/img_1757672644665_c5263fca60a04861.jpg",
+      "/uploads/img_1757672644666_2d73f6bb6711cbf1.jpg",
+      "/uploads/img_1757672615063_0edd4b1aa70221fc.jpg",
+      "/uploads/img_1757672615734_7e18c75a07c0e6bf.jpg",
+      "/uploads/img_1757672616075_bb0718e9348d99be.jpg",
+      "/uploads/img_1757672616084_7d381e243f1b70ef.jpg",
+      "/uploads/img_1757672616242_347cdc725291a0a2.jpg"
+    ],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Beyaz"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Karesanal"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "450 DNY MATSEDEF"
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "name": "DENEME",
+    "buyPrice": "5",
+    "sellPrice": "6",
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "currency": "USD",
+    "stock": 15,
+    "unit": "adet",
+    "status": "Aktif",
+    "description": null,
+    "coverImage": "/uploads/img_1757672700448_ba3360b3852ac266.jpg",
+    "images": [
+      "/uploads/img_1757672703445_d04c0a5dcebeebac.jpg",
+      "/uploads/img_1757672703446_336e70a64b713009.jpg",
+      "/uploads/img_1757672703448_b1d2af7d58b9f0d5.jpg",
+      "/uploads/img_1757672700448_ba3360b3852ac266.jpg",
+      "/uploads/img_1757672700449_6592307c442faf94.jpg",
+      "/uploads/img_1757672700450_c24a7b6fc13dcf00.jpg"
+    ],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Kırmızı"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Dantel"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "600 POLYESTER"
+      }
+    ]
+  },
+  {
+    "id": "0ab8a5eb-4926-42fe-a323-f6316278e818",
+    "name": "NEW IMPORT TEST",
+    "buyPrice": "100",
+    "sellPrice": "150",
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "currency": "USD",
+    "stock": 0,
+    "unit": "adet",
+    "status": "Aktif",
+    "description": "Gerçek import testi",
+    "coverImage": null,
+    "images": [],
+    "attributes": []
+  },
+  {
+    "id": "573e938b-a6b4-41e9-b26d-2637cf6b526b",
+    "name": "SECOND IMPORT",
+    "buyPrice": "200",
+    "sellPrice": "250",
+    "buyCurrency": "PLN",
+    "sellCurrency": "PLN",
+    "currency": "USD",
+    "stock": 0,
+    "unit": "metre",
+    "status": "Aktif",
+    "description": "İkinci import testi",
+    "coverImage": null,
+    "images": [],
+    "attributes": []
+  },
+  {
+    "id": "0382b0e7-8e88-490a-999f-bb50b46694c6",
+    "name": "24244",
+    "buyPrice": "2",
+    "sellPrice": "15",
+    "buyCurrency": "USD",
+    "sellCurrency": "PLN",
+    "currency": "USD",
+    "stock": 0,
+    "unit": "metre",
+    "status": "Aktif",
+    "description": "inport deneme",
+    "coverImage": null,
+    "images": [],
+    "attributes": []
+  },
+  {
+    "id": "938f8749-2a5a-4e74-89b1-8ee9c79e6d70",
+    "name": "YENİ-TEST-ÜRÜN-1",
+    "buyPrice": "5",
+    "sellPrice": "20",
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "currency": "USD",
+    "stock": 0,
+    "unit": "adet",
+    "status": "Aktif",
+    "description": "test ürün",
+    "coverImage": null,
+    "images": [],
+    "attributes": []
+  },
+  {
+    "id": "939",
+    "name": "241086",
+    "description": "",
+    "buyPrice": 2.5,
+    "sellPrice": 15,
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "stock": 0,
+    "unit": "metre",
+    "status": "Aktif",
+    "coverImage": "uploads/img_1758001861353_9d7aa060992198d6.jpg",
+    "images": [
+      "/uploads/img_1758001874167_4f963746262ca98b.jpg",
+      "uploads/img_1758001861353_9d7aa060992198d6.jpg"
+    ],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Krem"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Karesanal"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "MATSEDEF"
+      }
+    ]
+  },
+  {
+    "id": "940",
+    "name": "02H",
+    "description": "",
+    "buyPrice": 45,
+    "sellPrice": 45,
+    "buyCurrency": "USD",
+    "sellCurrency": "USD",
+    "stock": 0,
+    "unit": "metre",
+    "status": "Aktif",
+    "coverImage": "",
+    "images": [],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Krem"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Kadife"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "600 POLYESTER"
+      }
+    ]
+  },
+  {
+    "id": "941",
+    "name": "120200",
+    "description": "",
+    "buyPrice": 3,
+    "sellPrice": 15,
+    "buyCurrency": "USD",
+    "sellCurrency": "PLN",
+    "stock": 0,
+    "unit": "metre",
+    "status": "Aktif",
+    "coverImage": "uploads/img_1758016603424_db931b289896cbae.jpg",
+    "images": [
+      "uploads/img_1758016603424_db931b289896cbae.jpg",
+      "uploads/img_1758016611069_b3d7af515b458f33.jpg",
+      "uploads/img_1758016611765_182c2e530d5f6246.jpg",
+      "uploads/img_1758016612276_8b3161f85bedfff1.jpg",
+      "/uploads/img_1758016623577_6148a76376599d3f.jpg",
+      "/uploads/img_1758016624238_2a9fe0744c1e9cac.jpg",
+      "/uploads/img_1758016624410_101dbdcde51ce4cc.jpg"
+    ],
+    "attributes": [
+      {
+        "attributeId": "3",
+        "name": "Renk",
+        "value": "Beyaz"
+      },
+      {
+        "attributeId": "4",
+        "name": "Zemin",
+        "value": "Karesanal"
+      },
+      {
+        "attributeId": "5",
+        "name": "İPLİK",
+        "value": "MATSEDEF"
+      }
+    ]
+  }
+]
