@@ -1,0 +1,109 @@
+PROJE ALT YAPISI
+Bu proje Node.js + Express + EJS ile yapılmaktadır (React kullanılmaz).
+Frontend EJS view dosyaları ve CSS ile yapılır.
+Tüm sabit metinler TR / PL / UA i18n’den alınır.
+
+HEDEF
+Mevcut `views/stock_movements.ejs` sayfasını profesyonel, modern ve kullanıcı dostu hale getir. 
+Aşağıdaki özellikleri ve tasarımı uygula:
+
+1) FİLTRE PANELİ
+- Sayfanın üst kısmına gri arka planlı, beyaz kart görünümünde bir filtre paneli ekle.
+- İçerik:
+   • Tarih aralığı seçici (date range picker, ikonlu input)
+   • Barkod no arama input (ikonlu, kullanıcı barkod numarasını yazınca ENTER ile ilgili hareketi bulmalı)
+   • Ürün adı autocomplete (özelliklerle birlikte listelensin)
+   • Depo dropdown
+   • [Filtrele] → mavi filled buton
+   • [Sıfırla] → gri outline buton
+- Aktif filtreler chip olarak üstte görünsün (örn: “Barkod: 123456 ✕”).
+
+2) TABLO TASARIMI
+- Kart görünümünde, hover efektli, modern dashboard tarzı.
+- Sütunlar:
+   • Tarih (gg.aa.yyyy ss:dd)
+   • Ürün adı + özellikler (chip badge)
+   • Depo / Raf (gri rozet)
+   • Tür (daima “Giriş”, yeşil rozet)
+   • Miktar + birim (adet = mavi badge, metre = mor badge)
+   • Barkod(lar): ilk barkod + “(+N)”. Klik → modalda tüm barkodları aç
+   • Not (kısaltılmış, hover’da tam göster)
+   • İşlemler:
+       – ✏ Düzenle (modal açar)
+       – 🖨 Yazdır (mevcut barkodları yazdırır)
+       – ♻ Yeniden Yazdır (düzenlenmiş bilgilerle yeniden yazdırır, barkod no sabit)
+       – 🗑 Sil (confirm modal)
+
+3) DÜZENLEME MODALI
+- Başlık: “Stok Hareketini Düzenle”
+- Readonly: Ürün ID, Depo, Raf
+- Düzenlenebilir alanlar:
+   • Ürün adı (autocomplete)
+   • Özellikler (dropdown/metin)
+   • Not
+   • Barkod satırları (tablo şeklinde):
+       – Barkod no (readonly, sabit)
+       – Miktar/metre (düzenlenebilir input)
+       – Özellik (düzenlenebilir)
+       – [Sil] butonu (tek barkodu siler)
+- Kaydet sonrası:
+   • Barkod numaraları sabit kalır
+   • Sadece içerik güncellenir
+   • Toast: “Stok hareketi güncellendi, barkodlar değişmedi”
+   • Kullanıcıya “Barkodları yeniden yazdırmak ister misiniz?” sorusu çıkar
+
+4) SİLME MANTIĞI
+- Tek barkod varsa → silindiğinde tüm hareket kaldırılır
+- Birden fazla barkod varsa → tek barkod silinebilir
+- Son barkod silinirse → hareket kaydı tamamen kaldırılır
+- Toast mesajları:
+   • “Barkod başarıyla silindi”
+   • “Stok girişi tamamen silindi”
+
+5) YENİDEN YAZDIRMA
+- Düzenleme sonrası kullanıcı barkod numarası aynı kalan ama güncel bilgilerle etiket yazdırabilsin
+- Liste ekranında her satırda ♻ “Yeniden Yazdır” butonu olsun
+- Barkod modalında [Tek Yazdır] ve [Tümünü Yazdır] seçenekleri
+- Çıktı A4 grid (5x3) düzeninde olmalı
+
+6) TASARIM DETAYLARI
+- Tema: açık gri (#F5F7FB), kartlar beyaz (#FFF), gölgeli, radius 14px
+- Hover: tablo satırı #F9FAFB
+- Tipografi: başlık 18px semibold, tablo 14px
+- Responsive ve mobil uyumlu (filtre paneli accordion)
+
+7) EKSTRA
+- Tablo üstünde toplam kayıt sayısı: “Toplam: X hareket”
+- Export CSV / PDF butonları sağ üstte sabit
+- Toplu seçme için checkbox desteği (toplu silme, toplu yazdırma)
+- Confirm modal: “Bu stok hareketini silmek istediğinizden emin misiniz?”
+
+8) i18n (TR/PL/UA)
+- stockMovements.title: "Stok Hareketleri"
+- stockMovements.filters: "Filtreler"
+- stockMovements.filter.date: "Tarih Aralığı"
+- stockMovements.filter.barcode: "Barkod No"
+- stockMovements.filter.product: "Ürün Adı"
+- stockMovements.filter.warehouse: "Depo"
+- stockMovements.actions.edit: "Düzenle"
+- stockMovements.actions.print: "Yazdır"
+- stockMovements.actions.reprint: "Yeniden Yazdır"
+- stockMovements.actions.delete: "Sil"
+- stockMovements.total: "Toplam: {X} hareket"
+- stockMovements.noResults: "Kayıt bulunamadı"
+- stockMovements.successUpdate: "Stok hareketi güncellendi, barkodlar değişmedi"
+- stockMovements.reprintAsk: "Stok hareketi güncellendi. Barkodları yeniden yazdırmak ister misiniz?"
+- stockMovements.reprintSuccess: "Barkodlar güncel bilgilerle yeniden yazdırıldı"
+- stockMovements.successDelete: "Barkod başarıyla silindi"
+- stockMovements.successDeleteGroup: "Stok girişi tamamen silindi"
+- stockMovements.confirmDelete: "Bu stok hareketini silmek istediğinizden emin misiniz?"
+
+9) KABUL KRİTERLERİ
+- Liste profesyonel dashboard görünümünde
+- Barkod input ile kullanıcı barkod numarasını yazarak hareketi bulabilir
+- Tarih aralığı filtresi çalışır
+- Düzenleme modalında barkod sabit kalır, sadece içerik güncellenir
+- Düzenleme sonrası kullanıcıya yeniden yazdırma seçeneği sunulur
+- Tek barkod silinirse hareket kalkar, son barkod silinirse tüm giriş kalkar
+- Yazdırma tekli ve toplu çalışır
+- Sayfa responsive ve mobil uyumludur
