@@ -26,6 +26,15 @@
                 <a href="/warehouses" class="quick-action-btn" data-tooltip="<%= __('menu.warehouses') %>">
                     <i class="fas fa-warehouse"></i>
                 </a>
+                <button 
+                    id="github-backup-btn" 
+                    class="quick-action-btn github-backup" 
+                    data-tooltip="GitHub'a Yedekle"
+                    onclick="backupToGitHub()"
+                    data-testid="button-github-backup"
+                >
+                    <i class="fab fa-github"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -517,6 +526,97 @@ document.addEventListener('DOMContentLoaded', function() {
         // This could toggle between line/bar chart types
         console.log('Toggle chart type for:', chartId);
     };
+
+    // GitHub backup function
+    window.backupToGitHub = async function() {
+        const btn = document.getElementById('github-backup-btn');
+        const originalHTML = btn.innerHTML;
+        const originalTooltip = btn.getAttribute('data-tooltip');
+        
+        try {
+            // Show loading state
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            btn.setAttribute('data-tooltip', 'GitHub\'a yedekleniyor...');
+            btn.disabled = true;
+            
+            // Call backup API
+            const response = await fetch('/api/github/backup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Success state
+                btn.innerHTML = '<i class="fas fa-check"></i>';
+                btn.setAttribute('data-tooltip', `Başarılı! ${data.syncCount} dosya yedeklendi`);
+                btn.classList.add('success');
+                
+                // Show success notification
+                showNotification('✅ GitHub Yedekleme Tamamlandı!', `${data.syncCount} dosya başarıyla yedeklendi.`, 'success');
+                
+                // Reset after 3 seconds
+                setTimeout(() => {
+                    btn.innerHTML = originalHTML;
+                    btn.setAttribute('data-tooltip', originalTooltip);
+                    btn.classList.remove('success');
+                    btn.disabled = false;
+                }, 3000);
+                
+            } else {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Yedekleme başarısız');
+            }
+            
+        } catch (error) {
+            console.error('GitHub backup error:', error);
+            
+            // Error state
+            btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+            btn.setAttribute('data-tooltip', 'Yedekleme başarısız!');
+            btn.classList.add('error');
+            
+            // Show error notification
+            showNotification('❌ GitHub Yedekleme Hatası', error.message, 'error');
+            
+            // Reset after 3 seconds
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.setAttribute('data-tooltip', originalTooltip);
+                btn.classList.remove('error');
+                btn.disabled = false;
+            }, 3000);
+        }
+    };
+    
+    // Simple notification function
+    window.showNotification = function(title, message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+            <div class="notification-content">
+                <strong>${title}</strong>
+                <p>${message}</p>
+            </div>
+            <button class="notification-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    };
 });
 </script>
 
@@ -979,6 +1079,104 @@ document.addEventListener('DOMContentLoaded', function() {
 
 .tooltip.show {
     opacity: 1;
+}
+
+/* GitHub Backup Button Styles */
+.github-backup {
+    position: relative;
+    overflow: hidden;
+}
+
+.github-backup:hover {
+    background: #333 !important;
+    color: white !important;
+}
+
+.github-backup.success {
+    background: #10b981 !important;
+    color: white !important;
+}
+
+.github-backup.error {
+    background: #ef4444 !important;
+    color: white !important;
+}
+
+.github-backup:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    min-width: 320px;
+    max-width: 450px;
+    padding: 16px;
+    z-index: 1000;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left: 4px solid #10b981;
+}
+
+.notification.error {
+    border-left: 4px solid #ef4444;
+}
+
+.notification.info {
+    border-left: 4px solid #3b82f6;
+}
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-content strong {
+    display: block;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.notification-content p {
+    color: #6b7280;
+    font-size: 13px;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: color 0.2s ease;
+}
+
+.notification-close:hover {
+    color: #6b7280;
+    background: #f3f4f6;
 }
 
 /* Responsive Design */
