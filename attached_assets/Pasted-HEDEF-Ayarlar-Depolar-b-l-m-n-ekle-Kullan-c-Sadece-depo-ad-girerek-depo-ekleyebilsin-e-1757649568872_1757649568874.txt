@@ -1,0 +1,109 @@
+HEDEF
+“Ayarlar / Depolar” bölümünü ekle. Kullanıcı:
+• Sadece depo adı girerek depo ekleyebilsin (en basit senaryo).
+• “Raf sistemi var mı?” sorusuna EVET derse, depo eklendikten sonra aynı ekranda o depoya RAFLAR tanımlayabilsin.
+• Raflar depo altında ayrı bir bölümde yönetilsin (liste/accordion), sayfa kalabalık olmasın.
+• TR/PL/UA i18n ve temel doğrulamalar olsun.
+
+1) VERİ ŞEMASI
+- data/warehouses.json dosyası oluştur:
+[
+  {
+    "id": "wh_001",
+    "name": "Merkez Depo",
+    "hasShelves": true,
+    "shelves": [
+      { "id": "s_001", "name": "A Blok" },
+      { "id": "s_002", "name": "B Blok" }
+    ],
+    "status": "Aktif"
+  }
+]
+Notlar:
+- name: zorunlu (trimlenmiş, min 2 karakter)
+- hasShelves: boolean
+- shelves: benzersiz id/name; aynı deponun içinde raf adı tekrar etmesin (case-insensitive).
+- status: "Aktif" | "Pasif" (ileride kullanmak için)
+
+2) ROUTE’LAR
+- GET  /warehouses                 → depo listesi (yönetim ana sayfası)
+- GET  /warehouses/new             → depo ekleme formu (sade)
+- POST /warehouses/new             → yeni depo kaydı (name, hasShelves)
+- GET  /warehouses/:id             → tek depo sayfası (detay + raf yönetimi)
+- POST /warehouses/:id/shelves/new → rafa ekleme (tek input: shelf name)
+- POST /warehouses/:id/shelves/del → raf silme (body: shelfId)
+- (Opsiyonel) POST /warehouses/:id/toggle → depo Aktif/ Pasif
+- (Opsiyonel) POST /warehouses/:id/rename → depo adını güncelle
+
+3) EKRANLAR (EJS)
+A) Depo Listesi (views/warehouses.ejs)
+  • Üst: Başlık + “Yeni Depo Ekle” butonu.
+  • Arama kutusu (debounce) — ada göre filtre.
+  • Liste: kart ya da tablo:
+     – Depo Adı
+     – Raf Sayısı (hasShelves=false ise 0)
+     – Durum (Aktif/Pasif rozet)
+     – İşlemler: [Aç/Yönet] (→ /warehouses/:id), (opsiyonel) [Pasif Et/Aktif Et]
+  • Çok depo varsa sayfalama ya da sanal kaydırma gerekmez; lazy render yeter.
+
+B) Yeni Depo Ekle (views/warehouse_form.ejs)
+  • Alanlar:
+     – Depo Adı * (text)
+     – Raf sistemi var mı? (switch/checkbox: hasShelves)
+  • Kaydet → başarıyla /warehouses/:id sayfasına yönlendir (eğer hasShelves=true ise kullanıcı raf eklemeye devam edebilsin; değilse /warehouses’a dönebilir).
+  • “Depo Adı gerekli” doğrulaması; aynı isimde depo varsa (case-insensitive) reddet.
+
+C) Tek Depo Sayfası – Raf Yönetimi (views/warehouse_detail.ejs)
+  • Üst başlıkta depo adı + durum rozeti + (opsiyonel) [Aktif/Pasif] butonu.
+  • “Raf Sistemi” bölümü:
+     – Eğer hasShelves=false ise bilgi notu: “Bu depoda raf sistemi yok.” + “Raf sistemi ekle” butonu (tıklayınca hasShelves=true yap ve boş raf listesi oluştur).
+     – hasShelves=true ise:
+         ▸ “Yeni Raf Ekle” küçük formu (tek input: raf adı)
+         ▸ Raf listesi accordion (her raf bir satır):
+             · Raf Adı
+             · (opsiyonel) “Rafa git” linki (stok hareketlerini sonra bağlarız)
+             · [Sil] butonu
+         ▸ Çok raf olduğunda arama kutusu (raf adına göre client-side filtre).
+  • Navigasyon: “Depolara Dön” butonu.
+
+4) DAVRANIŞ & UX
+- Depo adı benzersiz olmalı (normalize → trim + case-insensitive). Benzersiz değilse form üstünde uyarı bandı.
+- Raf adı benzersiz olmalı (sadece aynı depo içinde). Aynı depo altında aynı raf adı eklenmesin.
+- Raf sayısı arttıkça liste accordion/çöker; ilk 10’u göster, geri kalan “Daha Fazla Göster” ile açılsın (performans).
+- Silme işlemleri için onay modali göster (“Bu rafı silmek istiyor musunuz?”).
+- Başarılı işlemlerde toast bildirimi (eklendi/silindi/güncellendi).
+
+5) GELECEKTE STOK GİRİŞİ İÇİN HAZIRLIK
+- Stok giriş/çıkış formlarında seçiciler şu sırayla çalışacak:
+  • Depo seç (warehouse)
+  • (Eğer hasShelves=true) Raf seç (shelf) – zorunlu
+  • hasShelves=false ise raf seçimi gizli.
+- /api tarafında depoId + (opsiyonel) shelfId birlikte taşınacak şekilde tasarla.
+
+6) i18n (TR/PL/UA) – yeni anahtarlar
+- warehouses.title: "Depolar"
+- warehouses.new: "Yeni Depo Ekle"
+- warehouses.name: "Depo Adı"
+- warehouses.hasShelves: "Raf sistemi var"
+- warehouses.shelfTitle: "Raflar"
+- warehouses.addShelf: "Yeni Raf Ekle"
+- warehouses.shelfName: "Raf Adı"
+- warehouses.noShelves: "Bu depoda raf sistemi yok."
+- warehouses.enableShelves: "Raf sistemini etkinleştir"
+- warehouses.open: "Aç / Yönet"
+- warehouses.status.active: "Aktif"
+- warehouses.status.passive: "Pasif"
+- warehouses.deleteShelf: "Rafı Sil"
+- warehouses.confirmDeleteShelf: "Bu rafı silmek istiyor musunuz?"
+- validation.warehouseNameRequired: "Depo adı zorunludur."
+- validation.warehouseDuplicate: "Bu adla bir depo zaten mevcut."
+- validation.shelfNameRequired: "Raf adı zorunludur."
+- validation.shelfDuplicate: "Bu depoda aynı adla raf zaten var."
+
+7) KABUL KRİTERLERİ
+- Sadece “Depo Adı” ile depo eklenebilir.
+- “Raf sistemi var mı?” EVET seçilirse detay sayfasında raf ekleme bileşeni görünür.
+- Aynı depo adıyla ikinci bir depo eklenemez (case-insensitive).
+- Aynı depo altında aynı raf adı iki kez eklenemez.
+- Depo listesinde her depo için raf sayısı doğru görünür.
+- Çok sayıda raf olduğunda sayfa kalabalık olmaz; accordion + arama ile yönetilir.
