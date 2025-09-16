@@ -1,0 +1,80 @@
+PROJE ALT YAPISI
+Proje Node.js + Express + EJS ile yapılmaktadır (React kullanılmaz).
+Frontend EJS view dosyaları ve CSS ile yapılır.
+Çoklu dil desteği TR / PL / UA i18n kullanılacaktır.
+
+HEDEF
+Depo bazlı stok listesi sayfasını oluştur. 
+Ürünleri barkod bazında listele, her barkod ayrı satırda görünsün. 
+Depo seçimi, raf seçimi, ürün adı araması yapılabilsin. 
+Satıra tıklanınca barkod detayları modalda açılsın. 
+Tasarım modern ve profesyonel dashboard tarzında olsun.
+
+1) FİLTRE PANELİ
+- Depo dropdown
+- Raf dropdown:
+   • Eğer seçilen depo rafsız → “Bu depoda raf sistemi yok” disabled
+   • Eğer depo raflı → ilk seçenek “Tüm raflar”, altında tüm rafların listesi (A1, A2, B1…)
+- Ürün adı arama input (debounce 300ms)
+- [Filtrele] (primary) ve [Sıfırla] (outline) butonları
+- Aktif filtreler chip olarak gösterilsin (örn. “Depo: Ana Depo ✕”, “Raf: A1 ✕”)
+
+2) TABLO KOLONLARI
+Her satır tek barkodu temsil edecek:
+- Ürün adı (örn. A Deseni)
+- Özellikler (chip rozet: Renk, İplik, Zemin vb.)
+- Miktar + birim (örn. 20 m veya 5 adet; metre = mor badge, adet = mavi badge)
+- Barkod no (örn. 123456)
+- Raf bilgisi (örn. A1, yoksa “-”)
+
+3) DETAY MODALI
+Satıra tıklanınca modal açılır:
+- Barkod no (readonly)
+- Ürün adı
+- Özellikler (chip rozetler)
+- Miktar + birim
+- Raf bilgisi
+- Kayıt / düzenleme tarihi
+- Butonlar:
+   • 🖨 Yazdır (sadece bu barkodu etiket olarak yazdır)
+   • 📤 Export CSV/PDF (opsiyonel)
+- Modal modern, kart görünümlü, responsive olmalı
+
+4) DAVRANIŞ
+- Depo seçildiğinde → sadece o depodaki barkodlar listelensin
+- Raf seçildiyse → sadece o raftaki barkodlar gelsin
+- Ürün adı araması → sadece ilgili ürünün barkodları listelensin
+- Toplam miktar verilmez, her barkod ayrı satırda görünür
+- Barkod no sabit kalır; etiket verisi güncel bilgilerle yazdırılabilir
+
+5) TASARIM DETAYLARI
+- Tema: gri arka plan (#F5F7FB), beyaz kartlar (#FFF), radius 14px, gölge
+- Hover: tablo satırı #F9FAFB
+- Başlık: 18px semibold
+- Responsive: mobilde filtre accordion, tablo kaydırılabilir
+
+6) i18n (TR/PL/UA)
+- stockByWarehouse.title: "Depo Stok Listesi"
+- stockByWarehouse.filters: "Filtreler"
+- stockByWarehouse.filter.warehouse: "Depo"
+- stockByWarehouse.filter.shelf: "Raf"
+- stockByWarehouse.filter.product: "Ürün Adı"
+- stockByWarehouse.actions.filter: "Filtrele"
+- stockByWarehouse.actions.reset: "Sıfırla"
+- stockByWarehouse.table.product: "Ürün"
+- stockByWarehouse.table.features: "Özellikler"
+- stockByWarehouse.table.qty: "Miktar"
+- stockByWarehouse.table.barcode: "Barkod"
+- stockByWarehouse.table.shelf: "Raf"
+- stockByWarehouse.modal.details: "Barkod Detayı"
+- stockByWarehouse.modal.print: "Yazdır"
+- stockByWarehouse.modal.export: "Dışa Aktar"
+- stockByWarehouse.noResults: "Kayıt bulunamadı"
+
+7) KABUL KRİTERLERİ
+- Liste barkod bazlıdır, her barkod ayrı satır olarak görünür
+- Depo + raf + ürün adı filtreleri çalışır
+- Satıra tıklanınca detay modalı açılır
+- Modalda yazdırma ve export yapılabilir
+- Barkod sabit kalır, etiket bilgisi güncel yazdırılabilir
+- Tasarım modern, responsive ve kullanıcı dostudur
