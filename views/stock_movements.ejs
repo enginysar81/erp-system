@@ -1,0 +1,2305 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('stockMovements.title') %></h1>
+            <p class="text-muted mb-0"><%= __('stockMovements.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <button type="button" id="exportCsvBtn" class="btn btn-outline btn-sm" data-testid="button-export-csv">
+                <i class="fas fa-file-csv"></i>
+                <%= __('stockMovements.export.csv') %>
+            </button>
+            <button type="button" id="exportPdfBtn" class="btn btn-outline btn-sm" data-testid="button-export-pdf">
+                <i class="fas fa-file-pdf"></i>
+                <%= __('stockMovements.export.pdf') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body with Modern Layout -->
+<div class="content-body-modern">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'updated') { %>
+            <div class="alert alert-success modern-alert">
+                <i class="fas fa-check-circle"></i>
+                <%= __('stockMovements.successUpdate') %>
+            </div>
+        <% } else if (query.success === 'deleted') { %>
+            <div class="alert alert-success modern-alert">
+                <i class="fas fa-check-circle"></i>
+                <%= __('stockMovements.successDelete') %>
+            </div>
+        <% } else if (query.success === 'deletedGroup') { %>
+            <div class="alert alert-success modern-alert">
+                <i class="fas fa-check-circle"></i>
+                <%= __('stockMovements.successDeleteGroup') %>
+            </div>
+        <% } else if (query.success === 'reprinted') { %>
+            <div class="alert alert-success modern-alert">
+                <i class="fas fa-print"></i>
+                <%= __('stockMovements.reprintSuccess') %>
+            </div>
+        <% } else if (query.error) { %>
+            <div class="alert alert-error modern-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('stockMovements.error.' + query.error) || query.error %>
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Active Filters Chips -->
+    <div id="activeFilters" class="active-filters-modern" style="display: none;">
+        <div class="filter-chips-modern" id="filterChips">
+            <!-- Dynamic filter chips will be added here -->
+        </div>
+    </div>
+
+    <!-- Modern Filter Panel -->
+    <div class="modern-filter-panel">
+        <div class="filter-card">
+            <div class="filter-header-modern">
+                <h3 class="filter-title">
+                    <i class="fas fa-filter"></i>
+                    <%= __('stockMovements.filters') %>
+                </h3>
+                <button type="button" class="filter-toggle" id="filterToggle">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            <div class="filter-content" id="filterContent">
+                <form id="filterForm" class="modern-filter-form">
+                    <div class="filter-grid-modern">
+                        <!-- Date Range Filter -->
+                        <div class="filter-group-modern">
+                            <label class="filter-label-modern">
+                                <i class="fas fa-calendar-alt"></i>
+                                <%= __('stockMovements.filter.date') %>
+                            </label>
+                            <div class="date-range-modern">
+                                <input 
+                                    type="date" 
+                                    id="filterDateFrom"
+                                    name="dateFrom"
+                                    class="modern-input"
+                                    data-testid="input-date-from">
+                                <span class="date-separator-modern">-</span>
+                                <input 
+                                    type="date" 
+                                    id="filterDateTo"
+                                    name="dateTo"
+                                    class="modern-input"
+                                    data-testid="input-date-to">
+                            </div>
+                        </div>
+
+                        <!-- Barcode Search Filter -->
+                        <div class="filter-group-modern">
+                            <label class="filter-label-modern" for="filterBarcode">
+                                <i class="fas fa-barcode"></i>
+                                <%= __('stockMovements.filter.barcode') %>
+                            </label>
+                            <div class="barcode-input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="filterBarcode"
+                                    name="barcode"
+                                    class="modern-input barcode-search"
+                                    placeholder="<%= __('stockMovements.filter.placeholder.barcode') %>"
+                                    data-testid="input-filter-barcode">
+                                <div class="input-hint">
+                                    <i class="fas fa-info-circle"></i>
+                                    <%= __('stockMovements.filter.hint.enterKey') %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Product Autocomplete Filter -->
+                        <div class="filter-group-modern">
+                            <label class="filter-label-modern" for="filterProduct">
+                                <i class="fas fa-box"></i>
+                                <%= __('stockMovements.filter.product') %>
+                            </label>
+                            <div class="autocomplete-wrapper-modern">
+                                <input 
+                                    type="text" 
+                                    id="filterProduct"
+                                    name="product"
+                                    class="modern-input"
+                                    placeholder="<%= __('stockMovements.filter.placeholder.product') %>"
+                                    data-testid="input-filter-product"
+                                    autocomplete="off">
+                                <div id="productFilterDropdown" class="autocomplete-dropdown-modern"></div>
+                            </div>
+                        </div>
+
+                        <!-- Warehouse Filter -->
+                        <div class="filter-group-modern">
+                            <label class="filter-label-modern" for="filterWarehouse">
+                                <i class="fas fa-warehouse"></i>
+                                <%= __('stockMovements.filter.warehouse') %>
+                            </label>
+                            <select 
+                                id="filterWarehouse"
+                                name="warehouse"
+                                class="modern-select"
+                                data-testid="select-filter-warehouse">
+                                <option value=""><%= __('stockMovements.filter.placeholder.warehouse') %></option>
+                                <% warehouses.forEach(warehouse => { %>
+                                    <option value="<%= warehouse.id %>"><%= warehouse.name %></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Filter Actions -->
+                    <div class="filter-actions-modern">
+                        <button type="submit" class="btn-primary-modern" data-testid="button-apply-filter">
+                            <i class="fas fa-search"></i>
+                            <%= __('stockMovements.actions.filter') %>
+                        </button>
+                        <button type="button" id="resetFiltersBtn" class="btn-outline-modern" data-testid="button-reset-filter">
+                            <i class="fas fa-times"></i>
+                            <%= __('stockMovements.actions.reset') %>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modern Movements Table Container -->
+    <div class="modern-table-container">
+        <!-- Table Header with Total Count and Bulk Actions -->
+        <div class="table-header-modern">
+            <div class="table-info">
+                <span class="total-count-modern" id="totalCount">
+                    <i class="fas fa-boxes"></i>
+                    <%= __('stockMovements.total', { count: stockMovements.length }) %>
+                </span>
+                <div class="bulk-actions" id="bulkActions" style="display: none;">
+                    <button class="bulk-action-btn" id="bulkDeleteBtn">
+                        <i class="fas fa-trash"></i>
+                        <%= __('stockMovements.actions.deleteSelected') %>
+                    </button>
+                    <button class="bulk-action-btn" id="bulkPrintBtn">
+                        <i class="fas fa-print"></i>
+                        <%= __('stockMovements.actions.printSelected') %>
+                    </button>
+                </div>
+            </div>
+            <div class="table-controls">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="selectAllCheckbox">
+                    <span class="checkmark"></span>
+                    <span class="checkbox-label"><%= __('stockMovements.actions.selectAll') %></span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Modern Responsive Table -->
+        <div class="modern-table-wrapper">
+            <% if (stockMovements.length === 0) { %>
+                <div class="empty-state-modern">
+                    <div class="empty-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <h3><%= __('stockMovements.noResults') %></h3>
+                    <p><%= __('stockMovements.empty.noMatching') %></p>
+                </div>
+            <% } else { %>
+                <div class="modern-table-grid">
+                    <% stockMovements.forEach(movement => { %>
+                        <div class="movement-card" data-id="<%= movement.id %>" data-testid="movement-card">
+                            <!-- Card Header -->
+                            <div class="card-header">
+                                <div class="card-header-left">
+                                    <label class="checkbox-container">
+                                        <input type="checkbox" class="movement-checkbox" data-id="<%= movement.id %>">
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    <div class="movement-date">
+                                        <i class="fas fa-calendar-alt"></i>
+                                        <%= new Date(movement.date).toLocaleDateString(locale === 'tr' ? 'tr-TR' : locale === 'pl' ? 'pl-PL' : 'uk-UA', {
+                                            day: '2-digit',
+                                            month: '2-digit', 
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                        }) %>
+                                    </div>
+                                </div>
+                                <div class="card-header-right">
+                                    <span class="type-badge entry-badge">
+                                        <i class="fas fa-arrow-up"></i>
+                                        <%= __('stockMovements.type.entry') %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Card Body -->
+                            <div class="card-body">
+                                <!-- Product Info -->
+                                <div class="product-section">
+                                    <h4 class="product-name">
+                                        <i class="fas fa-box"></i>
+                                        <%= movement.productName || __('stockMovements.fallback.product', {id: movement.productId}) %>
+                                    </h4>
+                                    <% if (movement.productAttributes && movement.productAttributes.length > 0) { %>
+                                        <div class="product-attributes">
+                                            <% movement.productAttributes.forEach(attr => { %>
+                                                <span class="attribute-chip">
+                                                    <%= attr.name %>: <%= attr.value %>
+                                                </span>
+                                            <% }); %>
+                                        </div>
+                                    <% } %>
+                                </div>
+
+                                <!-- Location and Quantity Info -->
+                                <div class="card-info-grid">
+                                    <div class="info-item">
+                                        <div class="info-label">
+                                            <i class="fas fa-warehouse"></i>
+                                            <%= __('stockMovements.labels.location') %>
+                                        </div>
+                                        <div class="info-value">
+                                            <span class="warehouse-badge">
+                                                <%= movement.warehouseName || __('stockMovements.fallback.warehouse', {id: movement.warehouseId}) %>
+                                            </span>
+                                            <% if (movement.shelfId) { %>
+                                                <span class="shelf-badge">
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                    <%= movement.shelfId %>
+                                                </span>
+                                            <% } %>
+                                        </div>
+                                    </div>
+
+                                    <div class="info-item">
+                                        <div class="info-label">
+                                            <i class="fas fa-calculator"></i>
+                                            <%= __('stockMovements.labels.quantity') %>
+                                        </div>
+                                        <div class="info-value">
+                                            <span class="quantity-badge quantity-<%= movement.unit %>">
+                                                <%= movement.quantity %> 
+                                                <%= __('stockMovements.unit.' + (movement.unit === 'adet' ? 'pieces' : 'meters')) %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Barcodes Section -->
+                                <div class="barcodes-section">
+                                    <div class="info-label">
+                                        <i class="fas fa-barcode"></i>
+                                        <%= __('stockMovements.labels.barcodes') %>
+                                    </div>
+                                    <% if (movement.barcodes && movement.barcodes.length > 0) { %>
+                                        <button type="button" class="barcode-display-btn" 
+                                                data-movement-id="<%= movement.id %>"
+                                                data-barcodes="<%= JSON.stringify(movement.barcodes).replace(/"/g, '&quot;') %>"
+                                                data-testid="button-view-barcodes">
+                                            <span class="barcode-main"><%= movement.barcodes[0] %></span>
+                                            <% if (movement.barcodes.length > 1) { %>
+                                                <span class="barcode-count"><%= __('stockMovements.labels.moreCount', {count: movement.barcodes.length - 1}) %></span>
+                                            <% } %>
+                                            <i class="fas fa-external-link-alt"></i>
+                                        </button>
+                                    <% } else { %>
+                                        <span class="no-barcode"><%= __('stockMovements.labels.noBarcodes') %></span>
+                                    <% } %>
+                                </div>
+
+                                <!-- Note Section -->
+                                <% if (movement.note) { %>
+                                    <div class="note-section">
+                                        <div class="info-label">
+                                            <i class="fas fa-sticky-note"></i>
+                                            <%= __('stockMovements.labels.note') %>
+                                        </div>
+                                        <div class="note-content" title="<%= movement.note %>">
+                                            <%= movement.note.length > 80 ? movement.note.substring(0, 80) + '...' : movement.note %>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <!-- Card Actions -->
+                            <div class="card-actions">
+                                <button type="button" class="action-btn edit-btn" 
+                                        data-movement-id="<%= movement.id %>"
+                                        data-testid="button-edit-movement"
+                                        title="<%= __('stockMovements.actions.edit') %>">
+                                    <i class="fas fa-edit"></i>
+                                    <span><%= __('stockMovements.actions.edit') %></span>
+                                </button>
+                                <button type="button" class="action-btn print-btn" 
+                                        data-movement-id="<%= movement.id %>"
+                                        data-testid="button-print-movement"
+                                        title="<%= __('stockMovements.actions.print') %>">
+                                    <i class="fas fa-print"></i>
+                                    <span><%= __('stockMovements.actions.print') %></span>
+                                </button>
+                                <button type="button" class="action-btn reprint-btn" 
+                                        data-movement-id="<%= movement.id %>"
+                                        data-testid="button-reprint-movement"
+                                        title="<%= __('stockMovements.actions.reprint') %>">
+                                    <i class="fas fa-redo"></i>
+                                    <span><%= __('stockMovements.actions.reprint') %></span>
+                                </button>
+                                <button type="button" class="action-btn delete-btn" 
+                                        data-movement-id="<%= movement.id %>"
+                                        data-testid="button-delete-movement"
+                                        title="<%= __('stockMovements.actions.delete') %>">
+                                    <i class="fas fa-trash"></i>
+                                    <span><%= __('stockMovements.actions.delete') %></span>
+                                </button>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Movement Modal -->
+<div id="editMovementModal" class="modern-modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h4 class="modal-title">
+                <i class="fas fa-edit"></i>
+                <%= __('stockMovements.modal.edit.title') %>
+            </h4>
+            <button type="button" class="modal-close" data-close="modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <form id="editMovementForm" class="modern-form">
+                <input type="hidden" id="editMovementId" name="id">
+                
+                <!-- Product Info (Read-only) -->
+                <div class="form-section">
+                    <h5 class="section-title"><%= __('stockMovements.modal.sections.productInfo') %></h5>
+                    <div class="form-group readonly-group">
+                        <label class="form-label"><%= __('stockMovements.table.product') %></label>
+                        <input type="text" id="editProductName" class="modern-input readonly" readonly>
+                        <small class="form-help"><%= __('stockMovements.modal.edit.readonly') %></small>
+                    </div>
+                </div>
+
+                <!-- Warehouse Info (Read-only) -->
+                <div class="form-section">
+                    <h5 class="section-title"><%= __('stockMovements.modal.sections.locationInfo') %></h5>
+                    <div class="form-grid">
+                        <div class="form-group readonly-group">
+                            <label class="form-label"><%= __('stockMovements.filter.warehouse') %></label>
+                            <input type="text" id="editWarehouse" class="modern-input readonly" readonly>
+                        </div>
+                        <div class="form-group readonly-group">
+                            <label class="form-label"><%= __('stockMovements.labels.shelf') %></label>
+                            <input type="text" id="editShelf" class="modern-input readonly" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Editable Fields -->
+                <div class="form-section">
+                    <h5 class="section-title"><%= __('stockMovements.modal.sections.editableInfo') %></h5>
+                    <div class="form-group">
+                        <label class="form-label" for="editQuantity"><%= __('stockMovements.modal.edit.quantity') %></label>
+                        <div class="quantity-input-group">
+                            <input type="number" id="editQuantity" name="quantity" class="modern-input" min="0.1" step="0.1">
+                            <span class="quantity-unit" id="editQuantityUnit"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="editNote"><%= __('stockMovements.modal.edit.note') %></label>
+                        <textarea id="editNote" name="note" class="modern-textarea" rows="3"></textarea>
+                    </div>
+
+                    <!-- Barcodes Table -->
+                    <div class="form-group">
+                        <label class="form-label"><%= __('stockMovements.labels.barcodes') %></label>
+                        <div class="barcodes-table" id="editBarcodesTable">
+                            <!-- Will be populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline-modern" data-close="modal">
+                <%= __('stockMovements.modal.edit.cancel') %>
+            </button>
+            <button type="button" id="saveMovementBtn" class="btn-primary-modern">
+                <i class="fas fa-save"></i>
+                <%= __('stockMovements.modal.edit.save') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Barcodes Modal -->
+<div id="barcodesModal" class="modern-modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-container modal-lg">
+        <div class="modal-header">
+            <h4 class="modal-title">
+                <i class="fas fa-barcode"></i>
+                <%= __('stockMovements.modal.barcodes.title') %>
+            </h4>
+            <button type="button" class="modal-close" data-close="modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="barcodes-grid-modern" id="barcodesGrid">
+                <!-- Barcodes will be populated here -->
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline-modern" data-close="modal">
+                <%= __('stockMovements.modal.barcodes.close') %>
+            </button>
+            <button type="button" id="printSingleBarcodeBtn" class="btn-secondary-modern">
+                <i class="fas fa-print"></i>
+                <%= __('stockMovements.actions.printSelected') %>
+            </button>
+            <button type="button" id="printAllBarcodesBtn" class="btn-primary-modern">
+                <i class="fas fa-print"></i>
+                <%= __('stockMovements.modal.barcodes.printAll') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteConfirmModal" class="modern-modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h4 class="modal-title">
+                <i class="fas fa-exclamation-triangle text-danger"></i>
+                <%= __('stockMovements.modal.delete.title') %>
+            </h4>
+            <button type="button" class="modal-close" data-close="modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirmation-content">
+                <div class="warning-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <p id="deleteConfirmMessage"><%= __('stockMovements.confirmDelete') %></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline-modern" data-close="modal">
+                <%= __('stockMovements.modal.delete.cancel') %>
+            </button>
+            <button type="button" id="confirmDeleteBtn" class="btn-danger-modern">
+                <i class="fas fa-trash"></i>
+                <%= __('stockMovements.modal.delete.confirm') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reprint Confirmation Modal -->
+<div id="reprintConfirmModal" class="modern-modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-container">
+        <div class="modal-header">
+            <h4 class="modal-title">
+                <i class="fas fa-print"></i>
+                <%= __('stockMovements.modal.reprint.title') %>
+            </h4>
+            <button type="button" class="modal-close" data-close="modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div class="confirmation-content">
+                <div class="info-icon">
+                    <i class="fas fa-print"></i>
+                </div>
+                <p><%= __('stockMovements.reprintAsk') %></p>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-outline-modern" data-close="modal">
+                <%= __('stockMovements.modal.reprint.cancel') %>
+            </button>
+            <button type="button" id="confirmReprintBtn" class="btn-primary-modern">
+                <i class="fas fa-print"></i>
+                <%= __('stockMovements.modal.reprint.confirm') %>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Chip Template -->
+<template id="filterChipTemplate">
+    <span class="filter-chip-modern" data-filter-type="" data-filter-value="">
+        <span class="chip-text"></span>
+        <button type="button" class="chip-remove">
+            <i class="fas fa-times"></i>
+        </button>
+    </span>
+</template>
+
+<style>
+/* Modern Stock Movements Styles */
+.content-body-modern {
+    background: #F5F7FB;
+    min-height: calc(100vh - 120px);
+    padding: 2rem;
+}
+
+/* Modern Alerts */
+.modern-alert {
+    background: white;
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 1rem 1.5rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+}
+
+.modern-alert i {
+    font-size: 1.1rem;
+}
+
+.alert-success {
+    border-left: 4px solid #10B981;
+    color: #065F46;
+}
+
+.alert-error {
+    border-left: 4px solid #EF4444;
+    color: #7F1D1D;
+}
+
+/* Active Filters */
+.active-filters-modern {
+    margin-bottom: 1.5rem;
+}
+
+.filter-chips-modern {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.filter-chip-modern {
+    display: inline-flex;
+    align-items: center;
+    background: #3B82F6;
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    gap: 0.5rem;
+    box-shadow: 0 1px 3px rgba(59, 130, 246, 0.3);
+}
+
+.chip-remove {
+    background: none;
+    border: none;
+    color: white;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    transition: background-color 0.15s ease;
+}
+
+.chip-remove:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Modern Filter Panel */
+.modern-filter-panel {
+    margin-bottom: 2rem;
+}
+
+.filter-card {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.filter-header-modern {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+    background: #FAFBFC;
+}
+
+.filter-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.filter-toggle {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease;
+}
+
+.filter-toggle:hover {
+    background: #E5E7EB;
+    color: #374151;
+}
+
+.filter-content {
+    padding: 1.5rem;
+}
+
+/* Filter Form */
+.modern-filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.filter-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+}
+
+.filter-group-modern {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.filter-label-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.modern-input, .modern-select, .modern-textarea {
+    border: 1.5px solid #D1D5DB;
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.15s ease;
+    background: white;
+}
+
+.modern-input:focus, .modern-select:focus, .modern-textarea:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.modern-input.readonly {
+    background: #F9FAFB;
+    color: #6B7280;
+    cursor: not-allowed;
+}
+
+/* Date Range */
+.date-range-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.date-separator-modern {
+    color: #6B7280;
+    font-weight: 500;
+}
+
+/* Barcode Input */
+.barcode-input-wrapper {
+    position: relative;
+}
+
+.input-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6B7280;
+    margin-top: 0.25rem;
+}
+
+/* Autocomplete */
+.autocomplete-wrapper-modern {
+    position: relative;
+}
+
+.autocomplete-dropdown-modern {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #D1D5DB;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 10;
+    display: none;
+}
+
+/* Filter Actions */
+.filter-actions-modern {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-primary-modern, .btn-outline-modern, .btn-secondary-modern, .btn-danger-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1.5px solid;
+    text-decoration: none;
+}
+
+.btn-primary-modern {
+    background: #3B82F6;
+    border-color: #3B82F6;
+    color: white;
+}
+
+.btn-primary-modern:hover {
+    background: #2563EB;
+    border-color: #2563EB;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-outline-modern {
+    background: transparent;
+    border-color: #D1D5DB;
+    color: #374151;
+}
+
+.btn-outline-modern:hover {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+}
+
+.btn-secondary-modern {
+    background: #6B7280;
+    border-color: #6B7280;
+    color: white;
+}
+
+.btn-secondary-modern:hover {
+    background: #4B5563;
+    border-color: #4B5563;
+}
+
+.btn-danger-modern {
+    background: #EF4444;
+    border-color: #EF4444;
+    color: white;
+}
+
+.btn-danger-modern:hover {
+    background: #DC2626;
+    border-color: #DC2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Modern Table Container */
+.modern-table-container {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+/* Table Header */
+.table-header-modern {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+    background: #FAFBFC;
+}
+
+.table-info {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.total-count-modern {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.bulk-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    background: #3B82F6;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.bulk-action-btn:hover {
+    background: #2563EB;
+}
+
+.table-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Checkbox */
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.checkbox-container input[type="checkbox"] {
+    display: none;
+}
+
+.checkmark {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.15s ease;
+    background: white;
+}
+
+.checkbox-container:hover .checkmark {
+    border-color: #3B82F6;
+}
+
+.checkbox-container input:checked ~ .checkmark {
+    background: #3B82F6;
+    border-color: #3B82F6;
+}
+
+.checkbox-container input:checked ~ .checkmark:after {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 1px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+/* Modern Table Grid */
+.modern-table-wrapper {
+    padding: 1.5rem;
+}
+
+.modern-table-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 1.5rem;
+}
+
+/* Movement Cards */
+.movement-card {
+    background: white;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.movement-card:hover {
+    background: #F9FAFB;
+    border-color: #3B82F6;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
+}
+
+/* Card Header */
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.card-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.movement-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.card-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Type Badge */
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.entry-badge {
+    background: #D1FAE5;
+    color: #065F46;
+    border: 1px solid #10B981;
+}
+
+/* Card Body */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Product Section */
+.product-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.product-name {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.product-attributes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.attribute-chip {
+    display: inline-block;
+    background: #EFF6FF;
+    color: #1E40AF;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid #DBEAFE;
+}
+
+/* Card Info Grid */
+.card-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.info-value {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* Badges */
+.warehouse-badge, .shelf-badge, .quantity-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.warehouse-badge {
+    background: #F3F4F6;
+    color: #374151;
+    border: 1px solid #D1D5DB;
+}
+
+.shelf-badge {
+    background: #FAFAFA;
+    color: #525252;
+    border: 1px solid #E5E5E5;
+}
+
+.quantity-badge {
+    font-weight: 600;
+}
+
+.quantity-adet {
+    background: #DBEAFE;
+    color: #1E40AF;
+    border: 1px solid #3B82F6;
+}
+
+.quantity-metre {
+    background: #E0E7FF;
+    color: #4338CA;
+    border: 1px solid #6366F1;
+}
+
+/* Barcodes Section */
+.barcodes-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.barcode-display-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: #F8FAFC;
+    border: 1px solid #E2E8F0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-family: monospace;
+}
+
+.barcode-display-btn:hover {
+    background: #EEF2FF;
+    border-color: #3B82F6;
+}
+
+.barcode-main {
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.barcode-count {
+    color: #6B7280;
+    font-size: 0.875rem;
+}
+
+.no-barcode {
+    color: #9CA3AF;
+    font-size: 0.875rem;
+    font-style: italic;
+}
+
+/* Note Section */
+.note-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.note-content {
+    background: #FFFBEB;
+    border: 1px solid #FED7AA;
+    border-radius: 6px;
+    padding: 0.75rem;
+    color: #92400E;
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+/* Card Actions */
+.card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #E5E7EB;
+    flex-wrap: wrap;
+}
+
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: 1px solid;
+    background: white;
+    text-decoration: none;
+}
+
+.edit-btn {
+    border-color: #D1D5DB;
+    color: #374151;
+}
+
+.edit-btn:hover {
+    background: #F3F4F6;
+    border-color: #9CA3AF;
+}
+
+.print-btn, .reprint-btn {
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.print-btn:hover, .reprint-btn:hover {
+    background: #EFF6FF;
+    border-color: #2563EB;
+    color: #2563EB;
+}
+
+.delete-btn {
+    border-color: #EF4444;
+    color: #EF4444;
+}
+
+.delete-btn:hover {
+    background: #FEF2F2;
+    border-color: #DC2626;
+    color: #DC2626;
+}
+
+/* Empty State */
+.empty-state-modern {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #6B7280;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.empty-state-modern h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+/* Modern Modals */
+.modern-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.modal-container {
+    background: white;
+    border-radius: 14px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-container.modal-lg {
+    max-width: 800px;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: between;
+    padding: 1.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1F2937;
+    flex: 1;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.modal-close:hover {
+    background: #F3F4F6;
+    color: #374151;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    border-top: 1px solid #E5E7EB;
+    justify-content: flex-end;
+}
+
+/* Modern Forms */
+.modern-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    margin: 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #E5E7EB;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group.readonly-group {
+    opacity: 0.7;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.form-help {
+    font-size: 0.75rem;
+    color: #6B7280;
+    font-style: italic;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.quantity-input-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.quantity-unit {
+    padding: 0.75rem;
+    background: #F3F4F6;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+/* Barcodes Table */
+.barcodes-table {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.barcode-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 2fr auto;
+    gap: 1rem;
+    padding: 0.75rem;
+    align-items: center;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.barcode-row:last-child {
+    border-bottom: none;
+}
+
+.barcode-code {
+    font-family: monospace;
+    font-weight: 600;
+    color: #1F2937;
+}
+
+.barcode-quantity {
+    text-align: center;
+}
+
+.barcode-delete-btn {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    color: #DC2626;
+    padding: 0.375rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.barcode-delete-btn:hover {
+    background: #FEE2E2;
+    border-color: #F87171;
+}
+
+/* Barcodes Grid in Modal */
+.barcodes-grid-modern {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.barcode-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    background: #FAFBFC;
+    position: relative;
+}
+
+.barcode-item.selected {
+    border-color: #3B82F6;
+    background: #EFF6FF;
+}
+
+.barcode-item input[type="checkbox"] {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+}
+
+.barcode-code-display {
+    font-family: monospace;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1F2937;
+}
+
+/* Confirmation Content */
+.confirmation-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.warning-icon, .info-icon {
+    font-size: 3rem;
+    opacity: 0.8;
+}
+
+.warning-icon {
+    color: #EF4444;
+}
+
+.info-icon {
+    color: #3B82F6;
+}
+
+.confirmation-content p {
+    font-size: 1rem;
+    color: #374151;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .content-body-modern {
+        padding: 1rem;
+    }
+
+    .filter-grid-modern {
+        grid-template-columns: 1fr;
+    }
+
+    .modern-table-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-actions {
+        justify-content: center;
+    }
+
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .filter-actions-modern {
+        flex-direction: column;
+    }
+
+    .btn-primary-modern, .btn-outline-modern {
+        text-align: center;
+        justify-content: center;
+    }
+
+    .table-header-modern {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .table-info {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /* Mobile Filter Toggle */
+    .filter-content {
+        display: none;
+    }
+
+    .filter-content.expanded {
+        display: block;
+    }
+
+    .filter-toggle.expanded {
+        transform: rotate(180deg);
+    }
+}
+
+@media (max-width: 480px) {
+    .filter-actions-modern {
+        gap: 0.5rem;
+    }
+
+    .modal-container {
+        margin: 0.5rem;
+        max-width: calc(100vw - 1rem);
+    }
+
+    .modal-header, .modal-body, .modal-footer {
+        padding: 1rem;
+    }
+
+    .movement-card {
+        padding: 1rem;
+    }
+
+    .card-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Animation Classes */
+.fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.slide-up {
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+
+<script>
+// Modern Stock Movements JavaScript
+document.addEventListener('DOMContentLoaded', function() {
+    // Modern Stock Movements page loaded
+    
+    // Initialize the page
+    initModernStockMovements();
+});
+
+function initModernStockMovements() {
+    // Filter functionality
+    initFilterSystem();
+    
+    // Card interactions
+    initCardInteractions();
+    
+    // Modal systems
+    initModals();
+    
+    // Bulk actions
+    initBulkActions();
+    
+    // Mobile responsive
+    initMobileResponsive();
+}
+
+// Filter System
+function initFilterSystem() {
+    const filterForm = document.getElementById('filterForm');
+    const resetBtn = document.getElementById('resetFiltersBtn');
+    const barcodeInput = document.getElementById('filterBarcode');
+    const productInput = document.getElementById('filterProduct');
+    
+    // Filter submission
+    if (filterForm) {
+        filterForm.addEventListener('submit', handleFilterSubmit);
+    }
+    
+    // Reset filters
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetAllFilters);
+    }
+    
+    // Barcode search on Enter
+    if (barcodeInput) {
+        barcodeInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchByBarcode(this.value);
+            }
+        });
+    }
+    
+    // Product autocomplete
+    if (productInput) {
+        initProductAutocomplete(productInput);
+    }
+}
+
+function handleFilterSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const filters = Object.fromEntries(formData.entries());
+    
+    // Apply filters
+    applyFilters(filters);
+    
+    // Update filter chips
+    updateFilterChips(filters);
+}
+
+function resetAllFilters() {
+    const form = document.getElementById('filterForm');
+    if (form) {
+        form.reset();
+        clearFilterChips();
+        // Reload page to show all movements
+        window.location.href = window.location.pathname;
+    }
+}
+
+function searchByBarcode(barcode) {
+    if (!barcode.trim()) return;
+    
+    // Filter movements by barcode
+    const movementCards = document.querySelectorAll('.movement-card');
+    let found = false;
+    
+    movementCards.forEach(card => {
+        const barcodes = card.querySelector('.barcode-display-btn');
+        if (barcodes) {
+            const barcodeData = JSON.parse(barcodes.getAttribute('data-barcodes') || '[]');
+            const hasBarcode = barcodeData.some(code => code.includes(barcode));
+            
+            if (hasBarcode) {
+                card.style.display = 'block';
+                card.classList.add('highlight-match');
+                found = true;
+            } else {
+                card.style.display = 'none';
+            }
+        }
+    });
+    
+    if (!found) {
+        showNotification(__('stockMovements.errors.noBarcodeMatch'), 'warning');
+    } else {
+        updateFilterChips({ barcode: barcode });
+    }
+}
+
+// Card Interactions
+function initCardInteractions() {
+    // Edit buttons
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movementId = this.getAttribute('data-movement-id');
+            openEditModal(movementId);
+        });
+    });
+    
+    // Print buttons
+    document.querySelectorAll('.print-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movementId = this.getAttribute('data-movement-id');
+            printMovement(movementId);
+        });
+    });
+    
+    // Reprint buttons
+    document.querySelectorAll('.reprint-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movementId = this.getAttribute('data-movement-id');
+            reprintMovement(movementId);
+        });
+    });
+    
+    // Delete buttons
+    document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movementId = this.getAttribute('data-movement-id');
+            confirmDeleteMovement(movementId);
+        });
+    });
+    
+    // Barcode display buttons
+    document.querySelectorAll('.barcode-display-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const movementId = this.getAttribute('data-movement-id');
+            const barcodesAttr = this.getAttribute('data-barcodes') || '[]';
+            // Handle HTML entities in JSON
+            const cleanedBarcodes = barcodesAttr.replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+            const barcodes = JSON.parse(cleanedBarcodes);
+            showBarcodesModal(movementId, barcodes);
+        });
+    });
+}
+
+// Modal Systems
+function initModals() {
+    // Modal close buttons
+    document.querySelectorAll('[data-close="modal"]').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const modal = this.closest('.modern-modal');
+            if (modal) {
+                closeModal(modal);
+            }
+        });
+    });
+    
+    // Modal overlay clicks
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', function() {
+            const modal = this.closest('.modern-modal');
+            if (modal) {
+                closeModal(modal);
+            }
+        });
+    });
+    
+    // Save movement button
+    const saveBtn = document.getElementById('saveMovementBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', saveMovement);
+    }
+    
+    // Confirm delete button
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', executeDelete);
+    }
+    
+    // Confirm reprint button
+    const confirmReprintBtn = document.getElementById('confirmReprintBtn');
+    if (confirmReprintBtn) {
+        confirmReprintBtn.addEventListener('click', executeReprint);
+    }
+}
+
+// Bulk Actions
+function initBulkActions() {
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    const movementCheckboxes = document.querySelectorAll('.movement-checkbox');
+    const bulkActions = document.getElementById('bulkActions');
+    
+    // Select all functionality
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            movementCheckboxes.forEach(checkbox => {
+                checkbox.checked = this.checked;
+            });
+            updateBulkActionsVisibility();
+        });
+    }
+    
+    // Individual checkbox changes
+    movementCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updateBulkActionsVisibility();
+            
+            // Update select all state
+            const checkedCount = document.querySelectorAll('.movement-checkbox:checked').length;
+            const totalCount = movementCheckboxes.length;
+            
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = checkedCount === totalCount;
+                selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < totalCount;
+            }
+        });
+    });
+    
+    // Bulk delete
+    const bulkDeleteBtn = document.getElementById('bulkDeleteBtn');
+    if (bulkDeleteBtn) {
+        bulkDeleteBtn.addEventListener('click', confirmBulkDelete);
+    }
+    
+    // Bulk print
+    const bulkPrintBtn = document.getElementById('bulkPrintBtn');
+    if (bulkPrintBtn) {
+        bulkPrintBtn.addEventListener('click', bulkPrint);
+    }
+}
+
+function updateBulkActionsVisibility() {
+    const checkedCount = document.querySelectorAll('.movement-checkbox:checked').length;
+    const bulkActions = document.getElementById('bulkActions');
+    
+    if (bulkActions) {
+        bulkActions.style.display = checkedCount > 0 ? 'flex' : 'none';
+    }
+}
+
+// Mobile Responsive
+function initMobileResponsive() {
+    const filterToggle = document.getElementById('filterToggle');
+    const filterContent = document.getElementById('filterContent');
+    
+    if (filterToggle && filterContent) {
+        // Initially hide on mobile
+        if (window.innerWidth <= 768) {
+            filterContent.style.display = 'none';
+        }
+        
+        filterToggle.addEventListener('click', function() {
+            const isExpanded = filterContent.classList.contains('expanded');
+            
+            if (isExpanded) {
+                filterContent.classList.remove('expanded');
+                filterContent.style.display = 'none';
+                this.classList.remove('expanded');
+            } else {
+                filterContent.classList.add('expanded');
+                filterContent.style.display = 'block';
+                this.classList.add('expanded');
+            }
+        });
+    }
+    
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            if (filterContent) {
+                filterContent.style.display = 'block';
+                filterContent.classList.remove('expanded');
+            }
+            if (filterToggle) {
+                filterToggle.classList.remove('expanded');
+            }
+        } else {
+            if (filterContent && !filterContent.classList.contains('expanded')) {
+                filterContent.style.display = 'none';
+            }
+        }
+    });
+}
+
+// Utility Functions
+function openModal(modal) {
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.add('fade-in');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modal) {
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('fade-in');
+        document.body.style.overflow = '';
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Create and show a toast notification
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="fas fa-${type === 'success' ? 'check' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close">×</button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 5000);
+    
+    // Manual close
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    });
+}
+
+// Movement Operations
+async function openEditModal(movementId) {
+    try {
+        // Fetch movement data
+        const response = await fetch(`/api/stock/movements/${movementId}`);
+        if (!response.ok) throw new Error('Failed to fetch movement data');
+        
+        const movement = await response.json();
+        
+        // Populate form fields
+        document.getElementById('editMovementId').value = movement.id;
+        document.getElementById('editProductName').value = movement.productName || 'Unknown Product';
+        document.getElementById('editWarehouse').value = movement.warehouseName || 'Unknown Warehouse';
+        document.getElementById('editShelf').value = movement.shelfId || 'No shelf';
+        document.getElementById('editQuantity').value = movement.quantity;
+        document.getElementById('editNote').value = movement.note || '';
+        document.getElementById('editQuantityUnit').textContent = movement.unit === 'adet' ? 'pieces' : 'meters';
+        
+        // Populate barcodes table
+        const barcodesTable = document.getElementById('editBarcodesTable');
+        if (movement.barcodes && movement.barcodes.length > 0) {
+            barcodesTable.innerHTML = `
+                <table class="barcodes-table-modern">
+                    <thead>
+                        <tr>
+                            <th>Barcode</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${movement.barcodes.map((barcode, index) => `
+                            <tr>
+                                <td class="barcode-value">${barcode}</td>
+                                <td>
+                                    <button type="button" class="btn-sm btn-outline" onclick="copyBarcode('${barcode}')">
+                                        <i class="fas fa-copy"></i> Copy
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } else {
+            barcodesTable.innerHTML = '<p class="text-muted">No barcodes available</p>';
+        }
+        
+        // Open modal
+        const modal = document.getElementById('editMovementModal');
+        openModal(modal);
+        
+    } catch (error) {
+        console.error('Error opening edit modal:', error);
+        showNotification('Error loading movement data', 'error');
+    }
+}
+
+async function saveMovement() {
+    try {
+        const movementId = document.getElementById('editMovementId').value;
+        const quantity = document.getElementById('editQuantity').value;
+        const note = document.getElementById('editNote').value;
+        
+        if (!quantity || quantity <= 0) {
+            showNotification('Please enter a valid quantity', 'error');
+            return;
+        }
+        
+        const response = await fetch(`/api/stock/movements/${movementId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quantity: parseFloat(quantity),
+                note: note
+            })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Failed to update movement');
+        }
+        
+        // Close modal and reload page
+        const modal = document.getElementById('editMovementModal');
+        closeModal(modal);
+        showNotification('Movement updated successfully', 'success');
+        
+        // Reload page to show updated data
+        setTimeout(() => {
+            window.location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('Error saving movement:', error);
+        showNotification(error.message || 'Error updating movement', 'error');
+    }
+}
+
+async function printMovement(movementId) {
+    try {
+        const response = await fetch(`/api/stock/movements/${movementId}/print`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Failed to print movement');
+        
+        showNotification('Print job sent successfully', 'success');
+    } catch (error) {
+        console.error('Error printing movement:', error);
+        showNotification('Error sending to printer', 'error');
+    }
+}
+
+async function reprintMovement(movementId) {
+    const modal = document.getElementById('reprintConfirmModal');
+    if (modal) {
+        // Store movement ID for later use
+        modal.dataset.movementId = movementId;
+        openModal(modal);
+    } else {
+        // Direct reprint if no confirmation modal
+        executeReprint(movementId);
+    }
+}
+
+async function executeReprint(movementId) {
+    if (!movementId) {
+        const modal = document.getElementById('reprintConfirmModal');
+        movementId = modal?.dataset.movementId;
+    }
+    
+    try {
+        const response = await fetch(`/api/stock/movements/${movementId}/reprint`, {
+            method: 'POST'
+        });
+        
+        if (!response.ok) throw new Error('Failed to reprint movement');
+        
+        const modal = document.getElementById('reprintConfirmModal');
+        if (modal) closeModal(modal);
+        
+        showNotification('Reprint job sent successfully', 'success');
+        
+        // Redirect with success message
+        window.location.href = '/stock/movements?success=reprinted';
+        
+    } catch (error) {
+        console.error('Error reprinting movement:', error);
+        showNotification('Error sending reprint to printer', 'error');
+    }
+}
+
+async function confirmDeleteMovement(movementId) {
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        // Store movement ID for later use
+        modal.dataset.movementId = movementId;
+        
+        // Update confirmation message
+        const message = document.getElementById('deleteConfirmMessage');
+        if (message) {
+            message.textContent = 'Are you sure you want to delete this stock movement? This action cannot be undone.';
+        }
+        
+        openModal(modal);
+    }
+}
+
+async function executeDelete() {
+    const modal = document.getElementById('deleteConfirmModal');
+    const movementId = modal?.dataset.movementId;
+    
+    if (!movementId) {
+        showNotification('No movement selected for deletion', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/stock/movements/${movementId}`, {
+            method: 'DELETE'
+        });
+        
+        if (!response.ok) throw new Error('Failed to delete movement');
+        
+        closeModal(modal);
+        showNotification('Movement deleted successfully', 'success');
+        
+        // Redirect with success message
+        window.location.href = '/stock/movements?success=deleted';
+        
+    } catch (error) {
+        console.error('Error deleting movement:', error);
+        showNotification('Error deleting movement', 'error');
+    }
+}
+
+async function showBarcodesModal(movementId, barcodes) {
+    const modal = document.getElementById('barcodesModal');
+    const grid = document.getElementById('barcodesGrid');
+    
+    if (!modal || !grid) return;
+    
+    // Store data for print buttons
+    modal.dataset.movementId = movementId;
+    modal.dataset.barcodes = JSON.stringify(barcodes);
+    
+    // Generate barcode grid
+    if (barcodes && barcodes.length > 0) {
+        grid.innerHTML = barcodes.map((barcode, index) => `
+            <div class="barcode-item-modern">
+                <label class="checkbox-container">
+                    <input type="checkbox" class="barcode-checkbox" data-barcode="${barcode}">
+                    <span class="checkmark"></span>
+                </label>
+                <div class="barcode-display">
+                    <div class="barcode-text">${barcode}</div>
+                    <div class="barcode-visual">||||| ${barcode} |||||</div>
+                </div>
+                <button type="button" class="btn-sm btn-outline" onclick="copyBarcode('${barcode}')">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+        `).join('');
+    } else {
+        grid.innerHTML = '<p class="text-muted">No barcodes available</p>';
+    }
+    
+    openModal(modal);
+}
+
+// Utility functions
+function copyBarcode(barcode) {
+    navigator.clipboard.writeText(barcode).then(() => {
+        showNotification(`Barcode ${barcode} copied to clipboard`, 'success');
+    }).catch(err => {
+        console.error('Failed to copy barcode:', err);
+        showNotification('Failed to copy barcode', 'error');
+    });
+}
+
+// Bulk operations
+function confirmBulkDelete() {
+    const checkedIds = Array.from(document.querySelectorAll('.movement-checkbox:checked'))
+        .map(cb => cb.dataset.id);
+    
+    if (checkedIds.length === 0) {
+        showNotification('No movements selected', 'warning');
+        return;
+    }
+    
+    const modal = document.getElementById('deleteConfirmModal');
+    if (modal) {
+        modal.dataset.bulkIds = JSON.stringify(checkedIds);
+        
+        const message = document.getElementById('deleteConfirmMessage');
+        if (message) {
+            message.textContent = `Are you sure you want to delete ${checkedIds.length} selected movements? This action cannot be undone.`;
+        }
+        
+        openModal(modal);
+    }
+}
+
+function bulkPrint() {
+    const checkedIds = Array.from(document.querySelectorAll('.movement-checkbox:checked'))
+        .map(cb => cb.dataset.id);
+    
+    if (checkedIds.length === 0) {
+        showNotification('No movements selected', 'warning');
+        return;
+    }
+    
+    // Send bulk print request
+    fetch('/api/stock/movements/bulk/print', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ movementIds: checkedIds })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Bulk print failed');
+        showNotification(`${checkedIds.length} movements sent to printer`, 'success');
+    })
+    .catch(error => {
+        console.error('Bulk print error:', error);
+        showNotification('Error sending bulk print job', 'error');
+    });
+}
+
+// Export functionality
+document.getElementById('exportCsvBtn')?.addEventListener('click', function() {
+    window.location.href = '/api/stock/movements/export?format=csv';
+});
+
+document.getElementById('exportPdfBtn')?.addEventListener('click', function() {
+    window.location.href = '/api/stock/movements/export?format=pdf';
+});
+</script>
