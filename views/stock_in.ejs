@@ -1,0 +1,2910 @@
+<!-- Content Header with Sticky Toolbar -->
+<div class="content-header">
+    <div class="toolbar">
+        <div>
+            <h1><%= __('stockIn.title') %></h1>
+            <p class="text-muted mb-0"><%= __('stockIn.subtitle') %></p>
+        </div>
+        <div class="toolbar-actions">
+            <button type="button" id="resetPageBtn" class="btn btn-secondary" data-testid="button-reset-page" style="display: none;">
+                <i class="fas fa-plus-circle"></i>
+                Yeni Stok Girişi
+            </button>
+            <a href="/stock?lang=<%= locale %>" class="btn btn-outline" data-testid="button-back-to-stock">
+                <i class="fas fa-arrow-left"></i>
+                <%= __('stockIn.backToStock') %>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Content Body -->
+<div class="content-body">
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'added') { %>
+            <div class="alert alert-success" style="margin-bottom: 24px;">
+                <i class="fas fa-check-circle"></i>
+                Stok girişi başarıyla tamamlandı!
+            </div>
+        <% } else if (query.error) { %>
+            <div class="alert alert-error" style="margin-bottom: 24px;">
+                <i class="fas fa-exclamation-triangle"></i>
+                <%= __('stockIn.validation.' + query.error) || query.error %>
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Stock Entry Form Container -->
+    <div class="stock-in-container">
+        
+        <!-- Left Column: Form -->
+        <div class="stock-in-form">
+            <form id="stockInForm" data-testid="form-stock-in">
+                
+                <!-- Product Selection Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-box" style="color: var(--primary);"></i>
+                            <%= __('stockIn.section.productSelection') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="form-group">
+                            <label class="form-label" for="productSearch">
+                                <%= __('stockIn.product.selectProduct') %>
+                                <span class="required">*</span>
+                            </label>
+                            <div class="autocomplete-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="productSearch"
+                                    class="form-control"
+                                    placeholder="<%= __('stockIn.product.searchPlaceholder') %>"
+                                    data-testid="input-product-search"
+                                    autocomplete="off">
+                                <i class="fas fa-search search-icon"></i>
+                                <div id="productDropdown" class="autocomplete-dropdown"></div>
+                            </div>
+                            <input type="hidden" id="selectedProductId" name="productId" data-testid="input-product-id">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Location Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-warehouse" style="color: var(--info);"></i>
+                            <%= __('stockIn.section.location') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="form-grid form-grid-2">
+                            <!-- Warehouse Selection -->
+                            <div class="form-group">
+                                <label class="form-label" for="warehouseSelect">
+                                    <%= __('stockIn.warehouse.label') %>
+                                    <span class="required">*</span>
+                                </label>
+                                <select 
+                                    id="warehouseSelect" 
+                                    name="warehouseId" 
+                                    class="form-control"
+                                    data-testid="select-warehouse">
+                                    <option value=""><%= __('stockIn.warehouse.select') %></option>
+                                    <% warehouses.filter(w => w.status === 'Aktif').forEach(warehouse => { %>
+                                        <option value="<%= warehouse.id %>" 
+                                                data-has-shelves="<%= warehouse.hasShelfSystem %>" 
+                                                data-shelves="<%= JSON.stringify(warehouse.shelves || []) %>">
+                                            <%= warehouse.name %>
+                                        </option>
+                                    <% }); %>
+                                </select>
+                            </div>
+
+                            <!-- Shelf Selection (conditionally shown) -->
+                            <div class="form-group" id="shelfGroup" style="display: none;">
+                                <label class="form-label" for="shelfSelect">
+                                    <%= __('stockIn.shelf.label') %>
+                                    <span class="required" id="shelfRequired">*</span>
+                                </label>
+                                <select 
+                                    id="shelfSelect" 
+                                    name="shelfId" 
+                                    class="form-control"
+                                    data-testid="select-shelf">
+                                    <option value=""><%= __('stockIn.shelf.select') %></option>
+                                </select>
+                                <div class="form-help" id="shelfHelp" style="display: none;">
+                                    <%= __('stockIn.shelf.required') %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quantity Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-calculator" style="color: var(--success);"></i>
+                            <%= __('stockIn.section.quantity') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        
+                        <!-- Unit Quantity (for adet products) -->
+                        <div id="unitQuantityGroup" style="display: none;">
+                            <div class="form-grid form-grid-2">
+                                <div class="form-group">
+                                    <label class="form-label" for="unitQuantity">
+                                        <%= __('stockIn.quantity.label') %>
+                                        <span class="required">*</span>
+                                    </label>
+                                    <input 
+                                        type="number" 
+                                        id="unitQuantity"
+                                        name="quantity"
+                                        class="form-control"
+                                        min="1"
+                                        step="1"
+                                        data-testid="input-unit-quantity">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <%= __('stockIn.quantity.unit') %>
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        class="form-control"
+                                        value="adet"
+                                        readonly
+                                        data-testid="text-unit-display">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Meter Quantity (for metre products) -->
+                        <div id="meterQuantityGroup" style="display: none;">
+                            <div class="meter-rows-header">
+                                <label class="form-label">
+                                    <%= __('stockIn.quantity.meterLength') %>
+                                    <span class="required">*</span>
+                                </label>
+                                <button type="button" class="btn btn-outline btn-sm" id="addMeterBtn" data-testid="button-add-meter">
+                                    <i class="fas fa-plus"></i>
+                                    <%= __('stockIn.quantity.addMeter') %>
+                                </button>
+                            </div>
+                            
+                            <div id="meterRows" class="meter-rows">
+                                <!-- Dynamic meter rows will be added here -->
+                            </div>
+                            
+                            <div class="meter-total">
+                                <strong><%= __('stockIn.quantity.totalMeters') %>: <span id="totalMeters">0</span> metre</strong>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Notes Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-sticky-note" style="color: var(--warning);"></i>
+                            <%= __('stockIn.section.notes') %>
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="form-group">
+                            <label class="form-label" for="stockNote">
+                                <%= __('stockIn.note.label') %>
+                            </label>
+                            <textarea 
+                                id="stockNote"
+                                name="note"
+                                class="form-control"
+                                rows="3"
+                                placeholder="<%= __('stockIn.note.placeholder') %>"
+                                data-testid="textarea-note"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barcode Label Settings Section -->
+                <div class="form-section">
+                    <div class="form-section-header">
+                        <h3 class="form-section-title">
+                            <i class="fas fa-qrcode" style="color: var(--primary);"></i>
+                            Barkod Etiket Ayarları
+                        </h3>
+                    </div>
+                    <div class="form-section-body">
+                        <div class="form-grid form-grid-2">
+                            <!-- Template Selection -->
+                            <div class="form-group">
+                                <label class="form-label" for="labelTemplateSelect">
+                                    Etiket Şablonu
+                                    <span class="required">*</span>
+                                </label>
+                                <select 
+                                    id="labelTemplateSelect" 
+                                    class="form-control"
+                                    data-testid="select-label-template">
+                                    <option value="">Şablon seçiniz...</option>
+                                    <!-- Templates will be loaded dynamically -->
+                                </select>
+                                <div class="form-help">
+                                    Barkod etiketleri için kullanılacak şablonu seçin. 
+                                    <a href="/settings/labels?lang=<%= locale %>" target="_blank" data-testid="link-design-template">
+                                        <i class="fas fa-external-link-alt"></i> Yeni şablon tasarla
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Auto Print Option -->
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Yazdırma Seçenekleri
+                                </label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="autoPrintLabels" data-testid="checkbox-auto-print">
+                                        <span class="checkmark"></span>
+                                        Stok girişi sonrası otomatik yazdır
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="showPreview" checked data-testid="checkbox-show-preview">
+                                        <span class="checkmark"></span>
+                                        Etiket önizlemesi göster
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Template Preview -->
+                        <div id="templatePreviewContainer" class="template-preview-container" style="display: none;">
+                            <div class="template-preview-header">
+                                <h4>
+                                    <i class="fas fa-eye"></i>
+                                    Şablon Önizlemesi
+                                </h4>
+                                <span id="templateDimensions" class="template-dimensions" data-testid="text-template-dimensions"></span>
+                            </div>
+                            <div class="template-preview-canvas" id="templatePreviewCanvas" data-testid="template-preview-canvas">
+                                <!-- Template preview will be rendered here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" data-testid="button-submit">
+                        <i class="fas fa-plus-circle"></i>
+                        <%= __('stockIn.submit') %>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- Right Column: Product Summary & Barcodes -->
+        <div class="stock-in-sidebar">
+            
+            <!-- Product Summary Card -->
+            <div class="summary-card" id="productSummary" style="display: none;">
+                <div class="summary-header">
+                    <h4><%= __('stockIn.product.summary') %></h4>
+                </div>
+                <div class="summary-body">
+                    <div class="product-image">
+                        <img id="summaryImage" src="" alt="" onerror="this.src='/img/placeholder-product.svg'">
+                    </div>
+                    <div class="product-info">
+                        <h5 id="summaryName"></h5>
+                        <div id="summaryAttributes" class="product-attributes"></div>
+                        
+                        <!-- Price Information -->
+                        <div class="product-prices" id="summaryPrices" style="display: none;">
+                            <div class="price-row">
+                                <span class="price-item buy-price">
+                                    <i class="fas fa-arrow-down" style="color: var(--success);"></i>
+                                    <%= __('stockIn.buyPrice') %>: <span id="summaryBuyPrice"></span>
+                                </span>
+                                <span class="price-item sell-price">
+                                    <i class="fas fa-arrow-up" style="color: var(--info);"></i>
+                                    <%= __('stockIn.sellPrice') %>: <span id="summarySellPrice"></span>
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="product-details">
+                            <div class="detail-row">
+                                <span class="label"><%= __('fields.unit') %>:</span>
+                                <span id="summaryUnit"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label"><%= __('stock.label') %>:</span>
+                                <span id="summaryStock"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="label"><%= __('fields.status') %>:</span>
+                                <span id="summaryStatus" class="status-badge"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barcodes Section -->
+            <div class="barcodes-section">
+                <div class="barcodes-header">
+                    <h4><%= __('stockIn.section.barcodes') %></h4>
+                    <button type="button" class="btn btn-outline btn-sm" id="printAllBtn" style="display: none;" data-testid="button-print-all">
+                        <i class="fas fa-print"></i>
+                        <%= __('stockIn.barcodes.printAll') %>
+                    </button>
+                </div>
+                <div id="barcodesList" class="barcodes-list">
+                    <div class="barcodes-empty">
+                        <i class="fas fa-barcode"></i>
+                        <p><%= __('stockIn.barcodes.empty') %></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Barcode Labels Results Section -->
+            <div class="barcode-labels-section" id="barcodeLabelsSection" style="display: none;">
+                <div class="barcode-labels-header">
+                    <h4>
+                        <i class="fas fa-tags"></i>
+                        Oluşturulan Etiketler
+                    </h4>
+                    <div class="labels-actions">
+                        <button type="button" class="btn btn-primary btn-sm" id="printAllLabelsBtn" data-testid="button-print-all-labels">
+                            <i class="fas fa-print"></i>
+                            Tümünü Yazdır
+                        </button>
+                        <button type="button" class="btn btn-outline btn-sm" id="downloadLabelsBtn" data-testid="button-download-labels">
+                            <i class="fas fa-download"></i>
+                            PDF İndir
+                        </button>
+                    </div>
+                </div>
+                <div id="barcodeLabelsGrid" class="barcode-labels-grid" data-testid="barcode-labels-grid">
+                    <!-- Generated barcode labels will be displayed here -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Barcode Item Template -->
+<template id="barcodeTemplate">
+    <div class="barcode-item" data-testid="barcode-item">
+        <div class="barcode-header">
+            <div class="barcode-info">
+                <h6 class="barcode-product"></h6>
+                <div class="barcode-attributes"></div>
+            </div>
+            <button type="button" class="btn btn-outline btn-xs barcode-print" data-testid="button-print-barcode">
+                <i class="fas fa-print"></i>
+                <%= __('stockIn.barcodes.print') %>
+            </button>
+        </div>
+        <div class="barcode-image">
+            <img class="barcode-img" src="" alt="">
+            <div class="barcode-code"></div>
+        </div>
+    </div>
+</template>
+
+<!-- Meter Row Template -->
+<template id="meterRowTemplate">
+    <div class="meter-row" data-testid="meter-row">
+        <div class="meter-row-content">
+            <input type="number" class="form-control meter-input" min="0.1" step="0.1" placeholder="0.0" data-testid="input-meter-length">
+            <span class="meter-unit">metre</span>
+            <button type="button" class="btn btn-outline btn-sm remove-meter" data-testid="button-remove-meter">
+                <i class="fas fa-times"></i>
+                <%= __('stockIn.quantity.removeMeter') %>
+            </button>
+        </div>
+    </div>
+</template>
+
+<style>
+.stock-in-container {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+@media (max-width: 1024px) {
+    .stock-in-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+}
+
+/* Form Sections */
+.stock-in-form {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.form-section {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section:last-child {
+    border-bottom: none;
+}
+
+.form-section-header {
+    padding: 1.5rem 2rem 1rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.form-section-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.form-section-body {
+    padding: 2rem;
+}
+
+.form-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.form-grid-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 768px) {
+    .form-grid-2 {
+        grid-template-columns: 1fr;
+    }
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group:last-child {
+    margin-bottom: 0;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+}
+
+.form-label.required::after {
+    content: " *";
+    color: #dc3545;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control {
+    pointer-events: auto !important;
+    cursor: text;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-help {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+/* Autocomplete */
+.autocomplete-wrapper {
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.autocomplete-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-top: none;
+    border-radius: 0 0 6px 6px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.autocomplete-item {
+    padding: 0.75rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f3f4f6;
+    transition: background-color 0.15s;
+}
+
+.autocomplete-item:hover {
+    background: #f9fafb;
+}
+
+.autocomplete-item:last-child {
+    border-bottom: none;
+}
+
+.autocomplete-item.selected {
+    background: #eff6ff;
+}
+
+.autocomplete-product-name {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.autocomplete-attributes {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.autocomplete-empty {
+    padding: 1rem;
+    text-align: center;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+/* Meter Rows */
+.meter-rows-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.meter-rows {
+    space-y: 0.75rem;
+}
+
+.meter-row {
+    margin-bottom: 0.75rem;
+}
+
+.meter-row-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.meter-input {
+    flex: 1;
+    max-width: 120px;
+}
+
+.meter-unit {
+    color: #6b7280;
+    font-size: 0.875rem;
+    min-width: 40px;
+}
+
+.remove-meter {
+    color: #dc2626;
+    border-color: #dc2626;
+}
+
+.remove-meter:hover {
+    background: #dc2626;
+    color: white;
+}
+
+.meter-total {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background: #f3f4f6;
+    border-radius: 6px;
+    text-align: center;
+}
+
+/* Sidebar */
+.stock-in-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.summary-header {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.summary-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.summary-body {
+    padding: 1.5rem;
+}
+
+.product-image {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.product-image img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.product-info h5 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    text-align: center;
+}
+
+.product-attributes {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.attribute-chip {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    margin: 0.25rem 0.125rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: none;
+    text-transform: capitalize;
+}
+
+/* Price Information Styling */
+.product-prices {
+    margin-bottom: 1rem;
+    padding: 0.75rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.price-item {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+}
+
+.price-item i {
+    font-size: 0.75rem;
+}
+
+.buy-price {
+    color: #059669;
+}
+
+.sell-price {
+    color: #0ea5e9;
+}
+
+@media (max-width: 480px) {
+    .price-row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .attribute-chip {
+        font-size: 0.625rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Toast Notification Styles */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    min-width: 300px;
+    max-width: 500px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    z-index: 10000;
+    opacity: 0;
+    transform: translateX(100%);
+    animation: toastSlideIn 0.3s ease forwards;
+    border-left: 4px solid #3b82f6;
+    cursor: pointer;
+}
+
+.toast-success {
+    border-left-color: #10b981;
+}
+
+.toast-error {
+    border-left-color: #ef4444;
+}
+
+.toast-warning {
+    border-left-color: #f59e0b;
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+}
+
+.toast-content i {
+    font-size: 16px;
+}
+
+.toast-success .toast-content i {
+    color: #10b981;
+}
+
+.toast-error .toast-content i {
+    color: #ef4444;
+}
+
+.toast-warning .toast-content i {
+    color: #f59e0b;
+}
+
+.toast-content span {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toast-close:hover {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .toast {
+        left: 20px;
+        right: 20px;
+        min-width: auto;
+        max-width: none;
+    }
+}
+
+.product-details {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: between;
+    margin-bottom: 0.5rem;
+}
+
+.detail-row .label {
+    font-weight: 500;
+    color: #6b7280;
+    flex: 1;
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.inactive {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+/* Barcodes Section */
+.barcodes-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+.barcodes-header {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.barcodes-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.barcodes-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.barcodes-empty {
+    padding: 2rem;
+    text-align: center;
+    color: #9ca3af;
+}
+
+.barcodes-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.barcode-item {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.barcode-item:last-child {
+    border-bottom: none;
+}
+
+.barcode-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 0.75rem;
+}
+
+.barcode-info h6 {
+    margin: 0 0 0.25rem 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.barcode-attributes {
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.barcode-image {
+    text-align: center;
+}
+
+.barcode-img {
+    max-width: 120px;
+    height: auto;
+    margin-bottom: 0.5rem;
+}
+
+.barcode-code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+/* Barcode Label Settings Section */
+.template-preview-container {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.template-preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.template-preview-header h4 {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.template-dimensions {
+    font-size: 0.75rem;
+    color: #6b7280;
+    background: #e5e7eb;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+}
+
+.template-preview-canvas {
+    min-height: 120px;
+    background: white;
+    border: 2px dashed #d1d5db;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.template-preview-canvas.has-template {
+    border-style: solid;
+    border-color: #3b82f6;
+}
+
+.template-preview-placeholder {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+.template-preview-element {
+    position: absolute;
+    border: 1px solid #e5e7eb;
+    background: rgba(59, 130, 246, 0.1);
+    color: #374151;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.template-preview-element.type-text {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: #22c55e;
+}
+
+.template-preview-element.type-barcode {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: #3b82f6;
+}
+
+.template-preview-element.type-image {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: #a855f7;
+}
+
+/* Checkbox Group */
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #374151;
+}
+
+.checkbox-label input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.checkmark {
+    margin-left: 0.25rem;
+}
+
+/* Barcode Labels Results Section */
+.barcode-labels-section {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+    margin-top: 1rem;
+}
+
+.barcode-labels-header {
+    padding: 1rem 1.5rem;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.barcode-labels-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.labels-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.barcode-labels-grid {
+    padding: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.barcode-label-item {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: white;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.barcode-label-item:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+}
+
+.barcode-label-preview {
+    position: relative;
+    background: white;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.barcode-label-preview .label-element {
+    position: absolute;
+    font-size: 0.625rem;
+    line-height: 1.2;
+    overflow: hidden;
+}
+
+.barcode-label-preview .label-element.type-text {
+    color: #374151;
+    font-weight: 500;
+}
+
+.barcode-label-preview .label-element.type-barcode {
+    background: #000;
+    color: #000;
+    text-align: center;
+}
+
+.barcode-label-preview .label-element.type-image {
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+}
+
+.barcode-label-info {
+    padding: 0.75rem;
+}
+
+.barcode-label-code {
+    font-family: monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.barcode-label-template {
+    font-size: 0.625rem;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.barcode-label-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Form Actions */
+.form-actions {
+    padding: 2rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.btn-lg {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+}
+
+/* Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.btn-outline:hover {
+    background: #f9fafb;
+    border-color: #9ca3af;
+}
+
+.btn-sm {
+    padding: 0.375rem 0.75rem;
+    font-size: 0.8125rem;
+}
+
+.btn-xs {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-section-body {
+        padding: 1.5rem;
+    }
+    
+    .form-actions {
+        padding: 1.5rem;
+    }
+    
+    .meter-row-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+    
+    .meter-input {
+        max-width: none;
+    }
+}
+
+/* Preview Barcode Styles */
+.barcode-item.preview {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border: 2px dashed #f59e0b;
+    position: relative;
+}
+
+.barcode-item.preview::before {
+    content: "ÖNIZLEME";
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #f59e0b;
+    color: white;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.barcode-item.preview .barcode-img {
+    filter: opacity(0.7);
+}
+
+.barcode-item.preview .barcode-code {
+    color: #d97706;
+    font-style: italic;
+}
+
+.preview-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #92400e;
+    text-align: center;
+    font-style: italic;
+}
+
+.barcodes-preview-header {
+    background: #fef3c7;
+    border-bottom: 2px solid #f59e0b;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    color: #92400e;
+    font-weight: 500;
+    text-align: center;
+}
+
+.meter-label {
+    font-weight: 600;
+    color: #1f2937;
+    margin-left: 0.5rem;
+}
+
+/* Loading States */
+.loading {
+    opacity: 0.6;
+    /* pointer-events: none; - TEMPORARILY DISABLED FOR DEBUG */
+}
+
+.processing::after {
+    content: "";
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+</style>
+
+<script>
+console.log('🚀 StockIn JS loading...');
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('✅ DOM Content Loaded - StockIn JS initializing');
+    
+    // CRITICAL: Get form element and ensure no default submission
+    const stockInForm = document.getElementById('stockInForm');
+    if (!stockInForm) {
+        console.error('❌ stockInForm not found! Cannot initialize.');
+        return;
+    }
+    
+    // CRITICAL: Clear form action to prevent POST submission
+    stockInForm.removeAttribute('action');
+    stockInForm.setAttribute('novalidate', '');
+    console.log('🛡️ Form action cleared and novalidate set');
+    
+    // Constants
+    const DEBOUNCE_DELAY = 300;
+    
+    // DOM Elements
+    const productSearch = document.getElementById('productSearch');
+    const productDropdown = document.getElementById('productDropdown');
+    const selectedProductId = document.getElementById('selectedProductId');
+    const warehouseSelect = document.getElementById('warehouseSelect');
+    const shelfGroup = document.getElementById('shelfGroup');
+    const shelfSelect = document.getElementById('shelfSelect');
+    const shelfHelp = document.getElementById('shelfHelp');
+    const shelfRequired = document.getElementById('shelfRequired');
+    const unitQuantityGroup = document.getElementById('unitQuantityGroup');
+    const meterQuantityGroup = document.getElementById('meterQuantityGroup');
+    const addMeterBtn = document.getElementById('addMeterBtn');
+    const meterRows = document.getElementById('meterRows');
+    const totalMeters = document.getElementById('totalMeters');
+    const productSummary = document.getElementById('productSummary');
+    const barcodesList = document.getElementById('barcodesList');
+    const printAllBtn = document.getElementById('printAllBtn');
+    const submitBtn = document.getElementById('submitBtn');
+    const resetPageBtn = document.getElementById('resetPageBtn');
+    
+    // DOM Element validation
+    console.log('🔍 DOM Elements check:', {
+        stockInForm: !!stockInForm,
+        productSearch: !!productSearch,
+        submitBtn: !!submitBtn,
+        barcodesList: !!barcodesList,
+        resetPageBtn: !!resetPageBtn
+    });
+    
+    // State
+    let selectedProduct = null;
+    let searchTimeout = null;
+    let generatedBarcodes = [];
+    let meterRowCount = 0;
+    let previewBarcodes = [];
+    
+    // Product Search and Autocomplete
+    productSearch.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        clearTimeout(searchTimeout);
+        
+        if (query.length < 2) {
+            hideDropdown();
+            clearSelectedProduct();
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            searchProducts(query);
+        }, DEBOUNCE_DELAY);
+    });
+    
+    // Hide dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!productSearch.contains(e.target) && !productDropdown.contains(e.target)) {
+            hideDropdown();
+        }
+    });
+    
+    // Warehouse Selection
+    warehouseSelect.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        const hasShelves = selectedOption.dataset.hasShelves === 'true';
+        const shelves = JSON.parse(selectedOption.dataset.shelves || '[]');
+        
+        updateShelfSelection(hasShelves, shelves);
+    });
+    
+    // Add Meter Row
+    addMeterBtn.addEventListener('click', function() {
+        addMeterRow();
+    });
+    
+    // Form Submission - ADD FAIL-SAFE to prevent any page reload
+    stockInForm.addEventListener('submit', function(e) {
+        console.log('🚀 Form submit event triggered');
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('✅ preventDefault and stopPropagation called');
+        
+        // FAIL-SAFE: Prevent any potential form submission
+        if (e.target && e.target.action) {
+            e.target.removeAttribute('action');
+        }
+        
+        if (validateForm()) {
+            console.log('✅ Form validation passed');
+            submitStockEntry();
+        } else {
+            console.log('❌ Form validation failed - STAYING ON PAGE');
+        }
+        
+        return false; // Additional fail-safe
+    });
+    
+    // Functions
+    async function searchProducts(query) {
+        try {
+            const response = await fetch(`/api/products/names?q=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error('Search failed');
+            
+            const products = await response.json();
+            showProductDropdown(products, query);
+        } catch (error) {
+            console.error('Product search error:', error);
+            showEmptyDropdown();
+        }
+    }
+    
+    function showProductDropdown(products, query) {
+        if (products.length === 0) {
+            showEmptyDropdown();
+            return;
+        }
+        
+        let html = '';
+        products.forEach(product => {
+            html += `
+                <div class="autocomplete-item" data-product-id="${product.id}">
+                    <div class="autocomplete-product-name">${highlightMatch(product.name, query)}</div>
+                    ${product.attributes ? `<div class="autocomplete-attributes">${formatAttributes(product.attributes)}</div>` : ''}
+                </div>
+            `;
+        });
+        
+        productDropdown.innerHTML = html;
+        productDropdown.style.display = 'block';
+        
+        // Add click handlers
+        productDropdown.querySelectorAll('.autocomplete-item').forEach(item => {
+            item.addEventListener('click', function() {
+                selectProduct(this.dataset.productId);
+            });
+        });
+    }
+    
+    function showEmptyDropdown() {
+        productDropdown.innerHTML = '<div class="autocomplete-empty"><%= __("stockIn.product.noResults") %></div>';
+        productDropdown.style.display = 'block';
+    }
+    
+    function hideDropdown() {
+        productDropdown.style.display = 'none';
+    }
+    
+    function highlightMatch(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query})`, 'gi');
+        return text.replace(regex, '<strong>$1</strong>');
+    }
+    
+    function formatAttributes(attributes) {
+        if (!attributes || !Array.isArray(attributes)) return '';
+        return attributes.map(attr => `${attr.name}: ${attr.value}`).join(' | ');
+    }
+    
+    async function selectProduct(productId) {
+        try {
+            const response = await fetch(`/api/products/${productId}`);
+            if (!response.ok) throw new Error('Product fetch failed');
+            
+            const product = await response.json();
+            selectedProduct = product;
+            selectedProductId.value = productId;
+            
+            productSearch.value = product.name;
+            hideDropdown();
+            
+            updateProductSummary(product);
+            updateQuantitySection(product.unit);
+            
+        } catch (error) {
+            console.error('Product selection error:', error);
+            clearSelectedProduct();
+        }
+    }
+    
+    function clearSelectedProduct() {
+        selectedProduct = null;
+        selectedProductId.value = '';
+        productSummary.style.display = 'none';
+        unitQuantityGroup.style.display = 'none';
+        meterQuantityGroup.style.display = 'none';
+        clearBarcodes();
+        clearBarcodePreview();
+    }
+    
+    function resetSelectedProduct() {
+        console.log('🔄 resetSelectedProduct: Clearing product selection (preserving barcodes)');
+        selectedProduct = null;
+        selectedProductId.value = '';
+        productSummary.style.display = 'none';
+        unitQuantityGroup.style.display = 'none';
+        meterQuantityGroup.style.display = 'none';
+        // NOTE: NOT calling clearBarcodes() here - we want to keep generated barcodes
+        clearBarcodePreview(); // Only clear preview barcodes
+        console.log('✅ resetSelectedProduct: Product selection cleared (generated barcodes preserved)');
+    }
+    
+    function updateProductSummary(product) {
+        document.getElementById('summaryImage').src = product.coverImage ? `/${product.coverImage}` : '/img/placeholder-product.svg';
+        document.getElementById('summaryName').textContent = product.name;
+        document.getElementById('summaryUnit').textContent = product.unit;
+        document.getElementById('summaryStock').textContent = product.stock;
+        
+        const statusEl = document.getElementById('summaryStatus');
+        statusEl.textContent = product.status;
+        statusEl.className = `status-badge ${product.status === 'Aktif' ? 'active' : 'inactive'}`;
+        
+        // Show prices
+        const pricesEl = document.getElementById('summaryPrices');
+        const buyPriceEl = document.getElementById('summaryBuyPrice');
+        const sellPriceEl = document.getElementById('summarySellPrice');
+        
+        if (product.buyPrice || product.sellPrice) {
+            buyPriceEl.textContent = `${product.buyPrice || 0} ${product.buyCurrency || 'USD'}`;
+            sellPriceEl.textContent = `${product.sellPrice || 0} ${product.sellCurrency || 'USD'}`;
+            pricesEl.style.display = 'block';
+        } else {
+            pricesEl.style.display = 'none';
+        }
+        
+        // Show attributes as chips (XSS-safe implementation)
+        const attributesEl = document.getElementById('summaryAttributes');
+        // Clear existing content safely
+        attributesEl.textContent = '';
+        
+        if (product.attributes && product.attributes.length > 0) {
+            product.attributes.forEach(attr => {
+                const chip = document.createElement('span');
+                chip.className = 'attribute-chip';
+                chip.textContent = `${attr.name}: ${attr.value}`;
+                attributesEl.appendChild(chip);
+            });
+        }
+        
+        productSummary.style.display = 'block';
+    }
+    
+    function updateQuantitySection(unit) {
+        if (unit === 'adet') {
+            unitQuantityGroup.style.display = 'block';
+            meterQuantityGroup.style.display = 'none';
+            clearMeterRows();
+            
+            // Add event listener for unit quantity input
+            const unitQuantityInput = document.getElementById('unitQuantity');
+            unitQuantityInput.addEventListener('input', updateBarcodePreview);
+            
+        } else if (unit === 'metre') {
+            unitQuantityGroup.style.display = 'none';
+            meterQuantityGroup.style.display = 'block';
+            if (meterRows.children.length === 0) {
+                addMeterRow(); // Add first row
+            }
+        }
+        
+        // Clear any existing preview when unit changes
+        clearBarcodePreview();
+    }
+    
+    function updateShelfSelection(hasShelves, shelves) {
+        if (hasShelves && shelves.length > 0) {
+            // Show shelf selection
+            shelfGroup.style.display = 'block';
+            shelfHelp.style.display = 'block';
+            shelfRequired.style.display = 'inline';
+            
+            // Populate shelves
+            let html = '<option value=""><%= __("stockIn.shelf.select") %></option>';
+            shelves.forEach(shelf => {
+                html += `<option value="${shelf}">${shelf}</option>`;
+            });
+            shelfSelect.innerHTML = html;
+            
+        } else {
+            // Hide shelf selection
+            shelfGroup.style.display = 'none';
+            shelfHelp.style.display = 'none';
+            shelfRequired.style.display = 'none';
+            shelfSelect.value = '';
+        }
+    }
+    
+    function addMeterRow() {
+        const template = document.getElementById('meterRowTemplate');
+        const clone = template.content.cloneNode(true);
+        
+        const meterInput = clone.querySelector('.meter-input');
+        const removeBtn = clone.querySelector('.remove-meter');
+        
+        // Add input event listener
+        meterInput.addEventListener('input', updateTotalMeters);
+        meterInput.addEventListener('input', updateBarcodePreview);
+        
+        // Add remove button handler
+        removeBtn.addEventListener('click', function() {
+            this.closest('.meter-row').remove();
+            updateTotalMeters();
+            updateBarcodePreview();
+            
+            // If no rows left, add one
+            if (meterRows.children.length === 0) {
+                addMeterRow();
+            }
+        });
+        
+        meterRows.appendChild(clone);
+        meterRowCount++;
+        
+        // Focus on the new input
+        meterInput.focus();
+        
+        updateTotalMeters();
+    }
+    
+    function clearMeterRows() {
+        meterRows.innerHTML = '';
+        meterRowCount = 0;
+        updateTotalMeters();
+    }
+    
+    function updateTotalMeters() {
+        const inputs = meterRows.querySelectorAll('.meter-input');
+        let total = 0;
+        
+        inputs.forEach(input => {
+            const value = parseFloat(input.value) || 0;
+            total += value;
+        });
+        
+        totalMeters.textContent = total.toFixed(1);
+    }
+    
+    function validateForm() {
+        console.log('🔍 Starting form validation...');
+        const errors = [];
+        
+        // Product selection
+        console.log('📦 Checking product selection:', selectedProduct ? selectedProduct.name : 'None');
+        if (!selectedProduct) {
+            errors.push('<%= __("stockIn.validation.productRequired") %>');
+        }
+        
+        // Warehouse selection
+        console.log('🏢 Checking warehouse selection:', warehouseSelect.value);
+        if (!warehouseSelect.value) {
+            errors.push('<%= __("stockIn.validation.warehouseRequired") %>');
+        }
+        
+        // Shelf selection (if required) - STRENGTHENED VALIDATION
+        const selectedWarehouse = warehouseSelect.options[warehouseSelect.selectedIndex];
+        console.log('🏠 Warehouse shelf system check:', {
+            warehouseIndex: warehouseSelect.selectedIndex,
+            warehouseValue: warehouseSelect.value,
+            hasShelves: selectedWarehouse?.dataset?.hasShelves,
+            shelfValue: shelfSelect.value,
+            warehouseName: selectedWarehouse?.textContent?.trim(),
+            shelfOptions: shelfSelect.options.length
+        });
+        
+        // ROBUST SHELF VALIDATION
+        if (selectedWarehouse && warehouseSelect.value && selectedWarehouse.dataset.hasShelves === 'true') {
+            console.log('🏠 Shelf is required, checking selection...');
+            const shelves = JSON.parse(selectedWarehouse.dataset.shelves || '[]');
+            console.log('📦 Available shelves:', shelves);
+            
+            if (shelves.length > 0 && (!shelfSelect.value || shelfSelect.value.trim() === '')) {
+                console.log('❌ Shelf required but not selected');
+                errors.push('<%= __("stockIn.validation.shelfRequired") %>');
+            } else if (shelfSelect.value) {
+                console.log('✅ Shelf selected:', shelfSelect.value);
+            } else {
+                console.log('⚠️ Warehouse has shelf system but no shelves defined - allowing without shelf');
+            }
+        } else {
+            console.log('✅ No shelf required for this warehouse');
+        }
+        
+        // Quantity validation
+        if (selectedProduct) {
+            console.log('📏 Validating quantities for unit:', selectedProduct.unit);
+            if (selectedProduct.unit === 'adet') {
+                const quantity = parseInt(document.getElementById('unitQuantity').value);
+                console.log('📦 Adet quantity:', quantity);
+                if (!quantity || quantity <= 0) {
+                    errors.push('<%= __("stockIn.validation.quantityPositive") %>');
+                }
+            } else if (selectedProduct.unit === 'metre') {
+                const meterInputs = meterRows.querySelectorAll('.meter-input');
+                let hasValidMeter = false;
+                console.log('📏 Meter inputs found:', meterInputs.length);
+                
+                if (meterInputs.length === 0) {
+                    errors.push('<%= __("stockIn.validation.metersRequired") %>');
+                } else {
+                    const meterValues = [];
+                    meterInputs.forEach((input, index) => {
+                        const value = parseFloat(input.value);
+                        meterValues.push(value);
+                        if (value && value > 0) {
+                            hasValidMeter = true;
+                        }
+                    });
+                    console.log('📏 Meter values:', meterValues);
+                    
+                    if (!hasValidMeter) {
+                        errors.push('<%= __("stockIn.validation.metersRequired") %>');
+                    }
+                }
+            }
+        }
+        
+        console.log('🔍 Validation errors:', errors);
+        
+        if (errors.length > 0) {
+            console.log('❌ Validation failed, showing toast');
+            showToast(errors.join('\n'), 'error');
+            return false;
+        }
+        
+        console.log('✅ Validation passed!');
+        return true;
+    }
+    
+    async function submitStockEntry() {
+        console.log('🔧 DEBUG: submitStockEntry başladı');
+        console.log('🔒 Disabling submit button');
+        submitBtn.classList.add('processing');
+        submitBtn.disabled = true;
+        
+        try {
+            console.log('📝 Building request data...');
+            const requestData = {
+                productId: selectedProduct.id,
+                warehouseId: warehouseSelect.value,
+                unit: selectedProduct.unit
+            };
+            
+            if (shelfSelect.value) {
+                requestData.shelfId = shelfSelect.value;
+            }
+            
+            if (selectedProduct.unit === 'adet') {
+                requestData.quantity = parseInt(document.getElementById('unitQuantity').value);
+                console.log('📦 Adet quantity:', requestData.quantity);
+            } else {
+                const meterInputs = meterRows.querySelectorAll('.meter-input');
+                const meters = [];
+                meterInputs.forEach(input => {
+                    const value = parseFloat(input.value);
+                    if (value && value > 0) {
+                        meters.push(value);
+                    }
+                });
+                requestData.meters = JSON.stringify(meters);
+                console.log('📏 Meter data:', meters);
+            }
+            
+            const note = document.getElementById('stockNote').value.trim();
+            if (note) {
+                requestData.note = note;
+            }
+            
+            console.log('📤 Sending AJAX request:', requestData);
+            
+            const response = await fetch('/api/stock/entry', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+            console.log('📥 Response received:', {
+                status: response.status,
+                ok: response.ok,
+                statusText: response.statusText
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                console.error('❌ API Error Response:', error);
+                throw new Error(error.message || 'Stock entry failed');
+            }
+            
+            const result = await response.json();
+            console.log('✅ API Success Response:', {
+                success: result.success,
+                barcodesCount: result.barcodes ? result.barcodes.length : 0,
+                stockMovement: result.stockMovement?.id
+            });
+            
+            // Save product info before reset
+            const productForBarcodes = selectedProduct;
+            console.log('💾 Saved product info for barcodes:', productForBarcodes.name);
+            
+            // Show success message
+            console.log('🎉 Showing success toast...');
+            showToast(`Stok girişi başarılı! ${result.barcodes.length} adet barkod oluşturuldu.`, 'success');
+            
+            // Show generated barcodes
+            console.log('🏷️ Calling showGeneratedBarcodes...');
+            showGeneratedBarcodes(result.barcodes, productForBarcodes);
+            console.log('🏷️ showGeneratedBarcodes completed');
+            
+            // Clear ONLY preview barcodes after successful entry
+            console.log('🗑️ Clearing preview barcodes...');
+            clearBarcodePreview();
+            
+            // Reset form for next entry (keeps all data now)
+            console.log('🔄 Resetting form...');
+            resetForm();
+            console.log('✅ submitStockEntry completed successfully');
+            
+        } catch (error) {
+            console.error('❌ Stock entry error:', error);
+            console.error('❌ Error stack:', error.stack);
+            
+            // CRITICAL: Ensure no page reload on AJAX errors
+            if (typeof error === 'object' && error !== null) {
+                console.log('🛡️ Error caught properly - preventing page reload');
+            }
+            
+            showToast('Stok girişi sırasında hata oluştu: ' + error.message, 'error');
+            
+            // ADDITIONAL FAIL-SAFE: Prevent any form submission on error
+            const forms = document.querySelectorAll('form[id="stockInForm"]');
+            forms.forEach(form => {
+                if (form.action) form.removeAttribute('action');
+            });
+            
+        } finally {
+            console.log('🔓 Re-enabling submit button');
+            submitBtn.classList.remove('processing');
+            submitBtn.disabled = false;
+        }
+    }
+    
+    function showGeneratedBarcodes(barcodes, product = null) {
+        console.log('🏷️ showGeneratedBarcodes called with:', {
+            barcodesCount: barcodes ? barcodes.length : 0,
+            productName: product?.name || selectedProduct?.name || 'Unknown'
+        });
+        
+        const template = document.getElementById('barcodeTemplate');
+        const emptyEl = barcodesList.querySelector('.barcodes-empty');
+        
+        console.log('🔍 DOM elements check:', {
+            template: !!template,
+            barcodesList: !!barcodesList,
+            emptyEl: !!emptyEl
+        });
+        
+        if (emptyEl) {
+            console.log('👻 Hiding empty element');
+            emptyEl.style.display = 'none';
+        }
+        
+        // Use passed product or fallback to selectedProduct
+        const productInfo = product || selectedProduct;
+        console.log('📦 Using product info:', productInfo?.name);
+        
+        if (!productInfo) {
+            console.error('❌ No product info available for barcodes');
+            return;
+        }
+        
+        console.log('🔄 Processing', barcodes.length, 'barcodes...');
+        barcodes.forEach((barcode, index) => {
+            console.log(`🏷️ Processing barcode ${index + 1}:`, barcode.code);
+            
+            if (!template) {
+                console.error('❌ Template not found!');
+                return;
+            }
+            
+            const clone = template.content.cloneNode(true);
+            console.log('📋 Template cloned successfully');
+            
+            // Set product name
+            const productNameEl = clone.querySelector('.barcode-product');
+            if (productNameEl) {
+                productNameEl.textContent = productInfo.name;
+                console.log('✅ Product name set:', productInfo.name);
+            } else {
+                console.error('❌ .barcode-product element not found in template');
+            }
+            
+            // Set attributes
+            if (productInfo.attributes && productInfo.attributes.length > 0) {
+                const attributesEl = clone.querySelector('.barcode-attributes');
+                if (attributesEl) {
+                    attributesEl.textContent = productInfo.attributes.map(attr => `${attr.name}: ${attr.value}`).join(' | ');
+                    console.log('✅ Attributes set:', attributesEl.textContent);
+                }
+            }
+            
+            // Set barcode image
+            const barcodeImg = clone.querySelector('.barcode-img');
+            if (barcodeImg) {
+                barcodeImg.src = `/api/barcode/${barcode.code}/image`;
+                console.log('✅ Barcode image URL set:', barcodeImg.src);
+            } else {
+                console.error('❌ .barcode-img element not found in template');
+            }
+            
+            // Set barcode code
+            const barcodeCodeEl = clone.querySelector('.barcode-code');
+            if (barcodeCodeEl) {
+                barcodeCodeEl.textContent = barcode.code;
+                console.log('✅ Barcode code set:', barcode.code);
+            } else {
+                console.error('❌ .barcode-code element not found in template');
+            }
+            
+            // Add print handler
+            const printBtn = clone.querySelector('.barcode-print');
+            if (printBtn) {
+                printBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    printBarcode(barcode.code);
+                });
+                console.log('✅ Print handler added');
+            } else {
+                console.error('❌ .barcode-print element not found in template');
+            }
+            
+            // Append to DOM
+            if (barcodesList) {
+                barcodesList.appendChild(clone);
+                console.log('✅ Barcode', index + 1, 'appended to DOM');
+            } else {
+                console.error('❌ barcodesList not found!');
+                return;
+            }
+            
+            generatedBarcodes.push(barcode);
+        });
+        
+        console.log('🎯 All barcodes processed. Generated barcodes count:', generatedBarcodes.length);
+        
+        // Show print all button
+        const showPrintBtn = generatedBarcodes.length > 0;
+        if (printAllBtn) {
+            printAllBtn.style.display = showPrintBtn ? 'inline-flex' : 'none';
+            console.log('🖨️ Print all button visibility:', showPrintBtn);
+        } else {
+            console.error('❌ printAllBtn not found!');
+        }
+        
+        console.log('✅ showGeneratedBarcodes completed successfully');
+    }
+    
+    function clearBarcodes() {
+        // Only remove real barcode items, not previews
+        const realItems = barcodesList.querySelectorAll('.barcode-item:not(.preview)');
+        realItems.forEach(item => item.remove());
+        
+        const emptyEl = barcodesList.querySelector('.barcodes-empty');
+        if (emptyEl && previewBarcodes.length === 0) {
+            emptyEl.style.display = 'block';
+        }
+        
+        generatedBarcodes = [];
+        printAllBtn.style.display = 'none';
+    }
+    
+    function printBarcode(code) {
+        try {
+            const printWindow = window.open('', '_blank', 'width=600,height=400');
+            if (!printWindow) {
+                showToast('Popup engellendi! Lütfen bu site için popup ları etkinleştirin.', 'warning');
+                return;
+            }
+            
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Barkod: ${code}</title>
+                        <style>
+                            body { margin: 0; padding: 20px; text-align: center; font-family: Arial, sans-serif; }
+                            img { max-width: 100%; height: auto; }
+                            .barcode-code { font-family: monospace; font-size: 16px; margin-top: 10px; font-weight: bold; }
+                        </style>
+                    </head>
+                    <body onload="setTimeout(function(){ window.print(); }, 500);">
+                        <div>
+                            <img src="/api/barcode/${code}/image" alt="${code}" onload="this.style.display='block'">
+                            <div class="barcode-code">${code}</div>
+                        </div>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
+        } catch (error) {
+            console.error('Print error:', error);
+            showToast('Yazdırma hatası oluştu. Tarayıcı ayarlarınızı kontrol edin.', 'error');
+        }
+    }
+    
+    function printAllBarcodes() {
+        if (generatedBarcodes.length === 0) return;
+        
+        try {
+            const printWindow = window.open('', '_blank', 'width=800,height=600');
+            if (!printWindow) {
+                showToast('Popup engellendi! Lütfen bu site için popup ları etkinleştirin.', 'warning');
+                return;
+            }
+            
+            let content = `
+                <html>
+                    <head>
+                        <title>Tüm Barkodlar</title>
+                        <style>
+                            body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                            .barcode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+                            .barcode-item { text-align: center; page-break-inside: avoid; border: 1px solid #ddd; padding: 10px; }
+                            img { max-width: 100%; height: auto; }
+                            .barcode-code { font-family: monospace; font-size: 14px; margin-top: 5px; font-weight: bold; }
+                            @media print {
+                                body { margin: 0; }
+                                .barcode-item { border: 1px solid #000; }
+                            }
+                        </style>
+                    </head>
+                    <body onload="setTimeout(function(){ window.print(); }, 1000);">
+                        <div class="barcode-grid">
+            `;
+            
+            generatedBarcodes.forEach(barcode => {
+                content += `
+                    <div class="barcode-item">
+                        <img src="/api/barcode/${barcode.code}/image" alt="${barcode.code}">
+                        <div class="barcode-code">${barcode.code}</div>
+                    </div>
+                `;
+            });
+            
+            content += `
+                        </div>
+                    </body>
+                </html>
+            `;
+            
+            printWindow.document.write(content);
+            printWindow.document.close();
+            
+        } catch (error) {
+            console.error('Print all error:', error);
+            showToast('Yazdırma hatası oluştu. Tarayıcı ayarlarınızı kontrol edin.', 'error');
+        }
+    }
+    
+    // Live Barcode Preview Functions
+    function generateUniqueBarcode() {
+        // Generate 6-digit random barcode for preview
+        return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+    
+    function updateBarcodePreview() {
+        if (!selectedProduct) {
+            clearBarcodePreview();
+            return;
+        }
+        
+        clearBarcodePreview();
+        previewBarcodes = [];
+        
+        if (selectedProduct.unit === 'adet') {
+            const quantity = parseInt(document.getElementById('unitQuantity').value) || 0;
+            if (quantity > 0) {
+                for (let i = 0; i < quantity; i++) {
+                    previewBarcodes.push({
+                        code: generateUniqueBarcode(),
+                        label: `${i + 1}. Adet`,
+                        isPreview: true
+                    });
+                }
+            }
+        } else if (selectedProduct.unit === 'metre') {
+            const meterInputs = meterRows.querySelectorAll('.meter-input');
+            meterInputs.forEach((input, index) => {
+                const value = parseFloat(input.value);
+                if (value && value > 0) {
+                    previewBarcodes.push({
+                        code: generateUniqueBarcode(),
+                        label: `${value.toFixed(1)}m`,
+                        isPreview: true
+                    });
+                }
+            });
+        }
+        
+        showBarcodePreview();
+    }
+    
+    function showBarcodePreview() {
+        if (previewBarcodes.length === 0) {
+            return;
+        }
+        
+        const template = document.getElementById('barcodeTemplate');
+        const emptyEl = barcodesList.querySelector('.barcodes-empty');
+        
+        if (emptyEl) {
+            emptyEl.style.display = 'none';
+        }
+        
+        // Add preview header
+        const previewHeader = document.createElement('div');
+        previewHeader.className = 'barcodes-preview-header preview-header';
+        previewHeader.innerHTML = '<i class="fas fa-eye"></i> Barkod Önizlemesi - Henüz Kaydedilmedi';
+        barcodesList.appendChild(previewHeader);
+        
+        previewBarcodes.forEach(barcode => {
+            const clone = template.content.cloneNode(true);
+            
+            // Add preview class
+            clone.querySelector('.barcode-item').classList.add('preview');
+            clone.querySelector('.barcode-item').setAttribute('data-testid', 'barcode-preview-item');
+            
+            clone.querySelector('.barcode-product').textContent = `${selectedProduct.name} - ${barcode.label}`;
+            
+            if (selectedProduct.attributes && selectedProduct.attributes.length > 0) {
+                clone.querySelector('.barcode-attributes').textContent = 
+                    selectedProduct.attributes.map(attr => `${attr.name}: ${attr.value}`).join(' | ');
+            }
+            
+            // Use placeholder for preview
+            const barcodeImg = clone.querySelector('.barcode-img');
+            barcodeImg.src = '/img/placeholder-product.svg';
+            barcodeImg.alt = 'Barkod Önizlemesi';
+            
+            clone.querySelector('.barcode-code').textContent = barcode.code;
+            
+            // Hide print button for preview
+            const printBtn = clone.querySelector('.barcode-print');
+            printBtn.style.display = 'none';
+            
+            // Add preview info
+            const previewInfo = document.createElement('div');
+            previewInfo.className = 'preview-info';
+            previewInfo.innerHTML = '<i class="fas fa-info-circle"></i> Bu bir önizlemedir';
+            clone.querySelector('.barcode-item').appendChild(previewInfo);
+            
+            barcodesList.appendChild(clone);
+        });
+    }
+    
+    function clearBarcodePreview() {
+        // Remove preview items and header
+        const previewItems = barcodesList.querySelectorAll('.barcode-item.preview, .preview-header');
+        previewItems.forEach(item => item.remove());
+        
+        previewBarcodes = [];
+        
+        // Show empty state if no real barcodes
+        if (generatedBarcodes.length === 0) {
+            const emptyEl = barcodesList.querySelector('.barcodes-empty');
+            if (emptyEl) {
+                emptyEl.style.display = 'block';
+            }
+        }
+    }
+    
+    // Print All button handler
+    printAllBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        printAllBarcodes();
+    });
+    
+    // Reset Page button handler
+    resetPageBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('🔄 Reset page button clicked - Full reset');
+        fullPageReset();
+    });
+    
+    function resetForm() {
+        console.log('🔄 resetForm: NO RESET - Keeping ALL data until user clicks "Yeni Stok Girişi"');
+        
+        // DO NOT clear anything - keep everything as is:
+        // - Product selection stays
+        // - Warehouse/shelf stays  
+        // - Quantities stay
+        // - Note stays
+        // - Only generated barcodes are added to the list
+        
+        console.log('✅ resetForm: All form data preserved (user must click reset button to clear)');
+        
+        // Show reset page button after successful stock entry
+        if (resetPageBtn && generatedBarcodes.length > 0) {
+            resetPageBtn.style.display = 'inline-flex';
+            console.log('🔼 Reset page button shown - user can clear all data when ready');
+        }
+        
+        // Don't change focus - let user continue with same data
+        console.log('📝 Form ready for next entry with same data');
+    }
+    
+    function fullPageReset() {
+        console.log('🔄 fullPageReset: Starting complete page reset');
+        
+        // Clear ALL barcodes (including generated ones)
+        clearBarcodes();
+        
+        // ACTUALLY clear the form data - don't call resetForm() as it does nothing now
+        console.log('🧹 Clearing all form fields manually...');
+        
+        // Clear product selection
+        productSearch.value = '';
+        clearSelectedProduct();
+        
+        // Reset warehouse and shelf
+        warehouseSelect.value = '';
+        updateShelfSelection(false, []);
+        
+        // Clear quantities
+        document.getElementById('unitQuantity').value = '';
+        clearMeterRows();
+        
+        // Clear note
+        document.getElementById('stockNote').value = '';
+        
+        // Hide reset page button
+        if (resetPageBtn) {
+            resetPageBtn.style.display = 'none';
+            console.log('🔽 Reset page button hidden');
+        }
+        
+        // Show success message
+        showToast('Sayfa temizlendi! Yeni stok girişi yapabilirsiniz.', 'info');
+        
+        // Focus on product search
+        productSearch.focus();
+        
+        console.log('✅ fullPageReset: Complete page reset finished');
+    }
+    
+    // Toast notification system
+    function showToast(message, type = 'info') {
+        // Remove existing toasts
+        const existingToasts = document.querySelectorAll('.toast');
+        existingToasts.forEach(toast => toast.remove());
+        
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <div class="toast-content">
+                <i class="fas ${getToastIcon(type)}"></i>
+                <span>${message}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        
+        document.body.appendChild(toast);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.remove();
+            }
+        }, 5000);
+        
+        // Add click to dismiss
+        toast.addEventListener('click', function() {
+            this.remove();
+        });
+    }
+    
+    function getToastIcon(type) {
+        switch(type) {
+            case 'success': return 'fa-check-circle';
+            case 'error': return 'fa-exclamation-circle';
+            case 'warning': return 'fa-exclamation-triangle';
+            default: return 'fa-info-circle';
+        }
+    }
+    
+    // ========== BARCODE LABEL TEMPLATE FUNCTIONALITY ==========
+    
+    // Template-related variables
+    let availableTemplates = [];
+    let selectedTemplate = null;
+    let generatedLabels = [];
+    
+    // Template functionality DOM elements
+    const labelTemplateSelect = document.getElementById('labelTemplateSelect');
+    const templatePreviewContainer = document.getElementById('templatePreviewContainer');
+    const templatePreviewCanvas = document.getElementById('templatePreviewCanvas');
+    const templateDimensions = document.getElementById('templateDimensions');
+    const barcodeLabelsSection = document.getElementById('barcodeLabelsSection');
+    const barcodeLabelsGrid = document.getElementById('barcodeLabelsGrid');
+    const printAllLabelsBtn = document.getElementById('printAllLabelsBtn');
+    const downloadLabelsBtn = document.getElementById('downloadLabelsBtn');
+    const showPreviewCheckbox = document.getElementById('showPreview');
+    
+    // Debug: Check DOM element before loading templates
+    console.log('🔍 DEBUG: labelTemplateSelect element:', labelTemplateSelect);
+    console.log('🔍 DEBUG: Element exists?', !!labelTemplateSelect);
+    
+    // Load templates on page load
+    if (labelTemplateSelect) {
+        loadLabelTemplates();
+    } else {
+        console.error('❌ labelTemplateSelect element not found!');
+    }
+    
+    // Template selection handler
+    if (labelTemplateSelect) {
+        labelTemplateSelect.addEventListener('change', function() {
+            const templateId = this.value;
+            if (templateId) {
+                loadTemplatePreview(templateId);
+            } else {
+                clearTemplatePreview();
+            }
+        });
+    }
+    
+    // Show/hide preview functionality
+    if (showPreviewCheckbox) {
+        showPreviewCheckbox.addEventListener('change', function() {
+            if (this.checked && selectedTemplate) {
+                templatePreviewContainer.style.display = 'block';
+            } else {
+                templatePreviewContainer.style.display = 'none';
+            }
+        });
+    }
+    
+    // Print all labels handler
+    if (printAllLabelsBtn) {
+        printAllLabelsBtn.addEventListener('click', function() {
+            printAllLabels();
+        });
+    }
+    
+    // Download labels handler
+    if (downloadLabelsBtn) {
+        downloadLabelsBtn.addEventListener('click', function() {
+            downloadLabelsAsPDF();
+        });
+    }
+    
+    // Load available templates
+    async function loadLabelTemplates() {
+        try {
+            console.log('🏷️ Loading label templates...');
+            const response = await fetch('/api/labels');
+            if (!response.ok) throw new Error('Failed to load templates');
+            
+            availableTemplates = await response.json();
+            console.log('✅ Templates loaded:', availableTemplates.length);
+            
+            populateTemplateDropdown();
+            
+            // Auto-select default template if available
+            const defaultTemplate = availableTemplates.find(t => t.isDefault);
+            if (defaultTemplate) {
+                labelTemplateSelect.value = defaultTemplate.id;
+                loadTemplatePreview(defaultTemplate.id);
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading templates:', error);
+            showToast('Şablon yükleme hatası: ' + error.message, 'error');
+        }
+    }
+    
+    // Populate template dropdown
+    function populateTemplateDropdown() {
+        if (!labelTemplateSelect) return;
+        
+        // Clear existing options except the first one
+        labelTemplateSelect.innerHTML = '<option value="">Şablon seçiniz...</option>';
+        
+        availableTemplates.forEach(template => {
+            const option = document.createElement('option');
+            option.value = template.id;
+            option.textContent = `${template.name} (${template.width}×${template.height}mm)`;
+            if (template.isDefault) {
+                option.textContent += ' - Varsayılan';
+            }
+            labelTemplateSelect.appendChild(option);
+        });
+    }
+    
+    // Load template preview
+    async function loadTemplatePreview(templateId) {
+        try {
+            console.log('🔍 Loading template preview:', templateId);
+            const response = await fetch(`/api/labels/${templateId}`);
+            if (!response.ok) throw new Error('Template not found');
+            
+            selectedTemplate = await response.json();
+            console.log('✅ Template loaded for preview:', selectedTemplate.name);
+            
+            renderTemplatePreview();
+            
+            if (showPreviewCheckbox && showPreviewCheckbox.checked) {
+                templatePreviewContainer.style.display = 'block';
+            }
+            
+        } catch (error) {
+            console.error('❌ Error loading template preview:', error);
+            clearTemplatePreview();
+            showToast('Şablon önizleme hatası: ' + error.message, 'error');
+        }
+    }
+    
+    // Render template preview
+    function renderTemplatePreview() {
+        if (!selectedTemplate || !templatePreviewCanvas) return;
+        
+        console.log('🎨 Rendering template preview...');
+        
+        // Update dimensions
+        if (templateDimensions) {
+            templateDimensions.textContent = `${selectedTemplate.width}×${selectedTemplate.height}mm`;
+        }
+        
+        // Clear canvas
+        templatePreviewCanvas.innerHTML = '';
+        templatePreviewCanvas.classList.add('has-template');
+        
+        // Set canvas dimensions (scale down for preview)
+        const scale = 2; // 2px per mm for preview
+        const canvasWidth = selectedTemplate.width * scale;
+        const canvasHeight = selectedTemplate.height * scale;
+        
+        templatePreviewCanvas.style.width = canvasWidth + 'px';
+        templatePreviewCanvas.style.height = canvasHeight + 'px';
+        templatePreviewCanvas.style.position = 'relative';
+        
+        // Render elements
+        if (selectedTemplate.elements && selectedTemplate.elements.length > 0) {
+            selectedTemplate.elements.forEach((element, index) => {
+                renderPreviewElement(element, scale);
+            });
+        } else {
+            templatePreviewCanvas.innerHTML = '<div class="template-preview-placeholder">Şablonda element bulunamadı</div>';
+        }
+        
+        console.log('✅ Template preview rendered');
+    }
+    
+    // Render individual preview element
+    function renderPreviewElement(element, scale) {
+        const elementDiv = document.createElement('div');
+        elementDiv.className = `template-preview-element type-${element.type}`;
+        
+        // Position and size
+        elementDiv.style.left = (element.x * scale) + 'px';
+        elementDiv.style.top = (element.y * scale) + 'px';
+        elementDiv.style.width = (element.width * scale) + 'px';
+        elementDiv.style.height = (element.height * scale) + 'px';
+        
+        // Content based on type
+        let content = '';
+        switch (element.type) {
+            case 'text':
+                content = element.field === 'productName' ? 'Ürün Adı' :
+                         element.field === 'features' ? 'Özellikler' :
+                         element.field === 'price' ? 'Fiyat' :
+                         element.field === 'date' ? 'Tarih' : element.field;
+                break;
+            case 'barcode':
+                content = '||||||||||||';
+                break;
+            case 'image':
+                content = '🖼️';
+                break;
+            default:
+                content = element.field;
+        }
+        
+        elementDiv.textContent = content;
+        templatePreviewCanvas.appendChild(elementDiv);
+    }
+    
+    // Clear template preview
+    function clearTemplatePreview() {
+        selectedTemplate = null;
+        if (templatePreviewCanvas) {
+            templatePreviewCanvas.innerHTML = '<div class="template-preview-placeholder">Şablon seçilmedi</div>';
+            templatePreviewCanvas.classList.remove('has-template');
+        }
+        if (templatePreviewContainer) {
+            templatePreviewContainer.style.display = 'none';
+        }
+    }
+    
+    // Generate barcode labels with template
+    async function generateBarcodeLabels(barcodes, productData) {
+        if (!selectedTemplate) {
+            console.log('⚠️ No template selected, using default barcode display');
+            return;
+        }
+        
+        try {
+            console.log('🏷️ Generating barcode labels with template:', selectedTemplate.name);
+            
+            const response = await fetch('/api/barcode/print-labels', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    barcodes: barcodes.map(b => b.code),
+                    templateId: selectedTemplate.id,
+                    productData: productData
+                })
+            });
+            
+            if (!response.ok) throw new Error('Failed to generate labels');
+            
+            const result = await response.json();
+            console.log('✅ Labels generated:', result.count);
+            
+            generatedLabels = result.labels;
+            displayGeneratedLabels();
+            
+        } catch (error) {
+            console.error('❌ Error generating labels:', error);
+            showToast('Etiket oluşturma hatası: ' + error.message, 'error');
+        }
+    }
+    
+    // Display generated labels
+    function displayGeneratedLabels() {
+        if (!generatedLabels.length || !barcodeLabelsGrid) return;
+        
+        console.log('📱 Displaying generated labels:', generatedLabels.length);
+        
+        barcodeLabelsGrid.innerHTML = '';
+        
+        generatedLabels.forEach((label, index) => {
+            const labelItem = createLabelItem(label, index);
+            barcodeLabelsGrid.appendChild(labelItem);
+        });
+        
+        if (barcodeLabelsSection) {
+            barcodeLabelsSection.style.display = 'block';
+        }
+    }
+    
+    // Create label item
+    function createLabelItem(label, index) {
+        const item = document.createElement('div');
+        item.className = 'barcode-label-item';
+        item.dataset.testid = `barcode-label-${index}`;
+        
+        const template = label.template;
+        const data = label.data;
+        
+        item.innerHTML = `
+            <div class="barcode-label-preview">
+                ${renderLabelPreview(template, data)}
+            </div>
+            <div class="barcode-label-info">
+                <div class="barcode-label-code">${label.barcodeCode}</div>
+                <div class="barcode-label-template">${template.name}</div>
+                <div class="barcode-label-actions">
+                    <button type="button" class="btn btn-primary btn-xs" onclick="printSingleLabel('${label.barcodeCode}')" data-testid="button-print-single">
+                        <i class="fas fa-print"></i> Yazdır
+                    </button>
+                    <button type="button" class="btn btn-outline btn-xs" onclick="previewSingleLabel('${label.barcodeCode}')" data-testid="button-preview-single">
+                        <i class="fas fa-eye"></i> Önizle
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        return item;
+    }
+    
+    // Render label preview
+    function renderLabelPreview(template, data) {
+        const scale = 1.5; // Scale for preview
+        let html = '';
+        
+        if (template.elements) {
+            template.elements.forEach(element => {
+                const x = element.x * scale;
+                const y = element.y * scale;
+                const width = element.width * scale;
+                const height = element.height * scale;
+                
+                let content = '';
+                let fontSize = '0.625rem';
+                
+                if (element.fontSize) {
+                    fontSize = Math.max(0.5, element.fontSize * scale / 16) + 'rem';
+                }
+                
+                switch (element.type) {
+                    case 'text':
+                        content = data[element.field] || element.field;
+                        if (element.field === 'price') {
+                            content += ' TL';
+                        }
+                        break;
+                    case 'barcode':
+                        content = '||||||||||||';
+                        fontSize = '0.5rem';
+                        break;
+                    case 'image':
+                        content = '<i class="fas fa-image"></i>';
+                        break;
+                }
+                
+                html += `
+                    <div class="label-element type-${element.type}" style="
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: ${width}px;
+                        height: ${height}px;
+                        font-size: ${fontSize};
+                        font-weight: ${element.bold ? 'bold' : 'normal'};
+                        text-align: ${element.align || 'left'};
+                    ">${content}</div>
+                `;
+            });
+        }
+        
+        return html;
+    }
+    
+    // Print all labels
+    function printAllLabels() {
+        if (!generatedLabels.length) return;
+        
+        console.log('🖨️ Printing all labels:', generatedLabels.length);
+        
+        // Create print window
+        const printWindow = window.open('', '_blank');
+        const labelHTML = generatePrintHTML(generatedLabels);
+        
+        printWindow.document.write(labelHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+    }
+    
+    // Print single label
+    window.printSingleLabel = function(barcodeCode) {
+        const label = generatedLabels.find(l => l.barcodeCode === barcodeCode);
+        if (!label) return;
+        
+        console.log('🖨️ Printing single label:', barcodeCode);
+        
+        const printWindow = window.open('', '_blank');
+        const labelHTML = generatePrintHTML([label]);
+        
+        printWindow.document.write(labelHTML);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+    };
+    
+    // Preview single label
+    window.previewSingleLabel = function(barcodeCode) {
+        const label = generatedLabels.find(l => l.barcodeCode === barcodeCode);
+        if (!label) return;
+        
+        console.log('👁️ Previewing single label:', barcodeCode);
+        
+        // TODO: Implement modal preview
+        showToast('Etiket önizlemesi: ' + barcodeCode, 'info');
+    };
+    
+    // Generate print HTML
+    function generatePrintHTML(labels) {
+        const template = labels[0]?.template;
+        if (!template) return '';
+        
+        const mmToPx = 3.78; // 96 DPI conversion
+        const labelWidth = template.width * mmToPx;
+        const labelHeight = template.height * mmToPx;
+        
+        let labelsHTML = '';
+        labels.forEach(label => {
+            labelsHTML += `
+                <div class="print-label" style="
+                    width: ${labelWidth}px;
+                    height: ${labelHeight}px;
+                    position: relative;
+                    border: 1px solid #ccc;
+                    margin: 10px;
+                    background: white;
+                    page-break-inside: avoid;
+                ">
+                    ${renderLabelForPrint(label.template, label.data, mmToPx)}
+                </div>
+            `;
+        });
+        
+        return `
+            <html>
+            <head>
+                <title>Barkod Etiketleri</title>
+                <style>
+                    body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                    .print-label { display: inline-block; }
+                    .print-element { position: absolute; overflow: hidden; }
+                    @media print {
+                        body { margin: 0; padding: 0; }
+                        .print-label { margin: 0; border: none; }
+                    }
+                </style>
+            </head>
+            <body>
+                ${labelsHTML}
+            </body>
+            </html>
+        `;
+    }
+    
+    // Render label for print
+    function renderLabelForPrint(template, data, scale) {
+        let html = '';
+        
+        if (template.elements) {
+            template.elements.forEach(element => {
+                const x = element.x * scale;
+                const y = element.y * scale;
+                const width = element.width * scale;
+                const height = element.height * scale;
+                
+                let content = '';
+                let fontSize = 12;
+                
+                if (element.fontSize) {
+                    fontSize = element.fontSize * scale / 4; // Convert to print size
+                }
+                
+                switch (element.type) {
+                    case 'text':
+                        content = data[element.field] || element.field;
+                        if (element.field === 'price') {
+                            content += ' TL';
+                        }
+                        break;
+                    case 'barcode':
+                        // In real implementation, this would be the actual barcode image
+                        content = data.barcodeImage ? `<img src="${data.barcodeImage}" style="width: 100%; height: 100%;" />` : '||||||||||||';
+                        break;
+                    case 'image':
+                        content = data[element.field] ? `<img src="${data[element.field]}" style="width: 100%; height: 100%;" />` : '';
+                        break;
+                }
+                
+                html += `
+                    <div class="print-element" style="
+                        left: ${x}px;
+                        top: ${y}px;
+                        width: ${width}px;
+                        height: ${height}px;
+                        font-size: ${fontSize}px;
+                        font-weight: ${element.bold ? 'bold' : 'normal'};
+                        text-align: ${element.align || 'left'};
+                        line-height: 1.2;
+                    ">${content}</div>
+                `;
+            });
+        }
+        
+        return html;
+    }
+    
+    // Download labels as PDF
+    function downloadLabelsAsPDF() {
+        console.log('📄 PDF download requested');
+        showToast('PDF indirme özelliği yakında eklenecek', 'info');
+    }
+    
+    // Override the existing showGeneratedBarcodes function to integrate with templates
+    const originalShowGeneratedBarcodes = showGeneratedBarcodes;
+    showGeneratedBarcodes = function(barcodes, product) {
+        // Call original function first
+        originalShowGeneratedBarcodes(barcodes, product);
+        
+        // Generate template-based labels if template is selected
+        if (selectedTemplate && barcodes && barcodes.length > 0) {
+            const productData = product || selectedProduct;
+            if (productData) {
+                generateBarcodeLabels(barcodes, productData);
+            }
+        }
+    };
+    
+    console.log('🏷️ Barcode label template functionality initialized');
+    
+    // Initialize
+    productSearch.focus();
+});
+</script>
