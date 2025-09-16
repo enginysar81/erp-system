@@ -1,0 +1,122 @@
+[
+  {
+    "id": "ct_001",
+    "customerId": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "type": "sale",
+    "amount": 1250.00,
+    "currency": "USD",
+    "description": "Perde ve Yatak Örtüsü Satışı",
+    "date": "2025-09-14T14:30:00.000Z",
+    "reference": "INV-2025-001",
+    "createdAt": "2025-09-14T14:30:00.000Z",
+    "updatedAt": "2025-09-14T14:30:00.000Z"
+  },
+  {
+    "id": "ct_002",
+    "customerId": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "type": "payment",
+    "amount": 800.00,
+    "currency": "USD",
+    "description": "Nakit Ödeme",
+    "date": "2025-09-14T15:45:00.000Z",
+    "reference": "PAY-2025-001",
+    "createdAt": "2025-09-14T15:45:00.000Z",
+    "updatedAt": "2025-09-14T15:45:00.000Z"
+  },
+  {
+    "id": "ct_003",
+    "customerId": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "type": "sale",
+    "amount": 890.50,
+    "currency": "USD",
+    "description": "Kumaş Satışı - 25 metre",
+    "date": "2025-09-12T10:15:00.000Z",
+    "reference": "INV-2025-002",
+    "createdAt": "2025-09-12T10:15:00.000Z",
+    "updatedAt": "2025-09-12T10:15:00.000Z"
+  },
+  {
+    "id": "ct_004",
+    "customerId": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "type": "return",
+    "amount": -150.00,
+    "currency": "USD",
+    "description": "Ürün İadesi - Hasarlı Kumaş",
+    "date": "2025-09-10T16:20:00.000Z",
+    "reference": "RET-2025-001",
+    "createdAt": "2025-09-10T16:20:00.000Z",
+    "updatedAt": "2025-09-10T16:20:00.000Z"
+  },
+  {
+    "id": "ct_005",
+    "customerId": "b48bac5b-3f75-4281-ae4c-2f2dd30af385",
+    "type": "payment",
+    "amount": 500.00,
+    "currency": "USD",
+    "description": "Banka Havalesi",
+    "date": "2025-09-08T11:30:00.000Z",
+    "reference": "PAY-2025-002",
+    "createdAt": "2025-09-08T11:30:00.000Z",
+    "updatedAt": "2025-09-08T11:30:00.000Z"
+  },
+  {
+    "id": "ct_006",
+    "customerId": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "type": "sale",
+    "amount": 750.00,
+    "currency": "PLN",
+    "description": "Ev Tekstili Paketi",
+    "date": "2025-09-13T16:45:00.000Z",
+    "reference": "INV-2025-003",
+    "createdAt": "2025-09-13T16:45:00.000Z",
+    "updatedAt": "2025-09-13T16:45:00.000Z"
+  },
+  {
+    "id": "ct_007",
+    "customerId": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "type": "payment",
+    "amount": 400.00,
+    "currency": "PLN",
+    "description": "Kredi Kartı Ödemesi",
+    "date": "2025-09-13T17:00:00.000Z",
+    "reference": "PAY-2025-003",
+    "createdAt": "2025-09-13T17:00:00.000Z",
+    "updatedAt": "2025-09-13T17:00:00.000Z"
+  },
+  {
+    "id": "ct_008",
+    "customerId": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "type": "sale",
+    "amount": 420.75,
+    "currency": "PLN",
+    "description": "Dekoratif Kumaş - 15 metre",
+    "date": "2025-09-11T14:20:00.000Z",
+    "reference": "INV-2025-004",
+    "createdAt": "2025-09-11T14:20:00.000Z",
+    "updatedAt": "2025-09-11T14:20:00.000Z"
+  },
+  {
+    "id": "ct_009",
+    "customerId": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "type": "payment",
+    "amount": 420.75,
+    "currency": "PLN",
+    "description": "Nakit Ödeme",
+    "date": "2025-09-11T14:25:00.000Z",
+    "reference": "PAY-2025-004",
+    "createdAt": "2025-09-11T14:25:00.000Z",
+    "updatedAt": "2025-09-11T14:25:00.000Z"
+  },
+  {
+    "id": "ct_010",
+    "customerId": "b3416d59-633b-442c-b734-3ce7a5948c71",
+    "type": "adjustment",
+    "amount": -50.00,
+    "currency": "PLN",
+    "description": "İndirim Düzeltmesi",
+    "date": "2025-09-09T13:15:00.000Z",
+    "reference": "ADJ-2025-001",
+    "createdAt": "2025-09-09T13:15:00.000Z",
+    "updatedAt": "2025-09-09T13:15:00.000Z"
+  }
+]
