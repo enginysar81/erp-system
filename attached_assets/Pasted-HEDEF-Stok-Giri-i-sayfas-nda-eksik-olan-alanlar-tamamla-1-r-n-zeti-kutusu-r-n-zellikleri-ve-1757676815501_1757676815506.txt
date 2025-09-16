@@ -1,0 +1,64 @@
+HEDEF
+Stok Girişi sayfasında eksik olan alanları tamamla:
+1) Ürün Özeti kutusu ürün özellikleri ve fiyatlarla dolu gelsin
+2) Miktar Bilgileri bölümü ürün birimine göre (adet/metre) dinamik çalışsın
+3) Barkodlar kaydetmeden önce canlı listelensin
+
+1) ÜRÜN SEÇİMİ
+- Kullanıcı ürün seçince sağdaki “Ürün Özeti” kutusu şu bilgileri göstermeli:
+  • Ürün adı + kodu
+  • Birim (adet/metre)
+  • Güncel stok miktarı
+  • Durum (Aktif/Pasif)
+  • Ürün özellikleri: Renk, Zemin, İplik vb. chip formatında
+  • Fiyat bilgileri: Alış ve satış fiyatı (birimleriyle birlikte)
+- Görsel varsa ürün resmi küçük thumbnail olarak üstte görünsün
+
+2) MİKTAR BİLGİLERİ
+- Eğer ürün.birim == "adet":
+  • Input: “Adet” (number, >0)
+  • Kullanıcı 10 girerse → 10 adet barkod otomatik üretilsin
+  • Barkodlar barkod kutusunda canlı listelensin
+- Eğer ürün.birim == "metre":
+  • Kullanıcı metreleri satır satır girecek
+     – Default 1 satır gelir
+     – “+ Metre Ekle” butonu ile yeni satır açılır
+     – Her satıra number input (örn: 3.25)
+  • Her metre satırı için ayrı barkod üretilir
+  • Barkodlar barkod kutusunda canlı listelensin
+- Tüm barkodlar kaydet butonuna basmadan önce hazır olmalı
+
+3) OLUŞTURULAN BARKODLAR KUTUSU
+- Barkod tipi: code128, 6 haneli benzersiz sayı
+- Liste kart içinde görünsün:
+   • Barkod görseli
+   • Barkod numarası
+   • Ürün adı + özellikleri
+- Altında “Tümünü Yazdır” butonu olsun
+- Barkodlar form submit edilmeden önce önizleme şeklinde görünür
+
+4) KAYDET İŞLEMİ
+- Kullanıcı “Stok Girişi Yap” dediğinde:
+  • Stok hareketi kaydedilir (stockMovements.json’a eklenir)
+  • Barkodlar kaydedilir (ürün ile ilişkilendirilir)
+  • Ürün stok alanı güncellenir
+  • Sayfa başarı mesajı verir ve barkodlar yazdırılabilir
+
+5) i18n (TR/PL/UA) yeni anahtarlar
+- stockIn.unitPiece: "Adet"
+- stockIn.unitMeter: "Metre"
+- stockIn.addMeterRow: "+ Metre Ekle"
+- stockIn.productSummary: "Ürün Özeti"
+- stockIn.features: "Özellikler"
+- stockIn.prices: "Fiyat Bilgileri"
+- stockIn.buyPrice: "Alış Fiyatı"
+- stockIn.sellPrice: "Satış Fiyatı"
+- stockIn.generatedBarcodes: "Oluşturulan Barkodlar"
+- stockIn.noBarcodeYet: "Henüz barkod oluşturulmadı"
+
+6) KABUL KRİTERLERİ
+- Ürün seçildiğinde ürün özetinde özellikler + fiyat bilgileri görünür
+- Birim adet ise tek input → o kadar barkod çıkar
+- Birim metre ise satır satır giriş → her satır için barkod çıkar
+- Barkodlar kayıttan önce ekranda önizlenir
+- Kaydet sonrası barkodlar veritabanına yazılır ve yazdırılabilir
