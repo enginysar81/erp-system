@@ -1,0 +1,63 @@
+Mevcut ERP projesinde sadece UI/yerleşimi aşağıdaki gibi güncelle. İşlevleri (route’lar, veriler) aynen koru.
+
+1) Genel Yerleşim
+- /views/layout.ejs dosyasını revize et:
+  * Sol tarafta sabit (fixed) bir sidebar olsun, genişlik 260px.
+  * Sidebar tam yükseklik: height: 100vh; position: fixed; left: 0; top: 0; overflow-y: auto;
+  * Sağ tarafta “content” alanı olsun; margin-left: 260px; min-height: 100vh; overflow-x: hidden;
+  * Üstte içerik başlığı ve sağda eylem çubuğu (Filtrele, Ürün Ekle) için sticky toolbar ekle:
+    - position: sticky; top: 0; z-index: 10; backdrop-filter: blur(6px); background: rgba(255,255,255,.85);
+- Sidebar’da aktif menü öğesi belirgin olsun (sol kenarda 4px vurgu şeridi ve farklı arka plan).
+- Dil seçim chip’leri (TR / PL / UA) sidebar’ın üstünde sabit kalsın.
+
+2) Stil Rehberi (public/css/style.css)
+- Renkler (sade ERP):
+  --bg: #F5F7FB; --card: #FFFFFF; --muted: #6B7280; --border: #E5E7EB;
+  --primary: #2563EB; --success: #16A34A; --warning: #F59E0B; --danger: #DC2626;
+- Kenarlık/Radius/Shadow: border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.06);
+- Tipografi: başlıklar semibold, metin normal; satır aralığı 1.4; tutarlı spacing (8px grid).
+- Buton stilleri: .btn, .btn-outline, .btn-danger; hover ve focus state’leri belirgin.
+- Badge stilleri: mavi (bilgi), yeşil (aktif), gri (pasif), sarı (düşük stok).
+- Scroll davranışı: body{background:var(--bg)}; içerik alanı dikey kayar; sidebar sabit kalır.
+
+3) Ürünler Sayfası (views/products.ejs)
+- Üst “özet kutular” satırını grid ile hizala:
+  * 4 kart, minmax(220px, 1fr); gap: 16px; kartlar .stat-card sınıfı.
+  * İkon/başlık/metrik hiyerarşisi: metrik büyük, başlık küçük ve muted.
+- Sağ üstte eylem çubuğu:
+  * Sağda iki buton: [Filtrele] (btn-outline) ve [+ Ürün Ekle] (btn-primary).
+  * Toolbar sticky (bkz. madde 1).
+- Ürün kart grid’i:
+  * CSS Grid: grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;
+  * Kart yapısı:
+    - Üstte kapak görseli için 16:9 alan (aspect-ratio: 16/9; background:#f3f4f6; border-bottom:1px solid var(--border)).
+    - <img> için: width:100%; height:100%; object-fit: cover; loading="lazy";
+    - img error fallback: onerror="this.src='/img/placeholder-product.svg'; this.onerror=null;"
+    - Sağ üst köşede durum badge’i (Aktif/ Pasif), position:absolute; top:12px; right:12px.
+    - Gövde: ürün adı (semibold), kısa açıklama (muted), fiyat kutusu (alış/satış yan yana, yumuşak arka plan), stok badge’i (sağ uca hizalı).
+    - Özellik listesi: attributes objesini key:value olarak iki sütunlu liste (.attrs-grid: grid 2 sütun, küçük metin).
+    - Alt aksiyonlar: 3 buton tek satırda – [📈 İstatistikler] [✏️ Düzenle] [Aktif Et/Pasif Et]; butonlar eşit genişlikte.
+  * Kart hover: hafif yükselme (transform: translateY(-2px); shadow artışı).
+
+4) Görsel Yükleme & Eksik Görsel Sorunu
+- public/img/placeholder-product.svg ekle ve tüm ürün kartlarında kapak görseli yoksa bunu göster.
+- Ürün coverImage yolu “/uploads/…” ile başlasın; eğer relatif ise server.js static path zaten public dizinine işaret ediyor olmalı.
+- Lazy-load aktif (loading="lazy"); uzun listelerde performansı artırmak için IntersectionObserver ile “.reveal” sınıfına fade-in animasyonu uygula (public/js/main.js).
+
+5) Düşük Stok Vurgusu
+- stock < 5 ise ürün kartında stok badge’i sarı (.badge-warning), aksi halde mavi (.badge-info).
+- Üst özet kutuda “Düşük Stok” ikonlu uyarı rengi (#F59E0B).
+
+6) i18n (TR/PL/UA) Metinleri Koru
+- Başlıklar, butonlar, özet kutu etiketleri __() ile gelsin (mevcut anahtarları kullan).
+- Yeni eklediğin sınıflar/ikonlar metinleri değiştirmesin, sadece görünümü iyileştir.
+
+7) Erişilebilirlik
+- Tüm interaktif öğelerde :focus halka görünür olsun (outline-offset: 2px).
+- Kart görseline alt metin: alt="<%= product.name %>".
+
+8) Test/Kabul Kriterleri
+- Sol menü sabit; sayfa aşağı/yukarı kaydırıldığında sadece içerik hareket eder.
+- 1280px+, 1024px, 768px ve 360px genişliklerde grid düzgün kırılır.
+- Kapak resmi olmayan ürünlerde placeholder görünür; bozuk resim src’sinde fallback çalışır.
+- Aktif/Pasif badge rengi doğru; stok badge rengi eşik değerine göre değişir.
