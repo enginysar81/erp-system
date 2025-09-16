@@ -1,0 +1,140 @@
+PROJE ALT YAPISI
+- Backend: Node.js + Express
+- Frontend: EJS template engine + CSS (React olmayacak)
+- Çoklu dil desteği TR / PL / UA (i18n)
+- Veritabanı: müşteri kartları, hareketler (satış, ödeme, iade), bakiyeler
+
+HEDEF
+ERP seviyesinde müşteri yönetim modülü oluştur:
+- Müşteri kartı
+- Cari hesap hareketleri
+- Ödeme alma
+- Müşteri istatistikleri (hacim, sadakat, aktif/pasif)
+
+1) MÜŞTERİ KARTI
+Form alanları:
+- [ ] Müşteri kodunu otomatik oluştur (checkbox)
+   • Checkbox işaretli → sistem 6 haneli sayı üretir (100000’den başlar, +1 artar, 00 ile başlamaz)
+   • Checkbox boş → kullanıcı manuel girer
+- Müşteri Adı (zorunlu)
+- Telefon
+- Adres
+- Para Birimi (USD, PLN, UAH, TRY)
+- Açılış Bakiyesi
+- [Kaydet]
+
+2) MÜŞTERİ LİSTESİ
+Tablo sütunları:
+- Müşteri Kodu
+- Müşteri Adı
+- Telefon
+- Bakiye (Borç kırmızı, Alacak yeşil)
+- İşlemler: Düzenle | Cari Hesap Gör | Ödeme Al | Sil
+
+3) CARİ HESAP
+- Müşteri detay sayfasında borç/alacak/bakiye özeti
+- Hareket tablosu:
+   • Tarih
+   • İşlem Türü (Satış, Ödeme, İade)
+   • Açıklama
+   • Borç
+   • Alacak
+   • Kalan Bakiye
+- Filtre: tarih aralığı + işlem türü
+- Export CSV/PDF, Yazdır
+
+4) ÖDEME AL
+- Müşteri listesinde veya hesap sayfasında “Ödeme Al” butonu
+- Modal: Tutar, Para Birimi, Açıklama, Tarih
+- Kaydet → hareket cari hesaba eklenir, bakiye güncellenir
+
+5) MÜŞTERİ İSTATİSTİKLERİ
+- KPI Kartları:
+   • Toplam müşteri
+   • Toplam borç
+   • Toplam alacak
+   • En çok alış yapan müşteri
+   • En çok ödeme yapan müşteri
+- Grafikler:
+   • Çubuk: En çok işlem yapan ilk 10 müşteri
+   • Pasta: Sadakat dağılımı (Altın / Gümüş / Bronz)
+   • Çizgi: Son 12 ay müşteri hareketleri
+- Tablo:
+   • Müşteri kodu
+   • Adı
+   • Toplam Satış
+   • Toplam Ödeme
+   • Bakiye
+   • İşlem Sayısı
+   • Sadakat seviyesi
+- Sadakat Seviyesi:
+   • Altın: yüksek hacim + düzenli işlem
+   • Gümüş: orta
+   • Bronz: düşük veya pasif
+
+6) TASARIM
+- Modern dashboard görünümü
+- Gri arka plan, beyaz kartlar
+- Responsive
+- Renkli rozetler (borç/alacak, sadakat)
+
+7) i18n (TR/PL/UA)
+TR:
+- customers.autoCode: "Müşteri kodunu otomatik oluştur"
+- customers.code: "Müşteri Kodu"
+- customers.name: "Müşteri Adı"
+- customers.phone: "Telefon"
+- customers.address: "Adres"
+- customers.currency: "Para Birimi"
+- customers.openingBalance: "Açılış Bakiyesi"
+- customers.save: "Kaydet"
+- customers.pay: "Ödeme Al"
+- stats.title: "Müşteri İstatistikleri"
+- stats.topBuyer: "En Çok Alış Yapan"
+- stats.noPurchase: "Uzun Süredir Alış Yapmayan"
+- loyalty.gold: "Altın"
+- loyalty.silver: "Gümüş"
+- loyalty.bronze: "Bronz"
+
+PL:
+- customers.autoCode: "Automatycznie generuj kod klienta"
+- customers.code: "Kod klienta"
+- customers.name: "Nazwa klienta"
+- customers.phone: "Telefon"
+- customers.address: "Adres"
+- customers.currency: "Waluta"
+- customers.openingBalance: "Saldo początkowe"
+- customers.save: "Zapisz"
+- customers.pay: "Przyjmij płatność"
+- stats.title: "Statystyki klientów"
+- stats.topBuyer: "Najlepszy klient"
+- stats.noPurchase: "Długo bez zakupów"
+- loyalty.gold: "Złoto"
+- loyalty.silver: "Srebro"
+- loyalty.bronze: "Brąz"
+
+UA:
+- customers.autoCode: "Автоматично створити код клієнта"
+- customers.code: "Код клієнта"
+- customers.name: "Назва клієнта"
+- customers.phone: "Телефон"
+- customers.address: "Адреса"
+- customers.currency: "Валюта"
+- customers.openingBalance: "Початковий баланс"
+- customers.save: "Зберегти"
+- customers.pay: "Прийняти оплату"
+- stats.title: "Статистика клієнтів"
+- stats.topBuyer: "Найкращий клієнт"
+- stats.noPurchase: "Давно не купував"
+- loyalty.gold: "Золото"
+- loyalty.silver: "Срібло"
+- loyalty.bronze: "Бронза"
+
+8) KABUL KRİTERLERİ
+- Müşteri kodu manuel ya da otomatik verilebilecek
+- Müşteri ekleme/düzenleme/silme yapılabilecek
+- Cari hesap borç/alacak detaylı çalışacak
+- Ödeme alma işlemleri çalışacak
+- İstatistik sayfası müşteri sadakati, en çok işlem yapan, uzun süredir işlem yapmayan müşterileri gösterecek
+- Tüm sayfalar TR/PL/UA çoklu dil desteğine sahip olacak
+- Tasarım profesyonel, kullanıcı dostu ve responsive olacak
