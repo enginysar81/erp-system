@@ -1,0 +1,1813 @@
+<!-- Professional Customer Management Page - Layout Fragment -->
+<style>
+    /* Modern Professional ERP Customer Management Styles */
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 1400px;
+        margin: 0 auto;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .header-icon {
+        width: 60px;
+        height: 60px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+    }
+
+    .page-subtitle {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .view-toggle {
+        display: flex;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        padding: 4px;
+    }
+
+    .btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+    }
+
+    .btn-primary {
+        background: #4f46e5;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-outline {
+        background: transparent;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .btn[data-active="true"] {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .filter-badge {
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 4px;
+    }
+
+    .page-content {
+        flex: 1;
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    /* Advanced Filters */
+    .advanced-filters {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height 0.3s ease;
+    }
+
+    .advanced-filters.open {
+        max-height: 400px;
+    }
+
+    .filters-header {
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .filters-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .filters-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.875rem;
+    }
+
+    .filter-input, .filter-select {
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        transition: border-color 0.3s ease;
+    }
+
+    .filter-input:focus, .filter-select:focus {
+        outline: none;
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+
+    .search-input-wrapper {
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+    }
+
+    .range-inputs {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .range-input {
+        flex: 1;
+    }
+
+    .range-separator {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .filters-actions {
+        padding: 1.5rem 2rem;
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+    }
+
+    /* KPI Dashboard */
+    .kpi-dashboard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .kpi-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+    .kpi-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        color: white;
+    }
+
+    .kpi-primary .kpi-icon { background: linear-gradient(135deg, #667eea, #764ba2); }
+    .kpi-success .kpi-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .kpi-warning .kpi-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .kpi-info .kpi-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+
+    .kpi-content {
+        flex: 1;
+    }
+
+    .kpi-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .kpi-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .kpi-trend {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+
+    /* Data View */
+    .data-view {
+        position: relative;
+    }
+
+    .view-container {
+        display: none;
+    }
+
+    .view-container.active {
+        display: block;
+    }
+
+    /* Customers Grid */
+    .customers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .customer-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .customer-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: flex-start;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .customer-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 18px;
+    }
+
+    .customer-avatar.positive {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .customer-avatar.negative {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+    }
+
+    .customer-meta {
+        flex: 1;
+    }
+
+    .customer-name {
+        font-weight: 600;
+        color: #1f2937;
+        font-size: 1.1rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .customer-code {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .card-actions {
+        position: relative;
+    }
+
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: #f3f4f6;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-icon:hover {
+        background: #e5e7eb;
+    }
+
+    .dropdown {
+        position: relative;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        z-index: 10;
+        min-width: 160px;
+        display: none;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        color: #374151;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .dropdown-item:hover {
+        background: #f3f4f6;
+    }
+
+    .dropdown-item.danger {
+        color: #ef4444;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .customer-info {
+        margin-bottom: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .truncate {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .balance-section {
+        background: #f8fafc;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .balance-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .balance-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+    }
+
+    .balance-value.positive {
+        color: #10b981;
+    }
+
+    .balance-value.negative {
+        color: #ef4444;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* Customer Status Badges */
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+
+    .status-badge.gold {
+        background: linear-gradient(135deg, #fbbf24, #f59e0b);
+        color: #92400e;
+    }
+
+    .status-badge.silver {
+        background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+        color: #374151;
+    }
+
+    .status-badge.bronze {
+        background: linear-gradient(135deg, #d97706, #b45309);
+        color: #ffffff;
+    }
+
+    .status-icon {
+        font-size: 0.875rem;
+    }
+
+    .customer-card {
+        position: relative;
+    }
+
+    /* Responsive Design for Customer Cards */
+    @media (max-width: 768px) {
+        .customers-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .card-header {
+            padding: 1rem;
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .customer-avatar {
+            align-self: flex-start;
+        }
+        
+        .status-badge {
+            align-self: flex-end;
+            margin-left: 0;
+            margin-top: -0.5rem;
+        }
+        
+        .card-body {
+            padding: 1rem;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .status-badge {
+            font-size: 0.6rem;
+            padding: 0.2rem 0.6rem;
+        }
+        
+        .card-header {
+            gap: 0.5rem;
+        }
+    }
+
+    .created-date {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.75rem;
+        color: #9ca3af;
+    }
+
+    .quick-actions .btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+    }
+
+    /* Customer Statistics Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        margin: 2rem;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        max-width: 900px;
+        width: 100%;
+        max-height: 90vh;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .modal-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    }
+
+    .modal-header {
+        padding: 2rem 2rem 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    }
+
+    .customer-profile {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .customer-profile-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .customer-profile-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .customer-profile-name {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .customer-profile-meta {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .customer-profile-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .modal-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin: 0;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+    }
+
+    .modal-close:hover {
+        background: #f3f4f6;
+    }
+
+    .modal-body {
+        padding: 0;
+        max-height: calc(90vh - 120px);
+        overflow-y: auto;
+    }
+
+    .modal-section {
+        padding: 2rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .modal-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 14px;
+    }
+
+    .section-icon.stats {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+
+    .section-icon.timeline {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+    }
+
+    .section-icon.insights {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stats-grid.overview {
+        grid-template-columns: repeat(2, 1fr);
+        margin-bottom: 1rem;
+    }
+
+    .stats-grid.detailed {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #667eea, #764ba2);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card.highlight {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .stat-card.highlight .stat-value {
+        color: white;
+    }
+
+    .stat-card.highlight .stat-label {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .activity-timeline {
+        margin-top: 2rem;
+    }
+
+    .timeline-item {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .timeline-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .timeline-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        flex-shrink: 0;
+    }
+
+    .purchase-icon { background: linear-gradient(135deg, #10b981, #059669); }
+    .payment-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .contact-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .timeline-content {
+        flex: 1;
+    }
+
+    .timeline-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline-description {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .timeline-date {
+        color: #9ca3af;
+        font-size: 0.75rem;
+    }
+
+    .empty-state-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 400px;
+    }
+
+    .empty-state-card {
+        text-align: center;
+        max-width: 400px;
+        background: white;
+        padding: 3rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #9ca3af;
+        margin: 0 auto 1.5rem;
+    }
+
+    .empty-state-content h3 {
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state-content p {
+        color: #9ca3af;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-lg {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border: 1px solid #bbf7d0;
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fecaca;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .header-content {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+        
+        .view-toggle {
+            order: -1;
+        }
+        
+        .customers-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .kpi-dashboard {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .filters-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        .stats-grid.overview {
+            grid-template-columns: 1fr !important;
+        }
+
+        .stats-grid.detailed {
+            grid-template-columns: 1fr !important;
+        }
+
+        .modal-content {
+            margin: 0.5rem;
+            max-height: 98vh;
+            border-radius: 12px;
+        }
+
+        .modal-header {
+            padding: 1.5rem 1rem 1rem;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .customer-profile {
+            width: 100%;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .customer-profile-info {
+            flex: 1;
+            margin-right: 1rem;
+        }
+
+        .customer-profile-name {
+            font-size: 1.25rem !important;
+            margin-bottom: 0.25rem;
+        }
+
+        .customer-profile-meta {
+            font-size: 0.75rem;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+        }
+
+        .modal-section {
+            padding: 1.5rem 1rem;
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem !important;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+        }
+
+        .timeline-item {
+            padding: 0.75rem;
+        }
+
+        .timeline-content h4 {
+            font-size: 0.875rem;
+        }
+
+        .timeline-content p {
+            font-size: 0.75rem;
+        }
+
+        .timeline-meta {
+            font-size: 0.625rem;
+        }
+
+        .modal-body {
+            padding: 0;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .page-content {
+            padding: 0 1rem;
+        }
+
+        .kpi-dashboard {
+            grid-template-columns: 1fr;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Modal responsive for very small screens */
+        .modal-content {
+            margin: 0.25rem;
+            max-height: 99vh;
+            border-radius: 8px;
+        }
+
+        .modal-header {
+            padding: 1rem 0.75rem 0.75rem;
+        }
+
+        .customer-profile {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.75rem;
+        }
+
+        .customer-profile-avatar {
+            width: 48px;
+            height: 48px;
+            font-size: 1.25rem;
+        }
+
+        .customer-profile-name {
+            font-size: 1.125rem !important;
+        }
+
+        .modal-section {
+            padding: 1rem 0.75rem;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .stats-grid {
+            gap: 0.75rem;
+        }
+
+        .stat-card {
+            padding: 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.125rem !important;
+        }
+
+        .timeline-item {
+            padding: 0.5rem;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .timeline-icon {
+            margin-bottom: 0.5rem;
+            margin-right: 0;
+        }
+
+        .timeline-content {
+            text-align: left;
+        }
+
+        .quick-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .quick-actions .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<!-- Professional Customer Management Header -->
+<div class="page-header">
+    <div class="header-content">
+        <div class="header-left">
+            <div class="header-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="header-text">
+                <h1 class="page-title"><%= __('customers.title') %></h1>
+                <p class="page-subtitle"><%= __('customers.subtitle') %></p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <div class="view-toggle">
+                <button class="btn btn-outline" id="cardViewBtn" onclick="switchView('card')" data-active="true">
+                    <i class="fas fa-th"></i>
+                    <span><%= __('customers.view.card') %></span>
+                </button>
+                <button class="btn btn-outline" id="tableViewBtn" onclick="switchView('table')">
+                    <i class="fas fa-list"></i>
+                    <span><%= __('customers.view.table') %></span>
+                </button>
+            </div>
+            <button class="btn btn-secondary" onclick="toggleAdvancedFilters()" data-testid="button-filter">
+                <i class="fas fa-filter"></i>
+                <span><%= __('button.filter') %></span>
+                <span id="activeFiltersCount" class="filter-badge" style="display: none;"></span>
+            </button>
+            <a href="/customers/new?lang=<%= locale %>" class="btn btn-primary" data-testid="button-add-customer">
+                <i class="fas fa-plus"></i>
+                <span><%= __('button.addCustomer') %></span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Advanced Filters Panel -->
+<div class="page-content">
+    <div id="advancedFilters" class="advanced-filters" data-testid="panel-filter">
+        <div class="filters-header">
+            <h3><%= __('filters.title') %></h3>
+            <button class="filters-close" onclick="toggleAdvancedFilters()" data-testid="button-close-filter">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div class="filters-grid">
+            <!-- Quick Search -->
+            <div class="filter-group">
+                <label class="filter-label"><%= __('filters.customers.search.placeholder') %></label>
+                <div class="search-input-wrapper">
+                    <input type="text" 
+                           id="searchInput" 
+                           class="filter-input search-input" 
+                           placeholder="Search customers..."
+                           data-testid="input-search">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+            
+            <!-- Currency Filter -->
+            <div class="filter-group">
+                <label class="filter-label"><%= __('filters.currency.title') %></label>
+                <select id="currencyFilter" class="filter-select" data-testid="select-currency">
+                    <option value="all"><%= __('customers.filters.currency.all') %></option>
+                    <option value="USD"><%= __('customers.filters.currency.usd') %></option>
+                    <option value="PLN"><%= __('customers.filters.currency.pln') %></option>
+                    <option value="UAH"><%= __('customers.filters.currency.uah') %></option>
+                    <option value="TRY"><%= __('customers.filters.currency.try') %></option>
+                </select>
+            </div>
+
+            <!-- Balance Range -->
+            <div class="filter-group">
+                <label class="filter-label"><%= __('filters.balance.title') %></label>
+                <div class="range-inputs">
+                    <input type="number" 
+                           id="balanceMin" 
+                           placeholder="<%= __('customers.filters.balance.min') %>"
+                           class="filter-input range-input"
+                           data-testid="input-balance-min"
+                           step="0.01">
+                    <span class="range-separator"><%= __('customers.filters.balance.to') %></span>
+                    <input type="number" 
+                           id="balanceMax" 
+                           placeholder="<%= __('customers.filters.balance.max') %>"
+                           class="filter-input range-input"
+                           data-testid="input-balance-max"
+                           step="0.01">
+                </div>
+            </div>
+            
+            <!-- Status Filter -->
+            <div class="filter-group">
+                <label class="filter-label"><%= __('customers.filters.status.label') %></label>
+                <select id="statusFilter" class="filter-select">
+                    <option value="all"><%= __('customers.filters.status.all') %></option>
+                    <option value="positive"><%= __('customers.filters.status.positive') %></option>
+                    <option value="negative"><%= __('customers.filters.status.negative') %></option>
+                    <option value="zero"><%= __('customers.filters.status.zero') %></option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="filters-actions">
+            <button class="btn btn-secondary" onclick="clearAllFilters()" data-testid="button-clear-filters">
+                <i class="fas fa-undo"></i>
+                <span><%= __('customers.actions.clearAll') %></span>
+            </button>
+            <button class="btn btn-primary" onclick="applyFilters()" data-testid="button-apply-filters">
+                <i class="fas fa-search"></i>
+                <span><%= __('customers.actions.applyFilters') %></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <% if (typeof query !== 'undefined') { %>
+        <% if (query.success === 'added') { %>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <%= __('customerForm.success.added') %>
+            </div>
+        <% } else if (query.success === 'updated') { %>
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                <%= __('customerForm.success.updated') %>
+            </div>
+        <% } else if (query.error === 'notFound') { %>
+            <div class="alert alert-error">
+                <i class="fas fa-exclamation-circle"></i>
+                Customer not found
+            </div>
+        <% } %>
+    <% } %>
+
+    <!-- Data Views -->
+    <div class="data-view">
+        <!-- Card View -->
+        <div id="cardView" class="view-container active">
+            <% if (customers.length === 0) { %>
+                <div class="empty-state-container">
+                    <div class="empty-state-card">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="empty-state-content">
+                            <h3><%= __('customers.empty.title') %></h3>
+                            <p>Start by adding your first customer to the system.</p>
+                            <a href="/customers/new?lang=<%= locale %>" class="btn btn-primary btn-lg">
+                                <i class="fas fa-plus"></i>
+                                Add First Customer
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            <% } else { %>
+                <div class="customers-grid">
+                    <% customers.forEach(function(customer) { %>
+                        <div class="customer-card" onclick="openCustomerModal('<%= customer.id %>')">
+                            <div class="card-header">
+                                <div class="customer-avatar <%= customer.openingBalance >= 0 ? 'positive' : 'negative' %>">
+                                    <%= customer.name.charAt(0).toUpperCase() %>
+                                </div>
+                                <!-- Status Badge moved inside header -->
+                                <div class="status-badge <%= customer.status || 'bronze' %>">
+                                    <i class="fas fa-<%= customer.status === 'gold' ? 'crown' : customer.status === 'silver' ? 'medal' : 'award' %> status-icon"></i>
+                                    <%= customer.status === 'gold' ? __('customers.status.gold') : customer.status === 'silver' ? __('customers.status.silver') : __('customers.status.bronze') %>
+                                </div>
+                                <div class="customer-meta">
+                                    <div class="customer-name"><%= customer.name %></div>
+                                    <div class="customer-code">Code: <%= customer.code %></div>
+                                </div>
+                                <div class="card-actions">
+                                    <div class="dropdown">
+                                        <button class="btn-icon" onclick="event.stopPropagation(); toggleDropdown(this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu">
+                                            <a href="/customers/<%= customer.id %>/edit?lang=<%= locale %>" class="dropdown-item">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <button class="dropdown-item danger" onclick="event.stopPropagation(); deleteCustomer('<%= customer.id %>')">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card-body">
+                                <div class="customer-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span class="truncate"><%= customer.phone %></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <span class="truncate"><%= customer.address %></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <span><%= customer.currency %></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="balance-section">
+                                    <div class="balance-label"><%= __('customers.balance.label') %></div>
+                                    <div class="balance-value <%= customer.openingBalance >= 0 ? 'positive' : 'negative' %>">
+                                        <%= customer.openingBalance.toLocaleString() %> <%= customer.currency %>
+                                    </div>
+                                </div>
+                                
+                                <div class="card-footer">
+                                    <div class="created-date">
+                                        <i class="fas fa-calendar-plus"></i>
+                                        <span><%= new Date(customer.createdAt).toLocaleDateString('tr-TR') %></span>
+                                    </div>
+                                    <div class="quick-actions">
+                                        <button class="btn btn-outline" onclick="event.stopPropagation(); alert('İstatistikler yakında!')">
+                                            <i class="fas fa-chart-bar"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }); %>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Table View -->
+        <div id="tableView" class="view-container">
+            <div style="background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); overflow: hidden;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #f8fafc;">
+                        <tr>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;"><%= __('customers.table.customer') %></th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;"><%= __('customers.table.contact') %></th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;"><%= __('customers.table.balance') %></th>
+                            <th style="padding: 1rem; text-align: left; font-weight: 600; color: #374151;"><%= __('customers.table.created') %></th>
+                            <th style="padding: 1rem; text-align: center; font-weight: 600; color: #374151;"><%= __('customers.table.actions') %></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% customers.forEach(function(customer) { %>
+                            <tr style="border-bottom: 1px solid #f3f4f6; cursor: pointer;" onclick="openCustomerModal('<%= customer.id %>')">
+                                <td style="padding: 1rem;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div class="customer-avatar <%= customer.openingBalance >= 0 ? 'positive' : 'negative' %>" style="width: 40px; height: 40px; font-size: 16px;">
+                                            <%= customer.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                                <div style="font-weight: 600; color: #1f2937;"><%= customer.name %></div>
+                                                <span class="status-badge <%= customer.status || 'bronze' %>" style="position: static; padding: 0.125rem 0.5rem; font-size: 0.625rem;">
+                                                    <i class="fas fa-<%= customer.status === 'gold' ? 'crown' : customer.status === 'silver' ? 'medal' : 'award' %>" style="font-size: 0.625rem;"></i>
+                                                    <%= customer.status === 'gold' ? __('customers.status.gold') : customer.status === 'silver' ? __('customers.status.silver') : __('customers.status.bronze') %>
+                                                </span>
+                                            </div>
+                                            <div style="font-size: 0.875rem; color: #6b7280;">Code: <%= customer.code %></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <div style="font-size: 0.875rem; color: #6b7280;">
+                                        <div style="margin-bottom: 0.25rem;"><%= customer.phone %></div>
+                                        <div><%= customer.address %></div>
+                                    </div>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <div class="balance-value <%= customer.openingBalance >= 0 ? 'positive' : 'negative' %>" style="font-size: 1rem;">
+                                        <%= customer.openingBalance.toLocaleString() %> <%= customer.currency %>
+                                    </div>
+                                </td>
+                                <td style="padding: 1rem;">
+                                    <div style="font-size: 0.875rem; color: #6b7280;">
+                                        <%= new Date(customer.createdAt).toLocaleDateString('tr-TR') %>
+                                    </div>
+                                </td>
+                                <td style="padding: 1rem; text-align: center;">
+                                    <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                                        <a href="/customers/<%= customer.id %>/edit?lang=<%= locale %>" class="btn-icon" onclick="event.stopPropagation()" style="background: #dbeafe; color: #3b82f6;">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn-icon" onclick="event.stopPropagation(); deleteCustomer('<%= customer.id %>')" style="background: #fef2f2; color: #ef4444;">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Statistics Modal -->
+<div id="customerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="customer-profile">
+                <div class="customer-profile-avatar" id="modalCustomerAvatar">
+                    T
+                </div>
+                <div class="customer-profile-info">
+                    <h2 class="customer-profile-name" id="modalCustomerName"><%= __('customers.modal.title') %></h2>
+                    <div class="customer-profile-meta">
+                        <span id="modalCustomerCode"><%= __('customers.modal.code') %> 100000</span>
+                        <span>•</span>
+                        <span id="modalCustomerPhone">+90 555 123 4567</span>
+                        <span class="customer-profile-status" id="modalCustomerStatus">
+                            <i class="fas fa-crown"></i>
+                            ALTIN
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="modal-close" onclick="closeCustomerModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <!-- Overview Statistics -->
+            <div class="modal-section">
+                <h3 class="section-title">
+                    <div class="section-icon stats">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    Genel İstatistikler
+                </h3>
+                <div class="stats-grid overview">
+                    <div class="stat-card highlight">
+                        <div class="stat-value" id="statTotalValue">₺0</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.totalRevenue') %></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statCurrentBalance">₺0</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.currentBalance') %></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Statistics -->
+            <div class="modal-section">
+                <div class="stats-grid detailed">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPurchases">0</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.totalTransactions') %></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statAverage">₺0</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.averageTransaction') %></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statDaysSince">0</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.daysSinceLastActivity') %></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="modal-section">
+                <h3 class="section-title">
+                    <div class="section-icon timeline">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    Son Aktiviteler
+                </h3>
+                <div class="activity-timeline">
+                    <div id="timelineContent">
+                        <!-- Timeline items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Customer Insights -->
+            <div class="modal-section">
+                <h3 class="section-title">
+                    <div class="section-icon insights">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    Müşteri Analizi
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statActivityLevel">Yüksek</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.activityLevel') %></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statLoyalty">Sadık</div>
+                        <div class="stat-label"><%= __('customers.modal.stats.customerType') %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Store customers data and transactions
+const customersData = <%- JSON.stringify(customers) %>;
+const customerTransactions = <%- JSON.stringify(typeof customerTransactions !== 'undefined' ? customerTransactions : []) %>;
+
+// View switching
+function switchView(view) {
+    const cardView = document.getElementById('cardView');
+    const tableView = document.getElementById('tableView');
+    const cardBtn = document.getElementById('cardViewBtn');
+    const tableBtn = document.getElementById('tableViewBtn');
+    
+    if (view === 'card') {
+        cardView.classList.add('active');
+        tableView.classList.remove('active');
+        cardBtn.setAttribute('data-active', 'true');
+        tableBtn.setAttribute('data-active', 'false');
+    } else {
+        cardView.classList.remove('active');
+        tableView.classList.add('active');
+        cardBtn.setAttribute('data-active', 'false');
+        tableBtn.setAttribute('data-active', 'true');
+    }
+}
+
+// Advanced filters
+function toggleAdvancedFilters() {
+    const filters = document.getElementById('advancedFilters');
+    filters.classList.toggle('open');
+}
+
+function clearAllFilters() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('currencyFilter').value = 'all';
+    document.getElementById('balanceMin').value = '';
+    document.getElementById('balanceMax').value = '';
+    document.getElementById('statusFilter').value = 'all';
+    applyFilters();
+}
+
+function applyFilters() {
+    // Implement filtering logic here
+    console.log('Filters applied');
+}
+
+// Dropdown functionality
+function toggleDropdown(button) {
+    const dropdown = button.nextElementSibling;
+    const isOpen = dropdown.classList.contains('show');
+    
+    // Close all dropdowns
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.classList.remove('show');
+    });
+    
+    // Toggle current dropdown
+    if (!isOpen) {
+        dropdown.classList.add('show');
+    }
+}
+
+// Close dropdowns when clicking outside
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
+});
+
+// Customer modal functionality
+function openCustomerModal(customerId) {
+    const customer = customersData.find(c => c.id === customerId);
+    if (!customer) return;
+    
+    // Get customer transactions
+    const transactions = customerTransactions.filter(t => t.customerId === customerId);
+    
+    // Calculate real statistics
+    const purchaseCount = customer.totalTransactions || transactions.length;
+    const totalValue = customer.totalPurchases || 0;
+    const currentBalance = customer.openingBalance || 0;
+    const averageTransaction = purchaseCount > 0 ? totalValue / purchaseCount : 0;
+    
+    // Calculate days since last activity
+    const lastActivity = customer.lastActivity ? new Date(customer.lastActivity) : new Date();
+    const daysSinceLastActivity = Math.floor((new Date() - lastActivity) / (1000 * 60 * 60 * 24));
+    
+    // Determine status info
+    const statusInfo = getCustomerStatusInfo(customer.status || 'bronze');
+    const activityLevel = customer.activityLevel || 'medium';
+    const loyaltyType = getLoyaltyType(customer.status, purchaseCount);
+    
+    // Update modal header
+    document.getElementById('modalCustomerAvatar').textContent = customer.name.charAt(0).toUpperCase();
+    document.getElementById('modalCustomerName').textContent = customer.name;
+    document.getElementById('modalCustomerCode').textContent = `Code: ${customer.code}`;
+    document.getElementById('modalCustomerPhone').textContent = customer.phone || '<%= __('customers.noPhone') %>';
+    
+    const statusElement = document.getElementById('modalCustomerStatus');
+    statusElement.className = `customer-profile-status ${customer.status || 'bronze'}`;
+    statusElement.innerHTML = `<i class="fas fa-${statusInfo.icon}"></i> ${statusInfo.label}`;
+    
+    // Update statistics
+    document.getElementById('statTotalValue').textContent = formatCurrency(totalValue, customer.currency);
+    document.getElementById('statCurrentBalance').textContent = formatCurrency(currentBalance, customer.currency);
+    document.getElementById('statPurchases').textContent = purchaseCount;
+    document.getElementById('statAverage').textContent = formatCurrency(averageTransaction, customer.currency);
+    document.getElementById('statDaysSince').textContent = daysSinceLastActivity + ' <%= __('customers.days') %>';
+    document.getElementById('statActivityLevel').textContent = getActivityLevelText(activityLevel);
+    document.getElementById('statLoyalty').textContent = loyaltyType;
+    
+    // Generate timeline with real data
+    generateRealTimeline(customer, transactions);
+    
+    // Show modal
+    document.getElementById('customerModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function getCustomerStatusInfo(status) {
+    const statusMap = {
+        'gold': { label: '<%= __('customers.status.gold') %>', icon: 'crown' },
+        'silver': { label: '<%= __('customers.status.silver') %>', icon: 'medal' },
+        'bronze': { label: '<%= __('customers.status.bronze') %>', icon: 'award' }
+    };
+    return statusMap[status] || statusMap['bronze'];
+}
+
+function getLoyaltyType(status, transactionCount) {
+    if (transactionCount >= 15) return 'Sadık Müşteri';
+    if (transactionCount >= 8) return 'Düzenli Müşteri';
+    if (transactionCount >= 3) return 'Aktif Müşteri';
+    return 'Yeni Müşteri';
+}
+
+function getActivityLevelText(level) {
+    const levelMap = {
+        'high': '<%= __('customers.activity.high') %>',
+        'medium': '<%= __('customers.activity.medium') %>',
+        'low': '<%= __('customers.activity.low') %>'
+    };
+    return levelMap[level] || 'Orta';
+}
+
+function formatCurrency(amount, currency = 'USD') {
+    const symbols = { 'USD': '$', 'PLN': 'zł', 'UAH': '₴', 'TRY': '₺' };
+    const symbol = symbols[currency] || currency;
+    return `${symbol}${amount.toLocaleString()}`;
+}
+
+function closeCustomerModal() {
+    document.getElementById('customerModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+function generateRealTimeline(customer, transactions) {
+    const timelineContent = document.getElementById('timelineContent');
+    
+    // Sort transactions by date (newest first) and take only 5
+    const sortedTransactions = transactions
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, 5);
+    
+    if (sortedTransactions.length === 0) {
+        timelineContent.innerHTML = `
+            <div style="text-align: center; padding: 2rem; color: #6b7280;">
+                <i class="fas fa-info-circle" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                <p>Henüz aktivite kaydı bulunmuyor.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const activities = sortedTransactions.map(transaction => {
+        const transactionTypeMap = {
+            'sale': {
+                icon: 'fas fa-shopping-bag',
+                iconClass: 'purchase-icon',
+                title: 'Satış İşlemi',
+                getDescription: (t) => `${formatCurrency(t.amount, t.currency)} tutarında satış - ${t.reference || ''}`
+            },
+            'payment': {
+                icon: 'fas fa-credit-card',
+                iconClass: 'payment-icon', 
+                title: 'Ödeme Alındı',
+                getDescription: (t) => `${formatCurrency(t.amount, t.currency)} ödeme yapıldı - ${t.reference || ''}`
+            },
+            'return': {
+                icon: 'fas fa-undo',
+                iconClass: 'contact-icon',
+                title: 'İade İşlemi',
+                getDescription: (t) => `${formatCurrency(Math.abs(t.amount), t.currency)} iade işlemi - ${t.reference || ''}`
+            },
+            'adjustment': {
+                icon: 'fas fa-edit',
+                iconClass: 'contact-icon',
+                title: 'Düzeltme İşlemi',
+                getDescription: (t) => `${formatCurrency(Math.abs(t.amount), t.currency)} hesap düzeltmesi - ${t.reference || ''}`
+            }
+        };
+        
+        const typeInfo = transactionTypeMap[transaction.type] || transactionTypeMap['sale'];
+        
+        return {
+            ...typeInfo,
+            description: transaction.description || typeInfo.getDescription(transaction),
+            date: new Date(transaction.date),
+            amount: transaction.amount,
+            currency: transaction.currency
+        };
+    });
+    
+    // Generate HTML
+    timelineContent.innerHTML = activities.map(activity => `
+        <div class="timeline-item">
+            <div class="timeline-icon ${activity.iconClass}">
+                <i class="${activity.icon}"></i>
+            </div>
+            <div class="timeline-content">
+                <div class="timeline-title">${activity.title}</div>
+                <div class="timeline-description">${activity.description}</div>
+                <div class="timeline-date">${activity.date.toLocaleDateString('tr-TR')} ${activity.date.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function deleteCustomer(customerId) {
+    if (confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
+        // Silme işlemi
+        console.log('Deleting customer:', customerId);
+    }
+}
+
+// Modal'ı dışına tıklayınca kapat
+document.getElementById('customerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeCustomerModal();
+    }
+});
+
+// ESC tuşu ile modal'ı kapat
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeCustomerModal();
+    }
+});
+</script>
