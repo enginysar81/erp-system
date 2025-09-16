@@ -596,7 +596,7 @@
     <!-- Modern Dynamic Menu JavaScript -->
     <script>
         // Global Menu State Management
-        let isMenuOpen = false;
+        window.isMenuOpen = window.isMenuOpen || false;
         let activeNavGroups = new Set();
         
         // Load menu state from localStorage
@@ -649,12 +649,12 @@
                 }, 300);
             }
             
-            saveMenuState(isMenuOpen);
+            saveMenuState(window.isMenuOpen);
         }
         
         // Toggle global menu with enhanced animations
         function toggleGlobalMenu() {
-            if (isMenuOpen) {
+            if (window.isMenuOpen) {
                 closeGlobalMenu();
             } else {
                 openGlobalMenu();
@@ -668,7 +668,7 @@
             const mainContent = document.querySelector('.main-content');
             const hamburgerBtn = document.getElementById('hamburger-btn');
             
-            isMenuOpen = true;
+            window.isMenuOpen = true;
             sidebar.classList.add('open');
             overlay.classList.add('show');
             mainContent.classList.add('menu-open');
@@ -691,7 +691,7 @@
             const mainContent = document.querySelector('.main-content');
             const hamburgerBtn = document.getElementById('hamburger-btn');
             
-            isMenuOpen = false;
+            window.isMenuOpen = false;
             sidebar.classList.remove('open');
             overlay.classList.remove('show');
             mainContent.classList.remove('menu-open');
@@ -775,7 +775,7 @@
             // Handle keyboard shortcuts
             document.addEventListener('keydown', function(event) {
                 // Close menu on Escape key
-                if (event.key === 'Escape' && isMenuOpen) {
+                if (event.key === 'Escape' && window.isMenuOpen) {
                     closeGlobalMenu();
                 }
                 // Toggle menu with Ctrl/Cmd + M
@@ -790,14 +790,14 @@
                         group.classList.remove('open');
                     });
                     activeNavGroups.clear();
-                    saveMenuState(isMenuOpen);
+                    saveMenuState(window.isMenuOpen);
                 }
             });
             
             // Handle window resize
             window.addEventListener('resize', function() {
                 // Auto-close menu on very small screens
-                if (window.innerWidth < 480 && isMenuOpen) {
+                if (window.innerWidth < 480 && window.isMenuOpen) {
                     closeGlobalMenu();
                 }
                 
@@ -850,12 +850,12 @@
                     isTouchSwiping = true;
                     
                     // Swipe left to close menu (when menu is open)
-                    if (diffX > 80 && isMenuOpen) {
+                    if (diffX > 80 && window.isMenuOpen) {
                         closeGlobalMenu();
                         event.preventDefault();
                     } 
                     // Swipe right from left edge to open menu (when menu is closed)
-                    else if (diffX < -80 && !isMenuOpen && touchStartX < 50) {
+                    else if (diffX < -80 && !window.isMenuOpen && touchStartX < 50) {
                         openGlobalMenu();
                         event.preventDefault();
                     }
@@ -885,7 +885,7 @@
             
             // Trap focus within sidebar when open
             sidebar.addEventListener('keydown', function(event) {
-                if (!isMenuOpen) return;
+                if (!window.isMenuOpen) return;
                 
                 const focusableElements = sidebar.querySelectorAll(
                     'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -914,7 +914,7 @@
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(function() {
                     // Close menu on desktop if window becomes wide enough
-                    if (window.innerWidth > 768 && isMenuOpen) {
+                    if (window.innerWidth > 768 && window.isMenuOpen) {
                         closeGlobalMenu();
                     }
                     
