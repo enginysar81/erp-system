@@ -1,0 +1,2033 @@
+<!-- Modern Stock by Warehouse Page -->
+<div class="modern-warehouse-page">
+  <div class="page-container">
+    <!-- Enhanced Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-main">
+          <div class="header-icon">
+            <i class="fas fa-warehouse"></i>
+          </div>
+          <div>
+            <h1 class="page-title"><%= __('stockByWarehouse.title') %></h1>
+            <p class="page-subtitle"><%= __('stockByWarehouse.subtitle') %></p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="stats-pill" id="total-records">
+            <i class="fas fa-box"></i>
+            <%= __('stockByWarehouse.totalRecords').replace('{count}', barcodes.length) %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stock Statistics Dashboard -->
+    <div class="stock-stats-dashboard">
+      <!-- Total Stock Summary Cards -->
+      <div class="total-stats-grid">
+        <div class="stat-card primary">
+          <div class="stat-header">
+            <div class="stat-icon">
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3><%= __('stockByWarehouse.stats.totalStock.title') %></h3>
+          </div>
+          <div class="stat-values">
+            <div class="stat-main" id="filtered-total-barcodes">
+              <%= stockStats.totalStats.totalBarcodes %>
+            </div>
+            <div class="stat-label"><%= __('stockByWarehouse.stats.totalStock.label') %></div>
+          </div>
+        </div>
+        
+        <div class="stat-card success">
+          <div class="stat-header">
+            <div class="stat-icon">
+              <i class="fas fa-cubes"></i>
+            </div>
+            <h3><%= __('stockByWarehouse.stats.totalPieces.title') %></h3>
+          </div>
+          <div class="stat-values">
+            <div class="stat-main" id="filtered-total-pieces">
+              <%= stockStats.totalStats.totalPieces %>
+            </div>
+            <div class="stat-label"><%= __('stockByWarehouse.stats.totalPieces.label') %></div>
+          </div>
+        </div>
+        
+        <div class="stat-card info">
+          <div class="stat-header">
+            <div class="stat-icon">
+              <i class="fas fa-ruler"></i>
+            </div>
+            <h3><%= __('stockByWarehouse.stats.totalMeters.title') %></h3>
+          </div>
+          <div class="stat-values">
+            <div class="stat-main" id="filtered-total-meters">
+              <%= stockStats.totalStats.totalMeters.toFixed(2) %>
+            </div>
+            <div class="stat-label"><%= __('stockByWarehouse.stats.totalMeters.label') %></div>
+          </div>
+        </div>
+        
+        <div class="stat-card warning">
+          <div class="stat-header">
+            <div class="stat-icon">
+              <i class="fas fa-tags"></i>
+            </div>
+            <h3><%= __('stockByWarehouse.stats.uniqueProducts.title') %></h3>
+          </div>
+          <div class="stat-values">
+            <div class="stat-main" id="filtered-unique-products">
+              <%= stockStats.totalStats.uniqueProducts %>
+            </div>
+            <div class="stat-label"><%= __('stockByWarehouse.stats.uniqueProducts.label') %></div>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Quick Filter Buttons -->
+      <div class="quick-filters-section">
+        <div class="section-header">
+          <h3>
+            <i class="fas fa-bolt"></i>
+            <%= __('quickFilters.title') %>
+          </h3>
+        </div>
+        <div class="quick-filters-container">
+          
+          <!-- Product Name Quick Search -->
+          <div class="quick-filter-group">
+            <div class="filter-group-label">
+              <i class="fas fa-search"></i>
+              <%= __('quickFilters.searchProduct') %>
+            </div>
+            <div class="quick-search-container">
+              <div class="quick-search-input-wrapper">
+                <input type="text" 
+                       class="quick-product-search" 
+                       id="quick-product-search" 
+                       placeholder="<%= __('quickFilters.searchPlaceholder') %>"
+                       autocomplete="off">
+                <i class="fas fa-search quick-search-icon"></i>
+                <button type="button" class="quick-search-clear" id="quick-search-clear" style="display: none;" onclick="stockManager.clearQuickSearch()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Most Used Warehouses -->
+          <div class="quick-filter-group">
+            <div class="filter-group-label">
+              <i class="fas fa-warehouse"></i>
+              <%= __('quickFilters.popularWarehouses') %>
+            </div>
+            <div class="quick-filter-buttons">
+              <% stockStats.quickFilters.warehouses.forEach(warehouse => { %>
+                <button class="quick-filter-btn warehouse-filter" 
+                        data-warehouse-id="<%= warehouse.warehouseId %>"
+                        onclick="quickFilterWarehouse('<%= warehouse.warehouseId %>')">
+                  <div class="filter-btn-content">
+                    <div class="filter-btn-name"><%= warehouse.warehouseName %></div>
+                    <div class="filter-btn-count"><%= warehouse.totalBarcodes %> <%= __('common.items') %></div>
+                  </div>
+                </button>
+              <% }); %>
+            </div>
+          </div>
+          
+          <!-- Multi-Select Shelves with Button Design -->
+          <% if (stockStats.quickFilters.shelves.length > 0) { %>
+          <div class="quick-filter-group">
+            <div class="filter-group-label">
+              <i class="fas fa-layer-group"></i>
+              <%= __('quickFilters.popularShelves') %>
+            </div>
+            <div class="quick-shelf-buttons">
+              <% stockStats.quickFilters.shelves.forEach(shelf => { %>
+                <button class="quick-shelf-btn" 
+                        data-shelf-id="<%= shelf.shelfId %>"
+                        onclick="stockManager.toggleQuickShelfSelection('<%= shelf.shelfId %>')">
+                  <div class="shelf-btn-content">
+                    <div class="shelf-btn-name"><%= shelf.shelfId %></div>
+                    <div class="shelf-btn-count"><%= shelf.totalBarcodes %> <%= __('common.items') %></div>
+                  </div>
+                </button>
+              <% }); %>
+            </div>
+            <div class="shelf-multi-actions">
+              <button class="shelf-action-btn select-all" onclick="stockManager.selectAllQuickShelves()">
+                <i class="fas fa-check-double"></i>
+                <%= __('common.selectAll') %>
+              </button>
+              <button class="shelf-action-btn clear-all" onclick="stockManager.clearAllQuickShelves()">
+                <i class="fas fa-times"></i>
+                <%= __('common.clear') %>
+              </button>
+            </div>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Modern Results Table -->
+    <div class="results-container">
+      <!-- Table Controls -->
+      <div class="table-controls">
+        <div class="table-controls-left">
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="table" onclick="switchView('table')">
+              <i class="fas fa-table"></i> <%= __('view.table') %>
+            </button>
+            <button class="view-btn" data-view="list" onclick="switchView('list')">
+              <i class="fas fa-list"></i> <%= __('view.list') %>
+            </button>
+          </div>
+          <div class="items-per-page">
+            <label><%= __('perPage.label') %></label>
+            <select id="items-per-page" onchange="changeItemsPerPage(this.value)">
+              <option value="20">20</option>
+              <option value="30" selected>30</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-controls-right">
+          <div class="pagination-info" id="pagination-info">
+            1-30 / 53 kayıt
+          </div>
+        </div>
+      </div>
+      
+      <div class="table-wrapper">
+        <table class="modern-table">
+          <thead>
+            <tr>
+              <th>
+                <div class="th-content">
+                  <i class="fas fa-box"></i>
+                  <%= __('stockByWarehouse.table.product') %>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <i class="fas fa-tags"></i>
+                  <%= __('stockByWarehouse.table.features') %>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <i class="fas fa-calculator"></i>
+                  <%= __('stockByWarehouse.table.qty') %>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <i class="fas fa-barcode"></i>
+                  <%= __('stockByWarehouse.table.barcode') %>
+                </div>
+              </th>
+              <th>
+                <div class="th-content">
+                  <i class="fas fa-layer-group"></i>
+                  <%= __('stockByWarehouse.table.shelf') %>
+                </div>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="barcode-table-body">
+            <% if (typeof barcodes !== 'undefined' && barcodes.length > 0) { %>
+              <% barcodes.forEach(barcode => { %>
+              <tr class="table-row" 
+                  data-barcode="<%= barcode.code %>"
+                  data-product-id="<%= barcode.productId %>"
+                  data-warehouse-id="<%= barcode.warehouseId %>"
+                  data-shelf-id="<%= barcode.shelfId || '' %>"
+                  data-product-name="<%= barcode.productName %>"
+                  onclick="openBarcodeModal('<%= barcode.code %>')">
+                <td>
+                  <div class="product-cell">
+                    <div class="product-info">
+                      <div class="product-name"><%= barcode.productName %></div>
+                      <div class="warehouse-name"><%= barcode.warehouseName %></div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="features-cell">
+                    <% if (barcode.productAttributes && barcode.productAttributes.length > 0) { %>
+                      <% barcode.productAttributes.forEach(attr => { %>
+                        <span class="feature-tag">
+                          <%= attr.name %>: <%= attr.value %>
+                        </span>
+                      <% }); %>
+                    <% } else { %>
+                      <span class="no-data">-</span>
+                    <% } %>
+                  </div>
+                </td>
+                <td>
+                  <div class="quantity-badge <%= barcode.unit === 'metre' ? 'type-meter' : 'type-piece' %>">
+                    <%= barcode.quantity %> <%= barcode.unit === 'metre' ? __('common.unit.meters') : __('common.unit.pieces') %>
+                  </div>
+                </td>
+                <td>
+                  <div class="barcode-cell">
+                    <code class="barcode-code"><%= barcode.code %></code>
+                  </div>
+                </td>
+                <td>
+                  <% if (barcode.shelfId) { %>
+                    <div class="shelf-badge"><%= barcode.shelfId %></div>
+                  <% } else { %>
+                    <span class="no-data">-</span>
+                  <% } %>
+                </td>
+              </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="5">
+                  <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <div>No barcode data available</div>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination Controls -->
+      <div class="pagination-container" id="pagination-container">
+        <div class="pagination-wrapper">
+          <button class="pagination-btn" id="prev-page" onclick="changePage(-1)" disabled>
+            <i class="fas fa-chevron-left"></i> <%= __('common.previous') %>
+          </button>
+          <div class="pagination-numbers" id="pagination-numbers">
+            <!-- Page numbers will be generated here -->
+          </div>
+          <button class="pagination-btn" id="next-page" onclick="changePage(1)">
+            <%= __('common.next') %> <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- No Results Message -->
+      <div id="no-results" class="no-results-state" style="display: none;">
+        <i class="fas fa-search"></i>
+        <h3><%= __('stockByWarehouse.noResults') %></h3>
+        <p>Filtreleme kriterlerinizi değiştirerek tekrar deneyin</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modern Barcode Detail Modal -->
+<div class="modal" id="barcodeModal" tabindex="-1" aria-hidden="true" style="display: none !important;">
+  <div class="modal-dialog modal-lg">
+    <div class="modern-modal">
+      <div class="modal-header-modern">
+        <div class="modal-title-modern">
+          <div class="modal-icon">
+            <i class="fas fa-barcode"></i>
+          </div>
+          <h5><%= __('stockByWarehouse.modal.details') %></h5>
+        </div>
+        <button type="button" class="modal-close-btn" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body-modern">
+        <div class="modal-content-grid">
+          <!-- Barcode Number -->
+          <div class="modal-field">
+            <label class="field-label">
+              <i class="fas fa-barcode"></i>
+              <%= __('stockByWarehouse.modal.barcodeNo') %>
+            </label>
+            <div class="barcode-display">
+              <code class="barcode-value" id="modal-barcode"></code>
+              <button class="copy-btn" onclick="copyToClipboard('modal-barcode')">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Product Name -->
+          <div class="modal-field">
+            <label class="field-label">
+              <i class="fas fa-box"></i>
+              <%= __('stockByWarehouse.modal.productName') %>
+            </label>
+            <div class="field-value" id="modal-product-name"></div>
+          </div>
+          
+          <!-- Features -->
+          <div class="modal-field full-width">
+            <label class="field-label">
+              <i class="fas fa-tags"></i>
+              <%= __('stockByWarehouse.modal.features') %>
+            </label>
+            <div class="features-display" id="modal-features"></div>
+          </div>
+          
+          <!-- Quantity -->
+          <div class="modal-field">
+            <label class="field-label">
+              <i class="fas fa-calculator"></i>
+              <%= __('stockByWarehouse.modal.quantity') %>
+            </label>
+            <div class="field-value" id="modal-quantity"></div>
+          </div>
+          
+          <!-- Shelf -->
+          <div class="modal-field">
+            <label class="field-label">
+              <i class="fas fa-layer-group"></i>
+              <%= __('stockByWarehouse.modal.shelf') %>
+            </label>
+            <div class="field-value" id="modal-shelf"></div>
+          </div>
+          
+          <!-- Created Date -->
+          <div class="modal-field full-width">
+            <label class="field-label">
+              <i class="fas fa-calendar"></i>
+              <%= __('stockByWarehouse.modal.createdDate') %>
+            </label>
+            <div class="field-value" id="modal-created-date"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer-modern">
+        <div class="modal-actions">
+          <button type="button" class="btn-modern btn-primary" onclick="printBarcode()">
+            <i class="fas fa-print"></i>
+            <%= __('stockByWarehouse.modal.print') %>
+          </button>
+          <button type="button" class="btn-modern btn-secondary" onclick="exportBarcode()">
+            <i class="fas fa-download"></i>
+            <%= __('stockByWarehouse.modal.export') %>
+          </button>
+          <button type="button" class="btn-modern btn-outline" data-bs-dismiss="modal">
+            <i class="fas fa-times"></i>
+            <%= __('stockByWarehouse.modal.close') %>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modern Professional Styles -->
+<style>
+/* Modern Professional Warehouse Management Styles */
+
+/* Reset and Base */
+* {
+  box-sizing: border-box;
+}
+
+/* Multi-Shelf Selector Styles */
+.multi-shelf-container {
+  position: relative;
+  width: 100%;
+}
+
+.selected-shelves-display {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  transition: all 0.2s ease;
+}
+
+.selected-shelves-display:hover {
+  border-color: #3b82f6;
+}
+
+.selected-shelves-display.disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.placeholder-text {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.selected-shelves-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.shelf-tag {
+  background: #3b82f6;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.shelf-tag .remove {
+  cursor: pointer;
+  opacity: 0.7;
+  margin-left: 0.25rem;
+}
+
+.shelf-tag .remove:hover {
+  opacity: 1;
+}
+
+.dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: #64748b;
+}
+
+.dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.shelf-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  max-height: 300px;
+  overflow: hidden;
+}
+
+.shelf-options-container {
+  max-height: 240px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.shelf-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.shelf-option:hover {
+  background: #f1f5f9;
+}
+
+.shelf-option input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.shelf-option label {
+  cursor: pointer;
+  margin: 0;
+  font-size: 0.9rem;
+  color: #374151;
+}
+
+.shelf-actions {
+  border-top: 1px solid #e2e8f0;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.shelf-action-btn {
+  flex: 1;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  transition: all 0.2s ease;
+}
+
+.clear-shelves {
+  background: #ef4444;
+  color: white;
+}
+
+.clear-shelves:hover {
+  background: #dc2626;
+}
+
+.select-all-shelves {
+  background: #10b981;
+  color: white;
+}
+
+.select-all-shelves:hover {
+  background: #059669;
+}
+
+/* Table Controls Styles */
+.table-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.table-controls-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.table-controls-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.view-toggle {
+  display: flex;
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.view-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  background: transparent;
+  color: #64748b;
+}
+
+.view-btn.active {
+  background: white;
+  color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.view-btn:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.items-per-page {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.items-per-page label {
+  color: #64748b;
+  margin: 0;
+}
+
+.items-per-page select {
+  padding: 0.5rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.9rem;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Pagination Styles */
+.pagination-container {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-numbers {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.page-number {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.page-number:hover:not(.active) {
+  background: #f1f5f9;
+}
+
+.page-number.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+/* Compact Layout Adjustments */
+.page-header {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.page-title {
+  font-size: 2rem;
+}
+
+.total-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  padding: 1rem;
+}
+
+.warehouse-summary-section,
+.quick-filters-section {
+  margin-bottom: 1.5rem;
+}
+
+.filter-panel {
+  margin-bottom: 1.5rem;
+}
+
+.filter-header {
+  padding: 1rem 1.5rem;
+}
+
+.filter-body {
+  padding: 1.5rem;
+}
+
+.filter-row {
+  gap: 1rem;
+}
+
+.filter-group {
+  margin-bottom: 0;
+}
+
+/* List View Styles */
+.list-view {
+  display: none;
+}
+
+.list-view.active {
+  display: block;
+}
+
+.list-view .table-wrapper {
+  display: none;
+}
+
+.barcode-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.barcode-item {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.barcode-item:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.barcode-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.5rem;
+}
+
+.barcode-item-title {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.barcode-item-code {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.barcode-item-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* Main Page Layout */
+.modern-warehouse-page {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header Styles */
+.page-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.header-icon {
+  width: 64px;
+  height: 64px;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+}
+
+.page-title {
+  margin: 0;
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  margin: 0.5rem 0 0 0;
+  color: #64748b;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.stats-pill {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+  font-size: 1rem;
+}
+
+/* Filter Panel */
+.filter-panel {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+}
+
+.filter-header {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.filter-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.filter-title i {
+  color: #667eea;
+}
+
+.filter-body {
+  padding: 2rem;
+}
+
+.modern-filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.95rem;
+}
+
+.filter-label i {
+  color: #667eea;
+  width: 16px;
+}
+
+.modern-select {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.875rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.modern-select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modern-select:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.search-input-wrapper {
+  position: relative;
+}
+
+.modern-search {
+  width: 100%;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.875rem 1rem 0.875rem 3rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.modern-search:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: white;
+  box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+  box-shadow: 0 4px 16px rgba(107, 114, 128, 0.3);
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: #6b7280;
+  border: 2px solid #e5e7eb;
+}
+
+.btn-outline:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* Active Filters */
+.active-filters-container {
+  margin-top: 1rem;
+}
+
+.active-filters-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.active-filter {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.remove-filter {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.remove-filter:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Results Table */
+.results-container {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.modern-table thead {
+  background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+}
+
+.modern-table th {
+  padding: 1.5rem 2rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.th-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  color: #334155;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.th-content i {
+  color: #667eea;
+  font-size: 0.875rem;
+}
+
+.table-row {
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.table-row:hover {
+  background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table td {
+  padding: 1.5rem 2rem;
+  vertical-align: middle;
+}
+
+/* Table Cell Styles */
+.product-cell {
+  display: flex;
+  align-items: center;
+}
+
+.product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.product-name {
+  font-weight: 600;
+  color: #1e293b;
+  font-size: 1rem;
+}
+
+.warehouse-name {
+  font-size: 0.875rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.features-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.feature-tag {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #475569;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
+}
+
+.quantity-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.quantity-badge.type-meter {
+  background: linear-gradient(135deg, #8b5cf6, #a855f7);
+  color: white;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
+}
+
+.quantity-badge.type-piece {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.barcode-cell {
+  font-family: 'Courier New', monospace;
+}
+
+.barcode-code {
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #1e293b;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border: 1px solid #e2e8f0;
+}
+
+.shelf-badge {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.no-data {
+  color: #94a3b8;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Empty States */
+.empty-state, .no-results-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-state i, .no-results-state i {
+  font-size: 4rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+}
+
+.no-results-state h3 {
+  margin: 0 0 0.5rem 0;
+  color: #475569;
+  font-weight: 600;
+}
+
+.no-results-state p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+/* Modal Styles */
+.modern-modal {
+  background: white;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: none;
+  overflow: hidden;
+  max-width: 600px;
+  width: 90vw;
+}
+
+.modal-header-modern {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-title-modern {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: white;
+}
+
+.modal-icon {
+  width: 48px;
+  height: 48px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.modal-title-modern h5 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.modal-close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.modal-body-modern {
+  padding: 2rem;
+}
+
+.modal-content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-field.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.field-label i {
+  color: #667eea;
+  width: 16px;
+}
+
+.field-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.barcode-display {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.barcode-value {
+  flex: 1;
+  background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+  color: #1e293b;
+  padding: 1rem;
+  border-radius: 12px;
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 1.1rem;
+  border: 2px solid #e2e8f0;
+}
+
+.copy-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.copy-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.features-display {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.modal-footer-modern {
+  background: #f8fafc;
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+/* Filter Modal Button Styles */
+.filter-modal-btn {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  margin-right: 1rem;
+}
+
+.filter-modal-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* Filter Modal Content Styles */
+.modal-filter-form {
+  width: 100%;
+}
+
+.modal-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.modal-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-filter-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.modal-filter-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #475569;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-filter-label i {
+  color: #667eea;
+  width: 16px;
+}
+
+.modern-select-modal,
+.modern-search-modal {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.modern-select-modal:focus,
+.modern-search-modal:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Modal Multi-Shelf Container */
+.modal-multi-shelf-container {
+  position: relative;
+  width: 100%;
+}
+
+.modal-selected-shelves-display {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 48px;
+  transition: all 0.2s ease;
+}
+
+.modal-selected-shelves-display:hover {
+  border-color: #667eea;
+}
+
+.modal-selected-shelves-display.disabled {
+  background: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.modal-placeholder-text {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.modal-dropdown-arrow {
+  transition: transform 0.2s ease;
+  color: #64748b;
+}
+
+.modal-dropdown-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.modal-shelf-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  max-height: 250px;
+  overflow: hidden;
+}
+
+.modal-shelf-options-container {
+  max-height: 200px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.modal-shelf-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-shelf-option:hover {
+  background: #f1f5f9;
+}
+
+.modal-shelf-option.selected {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.modal-shelf-actions {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+
+.modal-shelf-action-btn {
+  background: transparent;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.modal-shelf-action-btn:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Modal Search Input */
+.modal-search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.modal-search-icon {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  z-index: 10;
+}
+
+.modern-search-modal {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.modal-search-clear {
+  position: absolute;
+  right: 1rem;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.modal-search-clear:hover {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+/* Modal Footer Actions */
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.modal-primary-actions,
+.modal-export-actions,
+.modal-close-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-modern.btn-success {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+}
+
+.btn-modern.btn-info {
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: white;
+}
+
+/* Responsive Design for Modal */
+@media (max-width: 768px) {
+  .modal-filter-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .modal-primary-actions,
+  .modal-export-actions,
+  .modal-close-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 1rem;
+  }
+  
+  .page-header {
+    padding: 1.5rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .header-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .filter-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .filter-actions {
+    flex-direction: column;
+  }
+  
+  .btn-modern {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 1rem;
+  }
+  
+  .th-content {
+    font-size: 0.8rem;
+  }
+  
+  .product-name {
+    font-size: 0.9rem;
+  }
+  
+  .warehouse-name {
+    font-size: 0.8rem;
+  }
+  
+  .feature-tag {
+    font-size: 0.75rem;
+  }
+  
+  .modal-content-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+  
+  .modal-body-modern {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-title {
+    font-size: 1.75rem;
+  }
+  
+  .filter-body {
+    padding: 1.5rem;
+  }
+  
+  .modern-table th,
+  .modern-table td {
+    padding: 0.75rem;
+  }
+  
+  .modal-header-modern {
+    padding: 1.5rem;
+  }
+}
+</style>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Initialize data for modal functions only
+  const allBarcodes = <%- JSON.stringify(barcodes) %>;
+  let currentBarcodeCode = '';
+  let barcodeModalInstance = null;
+  
+  // Initialize modal instance on page load
+  function initializeModal() {
+    const modalElement = document.getElementById('barcodeModal');
+    if (modalElement && !barcodeModalInstance) {
+      barcodeModalInstance = new bootstrap.Modal(modalElement, {
+        backdrop: true,
+        keyboard: true,
+        focus: true
+      });
+    }
+  }
+  
+  // Open barcode modal
+  function openBarcodeModal(barcodeCode) {
+    const barcode = allBarcodes.find(b => b.code === barcodeCode);
+    if (!barcode) return;
+    
+    currentBarcodeCode = barcodeCode;
+    
+    // Populate modal
+    document.getElementById('modal-barcode').textContent = barcode.code;
+    document.getElementById('modal-product-name').textContent = barcode.productName;
+    
+    // Features
+    const featuresDiv = document.getElementById('modal-features');
+    if (barcode.productAttributes && barcode.productAttributes.length > 0) {
+      featuresDiv.innerHTML = barcode.productAttributes.map(attr => 
+        `<span class="feature-tag">${attr.name}: ${attr.value}</span>`
+      ).join('');
+    } else {
+      featuresDiv.innerHTML = '<span class="no-data">-</span>';
+    }
+    
+    // Quantity
+    const quantityClass = barcode.unit === 'metre' ? 'type-meter' : 'type-piece';
+    const unitText = barcode.unit === 'metre' ? 'm' : 'adet';
+    document.getElementById('modal-quantity').innerHTML = 
+      `<div class="quantity-badge ${quantityClass}">${barcode.quantity} ${unitText}</div>`;
+    
+    // Shelf
+    document.getElementById('modal-shelf').innerHTML = barcode.shelfId 
+      ? `<div class="shelf-badge">${barcode.shelfId}</div>`
+      : '<span class="no-data">-</span>';
+    
+    // Created date
+    const createdDate = new Date(barcode.createdAt).toLocaleDateString('<%= locale %>', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    document.getElementById('modal-created-date').textContent = createdDate;
+    
+    // Show modal safely
+    if (barcodeModalInstance) {
+      barcodeModalInstance.show();
+    } else {
+      // Fallback if instance not ready
+      const modalElement = document.getElementById('barcodeModal');
+      const tempModal = new bootstrap.Modal(modalElement);
+      tempModal.show();
+    }
+  }
+  
+  // Copy to clipboard
+  function copyToClipboard(elementId) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const text = element.textContent;
+    
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Show success feedback
+        const originalText = element.textContent;
+        element.textContent = 'Kopyalandı!';
+        element.classList.add('text-success');
+        setTimeout(() => {
+          element.textContent = originalText;
+          element.classList.remove('text-success');
+        }, 1000);
+      });
+    }
+  }
+  
+  // Print barcode
+  function printBarcode() {
+    if (!currentBarcodeCode) return;
+    
+    const barcode = allBarcodes.find(b => b.code === currentBarcodeCode);
+    if (!barcode) return;
+    
+    // Create print window
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Barkod Etiketi - ${barcode.code}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            .label { border: 2px solid #000; padding: 20px; text-align: center; max-width: 400px; margin: 0 auto; }
+            .barcode { font-size: 24px; font-weight: bold; margin: 10px 0; }
+            .product { font-size: 16px; margin: 10px 0; }
+            .details { font-size: 12px; color: #666; }
+          </style>
+        </head>
+        <body>
+          <div class="label">
+            <div class="product">${barcode.productName}</div>
+            <div class="barcode">${barcode.code}</div>
+            <div class="details">
+              ${barcode.quantity} ${barcode.unit === 'metre' ? 'm' : 'adet'}
+              ${barcode.shelfId ? ' • Raf: ' + barcode.shelfId : ''}
+            </div>
+          </div>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }
+  
+  // Export barcode
+  function exportBarcode() {
+    if (!currentBarcodeCode) return;
+    
+    const barcode = allBarcodes.find(b => b.code === currentBarcodeCode);
+    if (!barcode) return;
+    
+    // Create CSV content
+    const csvContent = [
+      ['Barkod', 'Ürün Adı', 'Miktar', 'Birim', 'Raf', 'Depo', 'Kayıt Tarihi'],
+      [
+        barcode.code,
+        barcode.productName,
+        barcode.quantity,
+        barcode.unit,
+        barcode.shelfId || '-',
+        barcode.warehouseName,
+        new Date(barcode.createdAt).toLocaleDateString('<%= locale %>')
+      ]
+    ].map(row => row.join(',')).join('\n');
+    
+    // Download CSV
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `barkod-${barcode.code}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  
+  // Initialize only modal
+  document.addEventListener('DOMContentLoaded', function() {
+    initializeModal();
+  });
+</script>
+
+<!-- XLSX Library for Excel Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<!-- Enhanced Stock Warehouse Manager -->
+<script src="/js/stockByWarehouse.js"></script>
