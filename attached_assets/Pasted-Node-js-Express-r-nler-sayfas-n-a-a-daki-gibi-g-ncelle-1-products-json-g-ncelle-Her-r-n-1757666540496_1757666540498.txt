@@ -1,0 +1,78 @@
+Node.js + Express ürünler sayfasını aşağıdaki gibi güncelle:
+
+1) products.json güncelle:
+Her ürüne "attributes" alanı ekle. Örnek:
+[
+  {
+    "id": "1",
+    "name": "Perde Modeli 1",
+    "buyPrice": 4,
+    "sellPrice": 5,
+    "currency": "USD",
+    "stock": 10,
+    "status": "Aktif",
+    "description": "Beyaz tül perde",
+    "images": ["uploads/perde1.jpg"],
+    "attributes": [
+      { "name": "Renk", "value": "Beyaz" },
+      { "name": "Zemin", "value": "Düz" }
+    ]
+  },
+  {
+    "id": "2",
+    "name": "Perde Modeli 2",
+    "buyPrice": 6,
+    "sellPrice": 7,
+    "currency": "USD",
+    "stock": 5,
+    "status": "Aktif",
+    "description": "Krem desenli perde",
+    "images": ["uploads/perde2.jpg"],
+    "attributes": [
+      { "name": "Renk", "value": "Krem" },
+      { "name": "Zemin", "value": "Desenli" }
+    ]
+  }
+]
+
+2) products.ejs güncelle:
+- Bootstrap grid içinde her ürün için kart oluştur.
+- Kartın üst kısmında ürün görseli göster:
+  • aspect-ratio: 4/3
+  • <img> object-fit: cover
+  • Sağ üst köşede durum rozeti (Aktif=yeşil, Pasif=gri)
+  • Resme tıklayınca Bootstrap modal açılarak büyük görsel gösterilsin
+- Kart içeriği:
+  • Ürün adı (bold, 16px)
+  • Açıklama (14px, max 2 satır, ellipsis)
+  • Fiyat kutuları yan yana: Alış (yeşil metin), Satış (mavi metin)
+  • Stok badge (adet veya metre; renk: mavi / sarı / kırmızı)
+  • Özellikler bölümü: attributes dizisini döngüyle chip olarak yazdır
+    – <span class="chip"><%= attr.name %>: <%= attr.value %></span>
+- Kart altında 3 buton:
+  • [📈 İstatistikleri Görüntüle] (mavi outline)
+  • [✏️ Düzenle] (gri outline)
+  • [Sil] (kırmızı filled)
+
+3) style.css güncelle:
+- Kart stili:
+  background:#FFF; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,.06); transition:0.3s;
+- Kart hover:
+  transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.08);
+- Görsel alanı:
+  aspect-ratio:4/3; overflow:hidden; border-radius:12px 12px 0 0;
+- Chip stili:
+  .chip { display:inline-block; margin:2px; background:#F3F4F6; color:#374151; font-size:12px; padding:4px 10px; border-radius:9999px; }
+  .chip:hover { background:#E5E7EB; }
+
+4) main.js güncelle:
+- Resimlere tıklanınca modal açılmasını sağla.
+- Modal içinde seçilen görsel büyük boyutta gösterilsin.
+- ESC ve arka plana tıklayınca modal kapansın.
+
+5) Kabul kriterleri:
+- /products açıldığında ürün kartları grid halinde görünür
+- Tüm kartlar aynı boyda, görseller aynı yükseklikte durur
+- Ürün özellikleri chip (baloncuk) halinde gösterilir
+- Ürün resmi tıklanınca modal açılır ve büyük görsel görünür
+- Butonlar kart altında düzenli durur
