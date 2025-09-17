@@ -748,10 +748,11 @@
             document.head.appendChild(style);
             
             // Load saved menu and nav group states
-            const savedMenuOpen = loadMenuState();
-            if (savedMenuOpen) {
-                openGlobalMenu();
-            }
+            // DON'T auto-open menu on page load - let user control it
+            // const savedMenuOpen = loadMenuState();
+            // if (savedMenuOpen) {
+            //     openGlobalMenu();
+            // }
             
             // Restore nav group states
             activeNavGroups.forEach(groupName => {
