@@ -518,37 +518,56 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
         
-        function checkForDuplicates(inputName) {
-            // Check for exact name matches
-            const nameMatches = allProducts.filter(product => 
-                product.name.toLowerCase() === inputName.toLowerCase()
-            );
+        function checkForExactDuplicates() {
+            // Get all form data to compare with existing products
+            const currentName = productNameInput.value.trim().toLowerCase();
+            const currentBuyPrice = document.querySelector('[name="buyPrice"]').value;
+            const currentSellPrice = document.querySelector('[name="sellPrice"]').value;
+            const currentBuyCurrency = document.querySelector('[name="buyCurrency"]').value;
+            const currentSellCurrency = document.querySelector('[name="sellCurrency"]').value;
+            const currentUnit = document.querySelector('[name="unit"]').value;
+            const currentStock = document.querySelector('[name="stock"]').value;
+            const currentStatus = document.querySelector('[name="status"]').value;
+            const currentDescription = document.querySelector('[name="description"]').value.trim();
+            const currentAttributes = getFormAttributes();
             
-            if (nameMatches.length > 0) {
-                const product = nameMatches[0];
+            // Get current product ID if editing (to exclude self-match)
+            const isEditing = window.location.pathname.includes('/edit');
+            const currentProductId = isEditing ? window.location.pathname.split('/')[2] : null;
+            
+            // Find products with EXACTLY the same ALL properties (excluding current product when editing)
+            const exactMatches = allProducts.filter(product => {
+                // Exclude the current product when editing
+                if (currentProductId && product.id === currentProductId) {
+                    return false;
+                }
+                // Compare all basic properties
+                const nameMatch = product.name.toLowerCase() === currentName;
+                const buyPriceMatch = (product.buyPrice || '') == (currentBuyPrice || '');
+                const sellPriceMatch = (product.sellPrice || '') == (currentSellPrice || '');
+                const buyCurrencyMatch = product.buyCurrency === currentBuyCurrency;
+                const sellCurrencyMatch = product.sellCurrency === currentSellCurrency;
+                const unitMatch = product.unit === currentUnit;
+                const stockMatch = (product.stock || '0') == (currentStock || '0');
+                const statusMatch = product.status === currentStatus;
+                const descriptionMatch = (product.description || '').trim().toLowerCase() === currentDescription.toLowerCase();
+                
+                // Compare attributes exactly
+                const attributesMatch = compareAttributes(currentAttributes, product.attributes || []);
+                
+                // ALL properties must match for it to be considered a duplicate
+                return nameMatch && buyPriceMatch && sellPriceMatch && buyCurrencyMatch && 
+                       sellCurrencyMatch && unitMatch && stockMatch && statusMatch && 
+                       descriptionMatch && attributesMatch;
+            });
+            
+            if (exactMatches.length > 0) {
+                const product = exactMatches[0];
                 const attributesText = formatAttributesText(product.attributes);
-                duplicateMessage.textContent = `Bu isimde bir ürün mevcut: ${product.name}${attributesText ? ` (${attributesText})` : ''}`;
+                duplicateMessage.textContent = `Bu ürün tamamen aynı özelliklerle zaten mevcut: ${product.name}${attributesText ? ` (${attributesText})` : ''}`;
                 duplicateEditLink.href = `/products/${product.id}/edit?lang=<%= locale %>`;
                 duplicateWarning.style.display = 'flex';
                 return true;
-            }
-            
-            // Check for identical attributes (regardless of name)
-            const formAttributes = getFormAttributes();
-            if (formAttributes.length > 0) {
-                const attributeMatches = allProducts.filter(product => {
-                    if (!product.attributes || product.attributes.length === 0) return false;
-                    return compareAttributes(formAttributes, product.attributes);
-                });
-                
-                if (attributeMatches.length > 0) {
-                    const product = attributeMatches[0];
-                    const attributesText = formatAttributesText(product.attributes);
-                    duplicateMessage.textContent = `Aynı özelliklere sahip ürün mevcut: ${product.name} (${attributesText})`;
-                    duplicateEditLink.href = `/products/${product.id}/edit?lang=<%= locale %>`;
-                    duplicateWarning.style.display = 'flex';
-                    return true;
-                }
             }
             
             duplicateWarning.style.display = 'none';
@@ -562,16 +581,25 @@ document.addEventListener('DOMContentLoaded', function() {
             autocompleteDropdown.style.display = 'block';
             
             fetch(url)
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(products => {
+                    if (!Array.isArray(products)) {
+                        throw new Error('Invalid response format: expected array');
+                    }
                     allProducts = products;
                     showAutocompleteDropdown(products);
                     
                     // No real-time duplicate checking - will only check on form submit
                 })
                 .catch(error => {
-                    console.error('Autocomplete fetch error:', error);
-                    autocompleteDropdown.innerHTML = '<div class="autocomplete-error"><i class="fas fa-exclamation-triangle"></i> Yükleme hatası</div>';
+                    console.error('Error fetching autocomplete suggestions:', error);
+                    console.error('Fetch URL was:', url);
+                    autocompleteDropdown.innerHTML = '<div class="autocomplete-error"><i class="fas fa-exclamation-triangle"></i> Öneriler listelenemedi</div>';
                 });
         }
         
@@ -619,7 +647,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (product) {
                     productNameInput.value = product.name;
                     hideAutocompleteDropdown();
-                    checkForDuplicates(product.name);
+                    // No real-time duplicate checking - only check on form submit
                     
                     // Optionally fill other fields based on selected product
                     // This can be uncommented if you want to auto-fill fields
@@ -696,13 +724,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                // Check for duplicates
-                const productName = productNameInput.value.trim();
-                if (productName && allProducts.length > 0) {
-                    const isDuplicate = checkForDuplicates(productName);
+                // Check for EXACT duplicates (all properties must match)
+                if (allProducts.length > 0) {
+                    const isDuplicate = checkForExactDuplicates();
                     if (isDuplicate) {
                         e.preventDefault();
-                        alert('Duplicate ürün tespit edildi! Lütfen ürün bilgilerini kontrol edin veya mevcut ürünü düzenleyin.');
+                        alert('Bu ürün tamamen aynı özelliklerle zaten mevcut! Lütfen ürün bilgilerini kontrol edin veya mevcut ürünü düzenleyin.');
                         return false;
                     }
                 }
